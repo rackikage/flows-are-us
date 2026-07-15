@@ -775,10 +775,9 @@ def api_post_details(key: str, post_id: str, carousel: bool = False):
             elif kind == "comments":
                 out["comments"] = unwrap_list(data)
             elif kind == "reactions":
-                summary = (data.get("summary")
-                           or (data.get("data") or {}).get("summary")
-                           if isinstance(data.get("data"), dict) else
-                           data.get("summary")) or {}
+                summary = data.get("summary") or {}
+                if not summary and isinstance(data.get("data"), dict):
+                    summary = data["data"].get("summary") or {}
                 out["reactions"] = {
                     "total": summary.get("total_count"),
                     "recent": [r.get("type") for r in unwrap_list(data)][:50],

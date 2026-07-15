@@ -151,6 +151,27 @@
   .skeleton { border-radius: var(--radius); background: linear-gradient(100deg, #14141f 40%, #1e1e2d 50%, #14141f 60%);
     background-size: 200% 100%; animation: shimmer 1.4s infinite; }
   @keyframes shimmer { to { background-position: -200% 0; } }
+
+  /* Entrance motion — cards fade up as they appear, staggered by :nth-child */
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  .acct-card, .post-card, .perf-card, .sched-card, .thread-card, .mention, .story,
+  .status-card, .install-grid, .tool-table { animation: fadeUp .38s cubic-bezier(.2,.7,.2,1) both; }
+  .acct-card:nth-child(2), .post-card:nth-child(2), .thread-card:nth-child(2) { animation-delay: .04s; }
+  .acct-card:nth-child(3), .post-card:nth-child(3), .thread-card:nth-child(3) { animation-delay: .08s; }
+  .acct-card:nth-child(4), .post-card:nth-child(4), .thread-card:nth-child(4) { animation-delay: .12s; }
+  .post-card:nth-child(5) { animation-delay: .16s; } .post-card:nth-child(6) { animation-delay: .18s; }
+  .post-card:nth-child(7) { animation-delay: .2s; }  .post-card:nth-child(8) { animation-delay: .22s; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+  /* Press feedback + a11y focus rings */
+  .btn:active { transform: scale(.97); filter: brightness(.95); }
+  .mini-btn:active, .chip:active, .nav-item:active, .side-acct:active, .type-opt:active, .target:active { transform: scale(.97); }
+  :focus-visible { outline: 2px solid var(--accent-bright); outline-offset: 3px; border-radius: 8px; }
+  input:focus-visible, textarea:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(143,122,255,.35); }
+  button, .chip, .nav-item, .tab, .side-acct, .type-opt, .target, .post-card, .acct-card, .thread-card { outline: none; }
+  .btn.primary:not(:disabled) { animation: readyPulse 3s ease-in-out infinite; }
+  @keyframes readyPulse { 0%,100% { box-shadow: 0 4px 18px rgba(106,77,255,.35); }
+                          50%      { box-shadow: 0 6px 26px rgba(106,77,255,.55); } }
   .notice { margin: 0 38px 16px; background: rgba(255,182,72,.09); border: 1px solid rgba(255,182,72,.35);
     color: #f3c27a; border-radius: 10px; padding: 12px 16px; font-size: 13px; display: none; line-height: 1.5; }
   .hint { font-size: 12.5px; color: var(--muted); line-height: 1.6; }
@@ -191,13 +212,19 @@
   .publish-bar-mobile { display: none; }
 
   /* ── Analytics ───────────────────────────────────────── */
-  .perf-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; margin-bottom: 18px; }
+  .perf-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; margin-bottom: 18px;
+    transition: border .2s, transform .2s; }
+  .perf-card:hover { border-color: #2f2f48; }
   .perf-head { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
   .perf-head .handle { font-weight: 800; font-size: 16.5px; }
   .perf-head .s { font-size: 12px; color: var(--muted); margin-top: 2px; }
   .metric-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); gap: 12px; }
-  .mt { background: #0e0e18; border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
-  .mt .v { font-size: 23px; font-weight: 800; letter-spacing: -.5px; }
+  .mt { background: #0e0e18; border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; position: relative; overflow: hidden;
+    transition: border .18s, background .18s; }
+  .mt:hover { border-color: #2f2f48; background: #12121e; }
+  .mt .v { font-size: 23px; font-weight: 800; letter-spacing: -.5px; position: relative; z-index: 1; }
+  .mt .bar { position: absolute; left: 0; bottom: 0; height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--coral)); border-radius: 0 3px 3px 0; opacity: .82; transition: width .8s ease; }
   .mt .l { font-size: 11.5px; color: var(--muted); font-weight: 700; margin-top: 3px; }
   .mention-strip { display: flex; gap: 12px; overflow-x: auto; padding-top: 14px; }
   .mention { flex: 0 0 130px; border-radius: 10px; overflow: hidden; background: #0e0e18; border: 1px solid var(--line); text-decoration: none; color: inherit; }
@@ -306,7 +333,10 @@
   /* ── Modals & toasts ─────────────────────────────────── */
   .modal-veil { position: fixed; inset: 0; background: rgba(2,2,8,.74); display: none;
     align-items: center; justify-content: center; z-index: 50; backdrop-filter: blur(5px); }
-  .modal-veil.open { display: flex; }
+  .modal-veil.open { display: flex; animation: veilIn .18s ease both; }
+  .modal-veil.open .modal, .modal-veil.open .detail-wrap { animation: modalIn .28s cubic-bezier(.2,.7,.2,1) both; }
+  @keyframes veilIn  { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes modalIn { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
   .modal { width: 460px; max-width: 92vw; max-height: 88vh; overflow-y: auto; background: #171724; border-radius: 16px; padding: 28px; border: 1px solid #2c2c42; }
   .modal h3 { font-size: 20px; font-weight: 800; margin-bottom: 6px; }
   .modal .sub { color: var(--muted); font-size: 13.5px; margin-bottom: 18px; line-height: 1.5; }
@@ -511,7 +541,7 @@
           <div>
             <div class="field-label">Preview</div>
             <div class="preview-box">
-              <div class="ph" id="previewImg">🖼<div class="preview-strip" id="previewStrip" style="display:none"></div></div>
+              <div class="ph" id="previewImg"><span id="previewIcon">🖼</span><div class="preview-strip" id="previewStrip" style="display:none"></div></div>
               <div class="pt" id="previewText">Your post preview appears here…</div>
             </div>
           </div>
@@ -727,7 +757,9 @@ function renderAccounts() {
   $('acctCards').innerHTML = OVERVIEW.accounts.map(a => {
     const p = a.profile || {};
     const followers = p.followers_count ?? p.fan_count;
-    const posts = p.media_count;
+    // IG returns media_count; FB doesn't — fall back to the recent-posts window we already have.
+    const posts = p.media_count ?? (a.platform === 'facebook' && (a.media || []).length ? (a.media || []).length : null);
+    const postsLabel = a.platform === 'facebook' ? 'recent posts' : 'posts';
     const quota = a.quota ? `${25 - (a.quota.used || 0)} posts available today` : null;
     const err = (a.errors || []).length ? `<span class="pill warn">partial data</span>` : '';
     return `<div class="acct-card" onclick="setFilter('${a.key}')">
@@ -737,7 +769,7 @@ function renderAccounts() {
         <div class="bio">${esc(p.biography || p.about || p.category || '')}</div>
         <div class="stat-pills">
           <span class="pill acc">${fmt(followers)} followers</span>
-          ${posts != null ? `<span class="pill">${fmt(posts)} posts</span>` : ''}
+          ${posts != null ? `<span class="pill">${fmt(posts)} ${postsLabel}</span>` : ''}
           ${quota ? `<span class="pill blue">${quota}</span>` : ''}
           ${err}
         </div>
@@ -1122,9 +1154,13 @@ async function loadAnalytics(fresh) {
       const d = (ANALYTICS.accounts || {})[a.key] || {};
       const p = OVERVIEW && OVERVIEW.accounts.find(x => x.key === a.key);
       const entries = Object.entries(d.metrics || {}).filter(([, v]) => v != null);
+      const peak = Math.max(1, ...entries.map(([, v]) => Number(v) || 0));
       const tiles = entries.length
-        ? `<div class="metric-tiles">${entries.map(([k, v]) =>
-            `<div class="mt"><div class="v">${fmt(v)}</div><div class="l">${esc(METRIC_LABEL[k] || k)}</div></div>`).join('')}</div>`
+        ? `<div class="metric-tiles">${entries.map(([k, v]) => {
+            const pct = Math.max(4, Math.round(((Number(v) || 0) / peak) * 100));
+            return `<div class="mt"><div class="v">${fmt(v)}</div><div class="l">${esc(METRIC_LABEL[k] || k)}</div>
+                    <div class="bar" style="width:${pct}%"></div></div>`;
+          }).join('')}</div>`
         : `<p class="hint">Performance data will appear here as this account builds activity. New and small accounts may not report metrics yet — that's normal.</p>`;
       const mentions = (d.tagged || []).length
         ? `<h4 style="font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--faint);margin:18px 0 4px">Recent mentions</h4>
@@ -1378,8 +1414,9 @@ function syncPreview() {
   } else {
     main = img;
   }
-  if (main) { ph.style.backgroundImage = `url('${cssUrl(main)}')`; ph.childNodes[0].textContent = ''; }
-  else { ph.style.backgroundImage = ''; ph.childNodes[0].textContent = postType === 'video' ? '🎬' : postType === 'story' ? '⏱' : '🖼'; }
+  const icon = $('previewIcon');
+  if (main) { ph.style.backgroundImage = `url('${cssUrl(main)}')`; icon.textContent = ''; }
+  else { ph.style.backgroundImage = ''; icon.textContent = postType === 'video' ? '🎬' : postType === 'story' ? '⏱' : '🖼'; }
   updateDock();
 }
 
