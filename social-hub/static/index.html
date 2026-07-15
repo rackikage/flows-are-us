@@ -18,23 +18,58 @@
 <title>FLOWS · Business Social Hub</title>
 <style>
   :root {
+    /* Surfaces — explicit elevation ramp (recessed → raised) */
     --bg: #0a0a12;
+    --well: #0d0d17;         /* recessed wells: inset tiles, seg track, code chips */
     --panel: #0f0f19;
     --card: #14141f;
     --card-hover: #1c1c2b;
-    --line: #232336;
+    --raised: #191926;       /* raised: modals, detail, primary hero panel */
+    /* Text */
     --text: #f2f2fa;
     --muted: #a7a7bd;
     --faint: #6b6b82;
+    /* Iris — the single primary accent */
     --accent: #8f7aff;
     --accent-bright: #a99aff;
     --accent-deep: #6a4dff;
+    --accent-soft: rgba(143,122,255,.14);
+    /* Coral — the single alert / attention accent */
     --coral: #ff5470;
-    --gold: #ffb648;
+    --coral-soft: rgba(255,84,112,.14);
+    /* Status semantics ONLY (badges, health dots) — never decorative */
     --ok: #3ddc84;
+    --gold: #ffb648;
+    --info: #5b9dff;
+    /* Platform identity ONLY (avatars, platform badges) */
     --ig-a: #f09433; --ig-b: #dc2743; --ig-c: #bc1888;
     --fb: #1877f2;
+    /* Borders — softer + deliberate */
+    --line: #1e1e2c;
+    --line-strong: #2b2b40;
+    --hairline: rgba(255,255,255,.055);
+    /* Radius scale */
+    --radius-sm: 10px;
     --radius: 14px;
+    --radius-lg: 18px;
+    /* Elevation — soft, low-opacity depth for a dark UI */
+    --shadow-sm: 0 1px 2px rgba(0,0,0,.35);
+    --shadow-md: 0 8px 24px -10px rgba(0,0,0,.6), 0 2px 6px rgba(0,0,0,.35);
+    --shadow-lg: 0 32px 70px -18px rgba(0,0,0,.78), 0 8px 24px -12px rgba(0,0,0,.55);
+    --ring-inset: inset 0 1px 0 rgba(255,255,255,.045);
+    /* Motion — one easing + duration scale across the whole app */
+    --ease: cubic-bezier(.4, 0, .2, 1);
+    --ease-entrance: cubic-bezier(.2, .7, .2, 1);
+    --dur-1: 120ms;   /* micro — press, label swaps */
+    --dur-2: 180ms;   /* base — hover, border, background, elevation */
+    --dur-3: 300ms;   /* entrance — card fade-up, modal in */
+    /* Empty-thumbnail duotone mesh — iris→coral over a diagonal base */
+    --ph-mesh:
+      radial-gradient(125% 125% at 18% 12%, rgba(143,122,255,.22), rgba(143,122,255,0) 55%),
+      radial-gradient(120% 120% at 90% 95%, rgba(255,84,112,.13), rgba(255,84,112,0) 60%),
+      linear-gradient(150deg, #1b1b29, #121220 60%, #0f0f1a);
+    --ph-glyph: rgba(143,122,255,.48);
+    --ph-ring: inset 0 0 0 1px rgba(255,255,255,.05);
     --font-display: 'Sora', -apple-system, BlinkMacSystemFont, sans-serif;
     --font-body: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   }
@@ -48,7 +83,7 @@
   /* ── Sidebar (desktop) ───────────────────────────────── */
   .sidebar { grid-row: 1; background: var(--panel); padding: 24px 14px 14px; display: flex; flex-direction: column; gap: 3px; border-right: 1px solid var(--line); overflow-y: auto; }
   .brand { padding: 0 12px 2px; font-size: 26px; font-weight: 800; letter-spacing: -.5px;
-    background: linear-gradient(90deg, var(--accent-bright), var(--coral) 70%, var(--gold));
+    background: linear-gradient(96deg, var(--accent-bright), var(--accent) 45%, var(--coral));
     -webkit-background-clip: text; background-clip: text; color: transparent; }
   .brand-sub { padding: 0 12px 16px; font-size: 10.5px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase; color: var(--faint); }
   .nav-item { display: flex; align-items: center; gap: 13px; padding: 10px 12px; border-radius: 10px;
@@ -81,13 +116,13 @@
   /* ── Main scaffold ───────────────────────────────────── */
   .main { grid-row: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
   .hero { padding: 42px 38px 24px; }
-  .hero.grad-home    { background: linear-gradient(180deg, rgba(106,77,255,.5),  rgba(255,84,112,.14) 55%, transparent); }
-  .hero.grad-publish { background: linear-gradient(180deg, rgba(255,84,112,.4),  rgba(106,77,255,.16) 55%, transparent); }
-  .hero.grad-library { background: linear-gradient(180deg, rgba(255,182,72,.34), rgba(106,77,255,.14) 55%, transparent); }
-  .hero.grad-perf    { background: linear-gradient(180deg, rgba(143,122,255,.44), rgba(255,84,112,.12) 55%, transparent); }
-  .hero.grad-sched   { background: linear-gradient(180deg, rgba(24,119,242,.4),  rgba(106,77,255,.1) 60%, transparent); }
-  .hero.grad-inbox   { background: linear-gradient(180deg, rgba(255,84,112,.36), rgba(255,182,72,.12) 55%, transparent); }
-  .hero.grad-integr  { background: linear-gradient(180deg, rgba(61,220,132,.3),  rgba(106,77,255,.14) 60%, transparent); }
+  .hero.grad-home,
+  .hero.grad-perf,
+  .hero.grad-library,
+  .hero.grad-integr,
+  .hero.grad-sched   { background: linear-gradient(180deg, rgba(143,122,255,.18), transparent 62%); }
+  .hero.grad-publish { background: linear-gradient(180deg, rgba(143,122,255,.20), rgba(255,84,112,.07) 46%, transparent 72%); }
+  .hero.grad-inbox   { background: linear-gradient(180deg, rgba(255,84,112,.15), rgba(143,122,255,.08) 46%, transparent 70%); }
   .hero h1 { font-size: 37px; font-weight: 800; letter-spacing: -1.2px; }
   .hero p  { color: #d9d9e6; margin-top: 8px; font-size: 14.5px; max-width: 640px; line-height: 1.55; }
   .chips { margin-top: 18px; display: flex; gap: 9px; flex-wrap: wrap; }
@@ -124,17 +159,17 @@
   .pill.acc  { background: rgba(143,122,255,.18); color: var(--accent-bright); }
   .pill.ok   { background: rgba(61,220,132,.15); color: var(--ok); }
   .pill.warn { background: rgba(255,182,72,.16); color: var(--gold); }
-  .pill.blue { background: rgba(24,119,242,.2); color: #6aaefc; }
+  .pill.blue { background: rgba(91,157,255,.16); color: var(--info); }
 
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(215px, 1fr)); gap: 16px; }
   .post-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden;
     cursor: pointer; transition: background .2s, transform .2s; }
-  .post-card:hover { background: var(--card-hover); transform: translateY(-3px); }
+  .post-card:hover { background: var(--card-hover); transform: translateY(-2px); }
   .thumb { width: 100%; aspect-ratio: 1; background: #1d1d2b center/cover no-repeat; position: relative;
     display: flex; align-items: center; justify-content: center; color: #47475c; font-size: 34px; }
   .type-tag { position: absolute; right: 8px; bottom: 8px; font-size: 10px; font-weight: 800; letter-spacing: .7px;
     padding: 3px 8px; border-radius: 5px; background: rgba(6,6,12,.82); color: #fff; text-transform: uppercase; }
-  .type-tag.reel { color: #ff98ab; } .type-tag.carousel { color: var(--gold); } .type-tag.photo { color: var(--accent-bright); }
+  .type-tag.reel, .type-tag.carousel, .type-tag.photo { color: #e9e9f2; }
   .post-card .body { padding: 12px 14px 14px; }
   .post-card .cap { font-size: 13px; line-height: 1.45; height: 38px; overflow: hidden;
     display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; color: #e7e7f0; }
@@ -161,21 +196,33 @@
   .acct-card:nth-child(4), .post-card:nth-child(4), .thread-card:nth-child(4) { animation-delay: .12s; }
   .post-card:nth-child(5) { animation-delay: .16s; } .post-card:nth-child(6) { animation-delay: .18s; }
   .post-card:nth-child(7) { animation-delay: .2s; }  .post-card:nth-child(8) { animation-delay: .22s; }
-  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+    .btn:hover, .btn:active,
+    .acct-card:hover, .post-card:hover, .asset-card:hover,
+    .acct-card:active, .post-card:active, .asset-card:active,
+    .nav-item:active, .chip:active, .mini-btn:active, .side-acct:active, .type-opt:active,
+    .target:active, .seg-btn:active, .thread-card:active, .content-row:active, .acct-item:active {
+      transform: none !important; }
+  }
 
-  /* Press feedback + a11y focus rings */
-  .btn:active { transform: scale(.97); filter: brightness(.95); }
-  .mini-btn:active, .chip:active, .nav-item:active, .side-acct:active, .type-opt:active, .target:active { transform: scale(.97); }
+  /* ── Unified interaction states ─────────────────────────── */
+  /* Press: flat/row controls settle inward; elevated cards settle onto the surface */
+  .mini-btn:active, .chip:active, .nav-item:active, .side-acct:active,
+  .type-opt:active, .target:active, .seg-btn:active,
+  .thread-card:active, .content-row:active, .acct-item:active {
+    transform: scale(.98); transition-duration: var(--dur-1); }
+  .acct-card:active, .post-card:active, .asset-card:active {
+    transform: translateY(0) scale(.995); transition-duration: var(--dur-1); }
+  /* Focus-visible: one accessible ring for every control */
   :focus-visible { outline: 2px solid var(--accent-bright); outline-offset: 3px; border-radius: 8px; }
   input:focus-visible, textarea:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(143,122,255,.35); }
-  button, .chip, .nav-item, .tab, .side-acct, .type-opt, .target, .post-card, .acct-card, .thread-card { outline: none; }
-  .btn.primary:not(:disabled) { animation: readyPulse 3s ease-in-out infinite; }
-  @keyframes readyPulse { 0%,100% { box-shadow: 0 4px 18px rgba(106,77,255,.35); }
-                          50%      { box-shadow: 0 6px 26px rgba(106,77,255,.55); } }
+  button, .chip, .nav-item, .tab, .side-acct, .type-opt, .target, .seg-btn,
+  .post-card, .acct-card, .asset-card, .thread-card, .content-row, .acct-item { outline: none; }
   .notice { margin: 0 38px 16px; background: rgba(255,182,72,.09); border: 1px solid rgba(255,182,72,.35);
     color: #f3c27a; border-radius: 10px; padding: 12px 16px; font-size: 13px; display: none; line-height: 1.5; }
   .hint { font-size: 12.5px; color: var(--muted); line-height: 1.6; }
-  .hint b { color: var(--gold); }
+  .hint b { color: var(--accent-bright); }
 
   /* ── Publish view ────────────────────────────────────── */
   .type-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
@@ -184,6 +231,10 @@
   .type-opt:hover { border-color: #3d3d58; }
   .type-opt.on { border-color: var(--accent); background: rgba(143,122,255,.13); color: var(--accent-bright); }
   .type-opt .td { font-size: 10.5px; color: var(--faint); font-weight: 600; display: block; }
+  .type-opt .ti { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.9;
+    stroke-linecap: round; stroke-linejoin: round; color: var(--faint); flex-shrink: 0;
+    transition: color var(--dur-2) var(--ease); }
+  .type-opt.on .ti { color: var(--accent-bright); }
   .compose-grid { display: grid; grid-template-columns: 1fr 300px; gap: 22px; max-width: 940px; }
   .lib-import-strip { display: flex; gap: 12px; overflow-x: auto; padding: 2px 2px 12px; }
   .lib-import-card { flex: 0 0 168px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; transition: border .18s; }
@@ -232,7 +283,7 @@
   .mt:hover { border-color: #2f2f48; background: #12121e; }
   .mt .v { font-size: 23px; font-weight: 800; letter-spacing: -.5px; position: relative; z-index: 1; }
   .mt .bar { position: absolute; left: 0; bottom: 0; height: 3px;
-    background: linear-gradient(90deg, var(--accent), var(--coral)); border-radius: 0 3px 3px 0; opacity: .82; transition: width .8s ease; }
+    background: linear-gradient(90deg, var(--accent-deep), var(--accent-bright)); border-radius: 0 3px 3px 0; opacity: .9; transition: width .8s ease; }
   .mt .l { font-size: 11.5px; color: var(--muted); font-weight: 700; margin-top: 3px; }
   .mention-strip { display: flex; gap: 12px; overflow-x: auto; padding-top: 14px; }
   .mention { flex: 0 0 130px; border-radius: 10px; overflow: hidden; background: #0e0e18; border: 1px solid var(--line); text-decoration: none; color: inherit; }
@@ -334,29 +385,35 @@
   .os-panel ol { padding-left: 18px; font-size: 12px; color: var(--muted); line-height: 1.7; }
 
   /* ── Dock (desktop) ──────────────────────────────────── */
-  .dock { grid-column: 1 / 3; grid-row: 2; background: #0d0d16; border-top: 1px solid var(--line);
+  .dock { grid-column: 1 / 3; grid-row: 2; background: var(--panel); border-top: 1px solid var(--line-strong); box-shadow: 0 -10px 30px -12px rgba(0,0,0,.55);
     display: flex; align-items: center; gap: 18px; padding: 0 26px; }
   .dock .disc { width: 52px; height: 52px; border-radius: 12px; flex-shrink: 0;
     background: linear-gradient(135deg, var(--accent-deep), var(--coral)); display: flex; align-items: center; justify-content: center; }
   .dock .dmeta { min-width: 0; flex: 1; }
   .dock .dtitle { font-weight: 800; font-size: 14px; font-family: var(--font-display); }
   .dock .dsub { font-size: 12.5px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .btn { border: none; border-radius: 999px; font-weight: 800; font-size: 14px; cursor: pointer;
-    padding: 13px 34px; transition: transform .12s, filter .12s; }
-  .btn:hover { transform: scale(1.04); filter: brightness(1.12); }
-  .btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+  .btn { border: none; border-radius: 999px; font-weight: 800; font-size: 14px; cursor: pointer; padding: 13px 34px;
+    transition: transform var(--dur-1) var(--ease), box-shadow var(--dur-2) var(--ease),
+                filter var(--dur-2) var(--ease), background var(--dur-2) var(--ease), border-color var(--dur-2) var(--ease); }
+  .btn:hover { transform: translateY(-1px); filter: brightness(1.06); }
+  .btn:active { transform: translateY(0) scale(.985); filter: brightness(.97); transition-duration: var(--dur-1); }
+  .btn:disabled { opacity: .4; cursor: not-allowed; transform: none; filter: none; box-shadow: none; }
   .btn.primary { background: linear-gradient(90deg, var(--accent-deep), var(--accent)); color: #fff; box-shadow: 0 4px 18px rgba(106,77,255,.35); }
-  .btn.ghost { background: transparent; color: var(--text); border: 1.5px solid #3a3a52; padding: 12px 24px; }
+  .btn.primary:hover  { box-shadow: 0 8px 26px rgba(106,77,255,.5); }
+  .btn.primary:active { box-shadow: 0 3px 12px rgba(106,77,255,.42); }
+  .btn.ghost { background: transparent; color: var(--text); border: 1.5px solid var(--line-strong); padding: 12px 24px; }
+  .btn.ghost:hover { border-color: var(--accent); background: rgba(143,122,255,.08); }
   .btn.danger { background: var(--coral); color: #fff; }
+  .btn.danger:hover { box-shadow: 0 8px 24px rgba(255,84,112,.4); }
 
   /* ── Modals & toasts ─────────────────────────────────── */
   .modal-veil { position: fixed; inset: 0; background: rgba(2,2,8,.74); display: none;
     align-items: center; justify-content: center; z-index: 50; backdrop-filter: blur(5px); }
-  .modal-veil.open { display: flex; animation: veilIn .18s ease both; }
-  .modal-veil.open .modal, .modal-veil.open .detail-wrap { animation: modalIn .28s cubic-bezier(.2,.7,.2,1) both; }
+  .modal-veil.open { display: flex; animation: veilIn var(--dur-2) var(--ease) both; }
+  .modal-veil.open .modal, .modal-veil.open .detail-wrap { animation: modalIn var(--dur-3) var(--ease-entrance) both; }
   @keyframes veilIn  { from { opacity: 0; } to { opacity: 1; } }
   @keyframes modalIn { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
-  .modal { width: 460px; max-width: 92vw; max-height: 88vh; overflow-y: auto; background: #171724; border-radius: 16px; padding: 28px; border: 1px solid #2c2c42; }
+  .modal { width: 460px; max-width: 92vw; max-height: 88vh; overflow-y: auto; background: var(--raised); border-radius: var(--radius-lg); padding: 28px; border: 1px solid var(--line-strong); box-shadow: var(--shadow-lg), var(--ring-inset); }
   .modal h3 { font-size: 20px; font-weight: 800; margin-bottom: 6px; }
   .modal .sub { color: var(--muted); font-size: 13.5px; margin-bottom: 18px; line-height: 1.5; }
   .modal .tgt-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
@@ -367,8 +424,8 @@
   .result-line.err { color: #ff8fa0; }
 
   /* Post detail */
-  .detail { width: 800px; max-width: 94vw; max-height: 88vh; overflow-y: auto; background: #14141f;
-    border-radius: 18px; border: 1px solid #2c2c42; display: grid; grid-template-columns: 300px 1fr; }
+  .detail { width: 800px; max-width: 94vw; max-height: 88vh; overflow-y: auto; background: var(--raised);
+    border-radius: var(--radius-lg); border: 1px solid var(--line-strong); box-shadow: var(--shadow-lg), var(--ring-inset); display: grid; grid-template-columns: 300px 1fr; }
   .detail .dimg { background: #0e0e18 center/cover no-repeat; min-height: 300px; border-radius: 18px 0 0 18px;
     display: flex; align-items: center; justify-content: center; color: #45455a; font-size: 44px; }
   .detail .dbody { padding: 26px 28px; min-width: 0; }
@@ -387,8 +444,8 @@
   .detail-wrap { position: relative; }
 
   .toasts { position: fixed; top: 20px; right: 20px; z-index: 60; display: flex; flex-direction: column; gap: 10px; }
-  .toast { background: #1d1d2e; border-left: 4px solid var(--accent); border-radius: 8px; padding: 13px 18px;
-    font-size: 13.5px; font-weight: 600; min-width: 250px; max-width: 90vw; box-shadow: 0 8px 30px rgba(0,0,0,.5); animation: slidein .25s ease; }
+  .toast { background: var(--raised); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 13px 18px;
+    font-size: 13.5px; font-weight: 600; min-width: 250px; max-width: 90vw; box-shadow: var(--shadow-md), var(--ring-inset); animation: slidein var(--dur-3) var(--ease-entrance); }
   .toast.err { border-left-color: var(--coral); }
   @keyframes slidein { from { transform: translateX(30px); opacity: 0; } }
   .spin { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff;
@@ -426,7 +483,7 @@
 
   /* ══ KPI row (compact, controlled) ══════════════════════ */
   .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(168px, 1fr)); gap: 12px; }
-  .kpi2 { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 15px 17px; min-width: 0;
+  .kpi2 { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 15px 17px; min-width: 0; box-shadow: var(--shadow-sm);
     transition: border .18s, background .18s; }
   .kpi2:hover { border-color: #2c2c44; }
   .kpi2 .k-top { display: flex; align-items: center; gap: 8px; color: var(--faint); }
@@ -443,13 +500,17 @@
     padding: 3px 9px 3px 8px; border-radius: 999px; text-transform: uppercase; white-space: nowrap; }
   .sbadge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
   .sbadge.connected, .sbadge.published, .sbadge.live { color: var(--ok); background: rgba(61,220,132,.13); }
-  .sbadge.scheduled { color: #6aaefc; background: rgba(24,119,242,.16); }
+  .sbadge.scheduled { color: var(--info); background: rgba(91,157,255,.14); }
   .sbadge.draft { color: var(--accent-bright); background: rgba(143,122,255,.16); }
   .sbadge.warning { color: var(--gold); background: rgba(255,182,72,.14); }
   .sbadge.failed { color: #ff8fa0; background: rgba(255,84,112,.15); }
+  /* Neutral metadata chip — facts (type, product, date, reaction tally), never a state */
+  .metachip { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700;
+    padding: 3px 10px; border-radius: 999px; background: var(--well); border: 1px solid var(--line);
+    color: var(--muted); white-space: nowrap; }
 
   /* ══ Needs-attention panel ══════════════════════════════ */
-  .panel { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; }
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow-sm), var(--ring-inset); }
   .panel.healthy { border-color: rgba(61,220,132,.28); background: linear-gradient(180deg, rgba(61,220,132,.05), transparent); }
   .attn-head { display: flex; align-items: center; gap: 11px; }
   .attn-icon { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
@@ -559,7 +620,7 @@
   .asset-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(224px, 1fr)); gap: 16px; }
   .asset-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden;
     display: flex; flex-direction: column; transition: border .18s, transform .18s, background .18s; }
-  .asset-card:hover { border-color: #30304a; transform: translateY(-3px); background: var(--card-hover); }
+  .asset-card:hover { border-color: var(--line-strong); transform: translateY(-2px); background: var(--card-hover); }
   .asset-thumb { position: relative; width: 100%; aspect-ratio: 4 / 5; background: #191926 center/cover no-repeat;
     display: flex; align-items: center; justify-content: center; color: #3f3f54; font-size: 34px; }
   .asset-thumb::after { content: ""; position: absolute; inset: 0; pointer-events: none;
@@ -567,7 +628,7 @@
   .asset-top { position: absolute; top: 10px; left: 10px; right: 10px; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
   .asset-type { font-size: 10px; font-weight: 800; letter-spacing: .7px; text-transform: uppercase; padding: 3px 8px; border-radius: 6px;
     background: rgba(6,6,12,.7); backdrop-filter: blur(4px); color: #fff; }
-  .asset-type.reel { color: #ff98ab; } .asset-type.carousel { color: var(--gold); } .asset-type.photo { color: var(--accent-bright); } .asset-type.text { color: #9db4ff; }
+  .asset-type.reel, .asset-type.carousel, .asset-type.photo, .asset-type.text { color: #e9e9f2; }
   .asset-eng { position: absolute; left: 12px; bottom: 10px; z-index: 1; display: flex; gap: 12px; font-size: 12px; font-weight: 700;
     color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,.7); }
   .asset-body { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
@@ -622,8 +683,8 @@
 
   /* ══ Scheduled — planner / timeline ════════════════════════════════════════ */
   .next-up-hero { display: grid; grid-template-columns: auto 1fr auto; gap: 18px; align-items: center;
-    background: linear-gradient(120deg, rgba(24,119,242,.14), rgba(106,77,255,.08) 60%, transparent);
-    border: 1px solid #26264a; border-radius: var(--radius); padding: 18px 22px; margin-bottom: 22px; }
+    background: linear-gradient(120deg, rgba(143,122,255,.12), transparent 66%);
+    border: 1px solid var(--line-strong); border-radius: var(--radius); padding: 18px 22px; margin-bottom: 22px; box-shadow: var(--shadow-sm), var(--ring-inset); }
   .next-up-hero .nu-thumb { width: 68px; height: 68px; border-radius: 12px; background: #191926 center/cover no-repeat; flex-shrink: 0;
     display: flex; align-items: center; justify-content: center; color: #47475c; font-size: 26px; }
   .next-up-hero .nu-body { min-width: 0; }
@@ -725,6 +786,39 @@
     .sched-card .sc-thumb { width: 52px; height: 52px; }
     .sched-card .sc-controls { grid-column: 1 / 3; width: auto; }
   }
+
+  /* ══ Empty-media placeholders — shared iris→coral mesh ═══════════════════════
+     Every image-less thumbnail renders the duotone mesh + inset ring instead of a
+     flat grey box. When real media exists, JS sets an inline background-image whose
+     url() layer overrides the gradient layers automatically — so this only shows
+     through when a thumbnail is genuinely empty. */
+  .thumb, .lib-import-card .thumb, .preview-box .ph, .detail .dimg,
+  .next-post .np-thumb, .content-row .cr-thumb, .asset-thumb, .next-up-hero .nu-thumb,
+  .mention .mimg, .sched-card .sc-thumb, .story .ring > div {
+    background-color: #12121e;
+    background-image: var(--ph-mesh);
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    box-shadow: var(--ph-ring);
+  }
+  /* The glyph sitting on the mesh takes the iris-tinted placeholder colour */
+  .thumb, .preview-box .ph, .detail .dimg, .next-post .np-thumb, .content-row .cr-thumb,
+  .asset-thumb, .next-up-hero .nu-thumb, .sched-card .sc-thumb, .story .ring > div {
+    color: var(--ph-glyph);
+  }
+  .ph-glyph { width: 30%; max-width: 46px; height: auto; stroke: var(--ph-glyph);
+    fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; opacity: .9; }
+  .eng-ic { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2;
+    stroke-linecap: round; stroke-linejoin: round; vertical-align: -2px; }
+
+  /* ══ Uniform card elevation — resting depth + lift on hover ══════════════════ */
+  .post-card, .asset-card, .content-row, .acct-item {
+    box-shadow: var(--shadow-sm);
+    transition: background var(--dur-2) var(--ease), transform var(--dur-2) var(--ease),
+                border-color var(--dur-2) var(--ease), box-shadow var(--dur-2) var(--ease); }
+  .post-card:hover, .asset-card:hover, .content-row:hover, .acct-item:hover {
+    box-shadow: var(--shadow-md); }
 </style>
 </head>
 <body>
@@ -877,7 +971,7 @@
           <div>
             <div class="field-label">Preview</div>
             <div class="preview-box">
-              <div class="ph" id="previewImg"><span id="previewIcon">🖼</span><div class="preview-strip" id="previewStrip" style="display:none"></div></div>
+              <div class="ph" id="previewImg"><span id="previewIcon"><svg class="ph-glyph" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="m21 15-4.5-4.5L5 21"/></svg></span><div class="preview-strip" id="previewStrip" style="display:none"></div></div>
               <div class="pt" id="previewText">Your post preview appears here…</div>
             </div>
           </div>
@@ -1118,7 +1212,15 @@ const ICON = {
   grid: '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
   chat: '<path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9 9 0 0 1-3.8-.8L3 20l1-4.9a8.4 8.4 0 1 1 17-3.6z"/>',
   search: '<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>',
+  image: '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="m21 15-4.5-4.5L5 21"/>',
+  video: '<path d="m22 8-6 4 6 4V8z"/><rect x="2" y="6" width="14" height="12" rx="2"/>',
+  layers: '<path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/>',
+  text: '<path d="M5 7V5h14v2"/><path d="M12 5v14"/><path d="M9 19h6"/>',
+  heart: '<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 1 0-7.8 7.8l1.1 1.1L12 21l7.7-7.6 1.1-1.1a5.5 5.5 0 0 0 0-7.8z"/>',
 };
+/* Big placeholder glyph on an empty-media mesh; small inline engagement/meta glyph */
+const phGlyph = name => `<svg class="ph-glyph" viewBox="0 0 24 24">${ICON[name] || ICON.image}</svg>`;
+const engIco  = name => `<svg class="eng-ic" viewBox="0 0 24 24">${ICON[name] || ''}</svg>`;
 function renderKpis() {
   if (!OVERVIEW) { $('kpiStrip').innerHTML = Array(5).fill('<div class="skeleton" style="height:96px"></div>').join(''); return; }
   const igAccts = OVERVIEW.accounts.filter(a => a.platform === 'instagram');
@@ -1226,7 +1328,7 @@ function renderScheduleOverview() {
     : 'soon';
   el.innerHTML = `<div class="sched-over">
     <div class="next-post">
-      <div class="np-thumb" style="${next.img ? `background-image:url('${cssUrl(next.img)}')` : ''}">${next.img ? '' : '🗓'}</div>
+      <div class="np-thumb" style="${next.img ? `background-image:url('${cssUrl(next.img)}')` : ''}">${next.img ? '' : phGlyph('calendar')}</div>
       <div class="np-body">
         <div class="np-when">Publishing ${esc(whenTxt)}</div>
         <div class="np-msg">${esc(next.msg || '(no caption)')}</div>
@@ -1314,14 +1416,14 @@ function renderPosts() {
     const date = p.ts ? new Date(p.ts).toLocaleDateString([], {month: 'short', day: 'numeric', year: 'numeric'}) : '';
     const noCap = !(p.cap && p.cap.trim());
     return `<div class="content-row" onclick="openDetail(${i})">
-      <div class="cr-thumb" style="${p.img ? `background-image:url('${cssUrl(p.img)}')` : ''}">${p.img ? '' : '📝'}</div>
+      <div class="cr-thumb" style="${p.img ? `background-image:url('${cssUrl(p.img)}')` : ''}">${p.img ? '' : phGlyph('image')}</div>
       <div class="cr-mid">
         <div class="cr-cap ${noCap ? 'none' : ''}">${noCap ? 'No caption' : esc(p.cap)}</div>
         <div class="cr-meta">${platBadge(p.acct.platform)}<span class="sbadge published">Published</span>
           <span>${esc(type)}</span><span class="sep">·</span><span>${esc(date)}</span></div>
       </div>
       <div class="cr-right">
-        <span class="cr-eng">♥ ${fmt(p.likes || 0)} · 💬 ${fmt(p.comments || 0)}</span>
+        <span class="cr-eng">${engIco('heart')} ${fmt(p.likes || 0)} · ${engIco('chat')} ${fmt(p.comments || 0)}</span>
         <a class="cr-view" href="${esc(p.link || '#')}" target="_blank" rel="noopener" onclick="event.stopPropagation()">View ↗</a>
       </div>
     </div>`;
@@ -1331,12 +1433,12 @@ function renderPosts() {
 /* ── Post detail — instant, structured, then deepened ──── */
 function detailShell(p) {
   const statusPills = [
-    `<span class="pill ok">Published</span>`,
-    p.mtype ? `<span class="pill acc">${esc(TYPE_LABEL[p.mtype] || p.mtype)}</span>` : '',
-    p.product && p.product !== 'PAGE' ? `<span class="pill">${esc(p.product)}</span>` : '',
-    p.ts ? `<span class="pill">${new Date(p.ts).toLocaleString()}</span>` : '',
+    `<span class="sbadge published">Published</span>`,
+    p.mtype ? `<span class="metachip">${esc(TYPE_LABEL[p.mtype] || p.mtype)}</span>` : '',
+    p.product && p.product !== 'PAGE' ? `<span class="metachip">${esc(p.product)}</span>` : '',
+    p.ts ? `<span class="metachip">${new Date(p.ts).toLocaleString()}</span>` : '',
   ].filter(Boolean).join('');
-  return `<div class="dimg" style="${p.img ? `background-image:url('${cssUrl(p.img)}')` : ''}">${p.img ? '' : '📝'}</div>
+  return `<div class="dimg" style="${p.img ? `background-image:url('${cssUrl(p.img)}')` : ''}">${p.img ? '' : phGlyph('image')}</div>
     <div class="dbody">
       <div class="dmeta">${platBadge(p.acct.platform)} <b>${esc(p.acct.handle)}</b>
         ${p.link ? `<a class="openlink" href="${esc(p.link)}" target="_blank" rel="noopener">View live ↗</a>` : ''}</div>
@@ -1385,7 +1487,7 @@ async function openDetail(i) {
       for (const t of (d.reactions.recent || [])) counts[t] = (counts[t] || 0) + 1;
       $('dReactions').innerHTML = `<h4>Reactions · ${fmt(d.reactions.total)} total</h4><div class="reaction-pills">` +
         (Object.keys(counts).length
-          ? Object.entries(counts).map(([t, c]) => `<span class="pill">${REACT_ICON[t] || t} ${c}</span>`).join('')
+          ? Object.entries(counts).map(([t, c]) => `<span class="metachip">${REACT_ICON[t] || t} ${c}</span>`).join('')
           : '<span class="hint">No reactions yet.</span>') + `</div>`;
     }
     $('dComments').innerHTML = (d.comments || []).map((c, ci) => {
@@ -1453,7 +1555,7 @@ async function loadStories() {
       for (const s of (v.stories || [])) {
         const img = s.media_url || s.thumbnail_url;
         items.push(`<a class="story" href="${esc(s.permalink || '#')}" target="_blank" rel="noopener">
-          <div class="ring"><div style="${img ? `background-image:url('${cssUrl(img)}')` : ''}">${img ? '' : '⏱'}</div></div>
+          <div class="ring"><div style="${img ? `background-image:url('${cssUrl(img)}')` : ''}">${img ? '' : phGlyph('clock')}</div></div>
           <div class="sh">${esc(acct.handle)}</div></a>`);
       }
     }
@@ -1508,7 +1610,7 @@ function renderInbox() {
   const dayAgo = Date.now() - 86400000;
   const recentCount = threads.filter(t => t.when > dayAgo).length;
   const errHtml = (window.__inboxErrs || []).map(e =>
-    `<p class="hint" style="margin:12px 2px">⚠ ${esc(e.acct.handle)}: ${esc(e.error)}</p>`).join('');
+    `<p class="hint" style="margin:12px 2px">${engIco('alert')} ${esc(e.acct.handle)}: ${esc(e.error)}</p>`).join('');
 
   // Summary layer
   const stat = (v, l, cls) => `<div class="stat ${cls || ''}"><div class="s-val">${v}</div><div class="s-lab">${l}</div></div>`;
@@ -1679,9 +1781,9 @@ function assetCard(m) {
   const date = m.ts ? new Date(m.ts).toLocaleDateString([], {month: 'short', day: 'numeric'}) : '';
   const noCap = !(m.caption && m.caption.trim());
   return `<div class="asset-card">
-    <div class="asset-thumb" style="${m.img ? `background-image:url('${cssUrl(m.img)}')` : ''}">${m.img ? '' : '📝'}
+    <div class="asset-thumb" style="${m.img ? `background-image:url('${cssUrl(m.img)}')` : ''}">${m.img ? '' : phGlyph('image')}
       <div class="asset-top"><span class="asset-type ${t}">${esc(tLabel)}</span>${platBadge(acct.platform || 'facebook')}</div>
-      <div class="asset-eng"><span>♥ ${fmt(m.likes || 0)}</span><span>💬 ${fmt(m.comments || 0)}</span></div>
+      <div class="asset-eng"><span>${engIco('heart')} ${fmt(m.likes || 0)}</span><span>${engIco('chat')} ${fmt(m.comments || 0)}</span></div>
     </div>
     <div class="asset-body">
       <div class="asset-cap ${noCap ? 'none' : ''}">${noCap ? 'No caption' : esc(m.caption)}</div>
@@ -1801,7 +1903,7 @@ function renderLibraryStrip() {
     const acct = ACCOUNTS.find(a => a.key === m.key) || {};
     const reusable = !!m.img;
     return `<div class="lib-import-card">
-      <div class="thumb" style="${m.img ? `background-image:url('${cssUrl(m.img)}')` : ''}">${m.img ? '' : '📝'}</div>
+      <div class="thumb" style="${m.img ? `background-image:url('${cssUrl(m.img)}')` : ''}">${m.img ? '' : phGlyph('image')}</div>
       <div class="li-cap">${platBadge(acct.platform || 'facebook')} ${esc(m.caption || 'No caption')}</div>
       <div class="li-act">
         <button class="mini-btn accent" ${reusable ? '' : 'disabled style="opacity:.4"'} onclick="repostFromLibrary(${i}, false)">Import</button>
@@ -1921,7 +2023,7 @@ function schedCard(p) {
     ? new Date(p.when).toLocaleString([], {weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'})
     : 'Time not set';
   return `<div class="sched-card ${past ? 'pastdue' : ''}">
-    <div class="sc-thumb" style="${p.img ? `background-image:url('${cssUrl(p.img)}')` : ''}">${p.img ? '' : '🗓'}</div>
+    <div class="sc-thumb" style="${p.img ? `background-image:url('${cssUrl(p.img)}')` : ''}">${p.img ? '' : phGlyph('calendar')}</div>
     <div class="sc-body">
       <div class="sc-top">
         <span class="sbadge ${past ? 'warning' : 'scheduled'}">${past ? 'Overdue' : 'Scheduled'}</span>
@@ -1953,7 +2055,7 @@ function schedNextUp(posts) {
     : 'Time not set';
   const subCount = overdue ? `${overdue} overdue` : todayCount ? `${todayCount} today` : '';
   $('schedNextUp').innerHTML = `<div class="next-up-hero">
-    <div class="nu-thumb" style="${next.img ? `background-image:url('${cssUrl(next.img)}')` : ''}">${next.img ? '' : '🗓'}</div>
+    <div class="nu-thumb" style="${next.img ? `background-image:url('${cssUrl(next.img)}')` : ''}">${next.img ? '' : phGlyph('calendar')}</div>
     <div class="nu-body">
       <div class="nu-eyebrow">Next to publish</div>
       <div class="nu-when">${esc(whenTxt)}</div>
@@ -1977,7 +2079,7 @@ async function loadScheduled() {
           when: p.scheduled_publish_time ? p.scheduled_publish_time * 1000 : 0 });
       if (v.error) errs.push({ acct, error: v.error });
     }
-    const errHtml = errs.map(e => `<p class="hint" style="margin:12px 0">⚠ ${esc(e.acct.handle)}: ${esc(e.error)}</p>`).join('');
+    const errHtml = errs.map(e => `<p class="hint" style="margin:12px 0">${engIco('alert')} ${esc(e.acct.handle)}: ${esc(e.error)}</p>`).join('');
     if (!posts.length) {
       $('schedBody').innerHTML = errHtml + `<div class="empty">
         <div class="e-icon"><svg viewBox="0 0 24 24">${ICON.calendar}</svg></div>
@@ -2177,9 +2279,11 @@ async function loadIntegrations(fresh) {
 }
 
 /* ── Publish flow ──────────────────────────────────────── */
+const TYPE_ICON = { photo: 'image', video: 'video', carousel: 'layers', story: 'clock', text: 'text' };
 function renderTypeRow() {
   $('typeRow').innerHTML = Object.entries(POST_TYPES).map(([k, t]) => `
     <div class="type-opt ${postType === k ? 'on' : ''}" onclick="setPostType('${k}')">
+      <svg class="ti" viewBox="0 0 24 24">${ICON[TYPE_ICON[k]] || ''}</svg>
       <div><b>${t.label}</b><span class="td">${t.desc}</span></div></div>`).join('');
 }
 
@@ -2297,8 +2401,8 @@ function syncPreview() {
     main = img;
   }
   const icon = $('previewIcon');
-  if (main) { ph.style.backgroundImage = `url('${cssUrl(main)}')`; icon.textContent = ''; }
-  else { ph.style.backgroundImage = ''; icon.textContent = postType === 'video' ? '🎬' : postType === 'story' ? '⏱' : '🖼'; }
+  if (main) { ph.style.backgroundImage = `url('${cssUrl(main)}')`; icon.innerHTML = ''; }
+  else { ph.style.backgroundImage = ''; icon.innerHTML = phGlyph(postType === 'video' ? 'video' : postType === 'story' ? 'clock' : 'image'); }
   updateDock();
 }
 
