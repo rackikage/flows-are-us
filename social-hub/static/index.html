@@ -578,6 +578,10 @@
     .inbox-grid { grid-template-columns: 1fr; }
     .thread-msgs { max-height: 44vh; }
     .os-tabs { justify-content: center; }
+    .cap-row { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "name badge" "what what"; gap: 4px 10px; }
+    .cap-row .cap-name { grid-area: name; min-width: 0; }
+    .cap-row .cap-what { grid-area: what; }
+    .cap-row .sbadge { grid-area: badge; }
     .publish-bar-mobile { display: flex; gap: 10px; position: sticky; bottom: 0; margin: 8px -18px -22px;
       padding: 12px 18px calc(12px + env(safe-area-inset-bottom)); background: rgba(13,13,22,.96); backdrop-filter: blur(14px); border-top: 1px solid var(--line); }
     .publish-bar-mobile .btn { flex: 1; }
@@ -796,7 +800,6 @@
     <div id="view-integrations" style="display:none">
       <div class="hero grad-integr">
         <h1>Integrations</h1>
-        <p>Every capability wired into this hub, grouped by what it does for your business.</p>
       </div>
       <div class="section" id="integrationsBody"></div>
       <div class="section" id="installSection"></div>
@@ -1630,7 +1633,7 @@ function renderHealthHero() {
   const igOk = !!INTEGRATIONS.instagram_ok;
   const fbOk = !!INTEGRATIONS.facebook_ok;
   const allOk = pipeOk && igOk && fbOk;
-  return `<div class="panel healthy health-hero" id="healthHero">
+  return `<div class="panel${allOk ? ' healthy' : ''} health-hero" id="healthHero">
     <div class="attn-head">
       <div class="attn-icon ${allOk ? 'ok' : 'warn'}"><svg viewBox="0 0 24 24">${ICON[allOk ? 'check' : 'alert']}</svg></div>
       <div class="at">${allOk ? 'All systems operational' : 'Attention needed'}</div>
@@ -1651,7 +1654,7 @@ function renderManagedAccounts() {
     <div class="eyebrow">Managed by this hub</div>
     <div class="acct-list">
       ${pages.map(p => `<div class="acct-item">
-        <div class="avatar fb">${initials(p.name || '?')}</div>
+        <div class="avatar fb">${esc(initials(p.name || '?'))}</div>
         <div class="ai-id">
           <div class="ai-name">${esc(p.name || 'Untitled page')} ${platBadge('facebook')}</div>
           <div class="ai-meta">
