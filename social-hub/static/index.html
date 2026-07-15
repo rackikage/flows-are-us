@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="no-referrer">
+<title>FLOWS · Business Social Hub</title>
+<style>
+  :root {
+    --bg: #0b0b0e;
+    --panel: #121216;
+    --card: #17171d;
+    --card-hover: #22222b;
+    --line: #23232c;
+    --text: #ffffff;
+    --muted: #a4a4b2;
+    --faint: #6d6d7c;
+    --green: #1db954;
+    --green-bright: #1ed760;
+    --ig-a: #f09433; --ig-b: #dc2743; --ig-c: #bc1888;
+    --fb: #1877f2;
+    --violet: #7c3aed;
+    --radius: 14px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    overflow: hidden;
+  }
+  .app { display: grid; grid-template-columns: 268px 1fr; grid-template-rows: 1fr 86px; height: 100vh; }
+  svg.i { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+
+  /* ── Sidebar ─────────────────────────────────────────── */
+  .sidebar { grid-row: 1; background: var(--panel); padding: 24px 14px 14px; display: flex; flex-direction: column; gap: 4px; border-right: 1px solid var(--line); }
+  .brand { padding: 0 12px 2px; font-size: 25px; font-weight: 800; letter-spacing: -.5px;
+    background: linear-gradient(90deg, var(--green-bright), var(--violet) 55%, var(--ig-b));
+    -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .brand-sub { padding: 0 12px 18px; font-size: 11px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; color: var(--faint); }
+  .nav-item { display: flex; align-items: center; gap: 13px; padding: 11px 12px; border-radius: 9px;
+    color: var(--muted); font-weight: 700; font-size: 14.5px; cursor: pointer; transition: color .15s, background .15s; user-select: none; }
+  .nav-item:hover { color: var(--text); }
+  .nav-item.active { color: var(--text); background: #1f1f28; }
+  .side-label { margin: 18px 12px 8px; font-size: 11px; font-weight: 800; letter-spacing: 1.6px; color: var(--faint); text-transform: uppercase; }
+  .side-acct { display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-radius: 9px; cursor: pointer; transition: background .15s; }
+  .side-acct:hover { background: #1f1f28; }
+  .avatar { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 15px; color: #fff; background-size: cover; background-position: center; }
+  .avatar.ig { background-image: linear-gradient(45deg, var(--ig-a), var(--ig-b), var(--ig-c)); }
+  .avatar.fb { background-image: linear-gradient(45deg, #0e5fc4, var(--fb)); }
+  .avatar.img { background-color: #2a2a33; }
+  .side-acct .h { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .side-acct .s { font-size: 12px; color: var(--muted); }
+  .pipe-badge { margin-top: auto; font-size: 11.5px; color: var(--muted); padding: 12px; border-top: 1px solid var(--line); line-height: 1.65; }
+  .pipe-badge b { color: var(--green-bright); }
+  .pipe-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--green-bright); margin-right: 6px; box-shadow: 0 0 8px var(--green-bright); }
+
+  /* ── Main scaffold ───────────────────────────────────── */
+  .main { grid-row: 1; overflow-y: auto; }
+  .hero { padding: 44px 38px 26px; }
+  .hero.grad-home    { background: linear-gradient(180deg, rgba(124,58,237,.5),  rgba(220,39,67,.16) 55%, transparent); }
+  .hero.grad-publish { background: linear-gradient(180deg, rgba(29,185,84,.38),  rgba(24,119,242,.14) 55%, transparent); }
+  .hero.grad-perf    { background: linear-gradient(180deg, rgba(220,39,67,.42),  rgba(124,58,237,.14) 55%, transparent); }
+  .hero.grad-sched   { background: linear-gradient(180deg, rgba(24,119,242,.42), transparent 70%); }
+  .hero.grad-integr  { background: linear-gradient(180deg, rgba(29,185,84,.35),  rgba(124,58,237,.12) 60%, transparent); }
+  .hero h1 { font-size: 38px; font-weight: 900; letter-spacing: -1px; }
+  .hero p  { color: #d6d6e0; margin-top: 8px; font-size: 15px; max-width: 640px; }
+  .chips { margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .chip { padding: 7px 16px; border-radius: 999px; background: rgba(255,255,255,.1); font-size: 13px; font-weight: 700;
+    cursor: pointer; transition: background .15s; }
+  .chip:hover { background: rgba(255,255,255,.18); }
+  .chip.on { background: var(--text); color: #000; }
+  .section { padding: 6px 38px 26px; }
+  .eyebrow { font-size: 11px; font-weight: 800; letter-spacing: 1.8px; text-transform: uppercase; color: var(--faint); margin-bottom: 6px; }
+  .section h2 { font-size: 21px; font-weight: 800; letter-spacing: -.3px; }
+  .section .sub { color: var(--muted); font-size: 13px; margin-top: 4px; margin-bottom: 16px; }
+  .section h2 small { font-size: 12.5px; color: var(--faint); font-weight: 600; margin-left: 10px; }
+
+  /* ── KPI tiles ───────────────────────────────────────── */
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 4px; }
+  .kpi { background: var(--card); border-radius: var(--radius); padding: 18px 20px; border: 1px solid var(--line); }
+  .kpi .v { font-size: 30px; font-weight: 900; letter-spacing: -1px;
+    background: linear-gradient(90deg, #fff, #c9c9ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .kpi .l { font-size: 12px; color: var(--muted); font-weight: 700; margin-top: 4px; }
+  .kpi .d { font-size: 11.5px; color: var(--faint); margin-top: 2px; }
+
+  /* ── Cards ───────────────────────────────────────────── */
+  .acct-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 16px; }
+  .acct-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px;
+    display: flex; gap: 16px; align-items: center; transition: background .2s, transform .2s; }
+  .acct-card:hover { background: var(--card-hover); transform: translateY(-2px); }
+  .acct-card .avatar { width: 64px; height: 64px; font-size: 22px; }
+  .acct-card .info { min-width: 0; flex: 1; }
+  .acct-card .handle { font-weight: 800; font-size: 16.5px; }
+  .acct-card .bio { color: var(--muted); font-size: 12.5px; margin-top: 3px;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .stat-pills { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .pill { font-size: 11.5px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: rgba(255,255,255,.08); color: #d9d9e2; }
+  .pill.green { background: rgba(29,185,84,.18); color: var(--green-bright); }
+  .pill.warn  { background: rgba(240,148,51,.18); color: #f0a453; }
+  .pill.blue  { background: rgba(24,119,242,.2); color: #6aaefc; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(215px, 1fr)); gap: 16px; }
+  .post-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden;
+    cursor: pointer; transition: background .2s, transform .2s; }
+  .post-card:hover { background: var(--card-hover); transform: translateY(-3px); }
+  .thumb { width: 100%; aspect-ratio: 1; background: #22222a center/cover no-repeat;
+    display: flex; align-items: center; justify-content: center; color: #4c4c58; font-size: 34px; }
+  .post-card .body { padding: 12px 14px 14px; }
+  .post-card .cap { font-size: 13px; line-height: 1.45; height: 38px; overflow: hidden;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; color: #e6e6ee; }
+  .post-card .row { display: flex; justify-content: space-between; align-items: center; margin-top: 10px;
+    font-size: 12px; color: var(--muted); font-weight: 600; }
+  .badge { font-size: 10px; font-weight: 800; letter-spacing: .8px; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; color: #fff; }
+  .badge.ig { background: linear-gradient(45deg, var(--ig-a), var(--ig-c)); }
+  .badge.fb { background: var(--fb); }
+  .openlink { color: var(--muted); text-decoration: none; font-weight: 700; }
+  .openlink:hover { color: var(--green-bright); }
+
+  .skeleton { border-radius: var(--radius); background: linear-gradient(100deg, #17171d 40%, #20202a 50%, #17171d 60%);
+    background-size: 200% 100%; animation: shimmer 1.4s infinite; }
+  @keyframes shimmer { to { background-position: -200% 0; } }
+  .notice { margin: 0 38px 16px; background: rgba(240,148,51,.09); border: 1px solid rgba(240,148,51,.35);
+    color: #f0b073; border-radius: 10px; padding: 12px 16px; font-size: 13px; display: none; line-height: 1.5; }
+  .hint { font-size: 12.5px; color: var(--muted); line-height: 1.6; }
+  .hint b { color: #f0a453; }
+
+  /* ── Publish view ────────────────────────────────────── */
+  .compose-grid { display: grid; grid-template-columns: 1fr 300px; gap: 22px; max-width: 900px; }
+  textarea, input[type=text], input[type=datetime-local] {
+    width: 100%; background: var(--card); color: var(--text); border: 1px solid var(--line);
+    border-radius: 10px; padding: 14px; font-size: 15px; font-family: inherit; outline: none; transition: border .15s; }
+  textarea:focus, input:focus { border-color: var(--green); }
+  textarea { min-height: 170px; resize: vertical; line-height: 1.5; }
+  .field-label { font-size: 12px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin: 18px 0 8px; }
+  .field-label:first-child { margin-top: 0; }
+  .field-label span { text-transform: none; font-weight: 600; letter-spacing: 0; color: var(--faint); }
+  .target-pills { display: flex; gap: 10px; flex-wrap: wrap; }
+  .target { display: flex; align-items: center; gap: 9px; padding: 9px 15px 9px 9px; border-radius: 999px;
+    background: var(--card); border: 1.5px solid #2a2a34; cursor: pointer; user-select: none;
+    font-weight: 700; font-size: 13.5px; transition: all .15s; }
+  .target .avatar { width: 26px; height: 26px; font-size: 11px; }
+  .target.on { border-color: var(--green-bright); background: rgba(29,185,84,.12); }
+  .preview-box { background: var(--card); border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line); }
+  .preview-box .ph { aspect-ratio: 1; background: #1d1d24 center/cover no-repeat; display: flex; align-items: center; justify-content: center; color: #46464f; font-size: 40px; }
+  .preview-box .pt { padding: 12px 14px; font-size: 13px; color: #e6e6ee; white-space: pre-wrap; max-height: 130px; overflow-y: auto; }
+
+  /* ── Analytics ───────────────────────────────────────── */
+  .perf-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; margin-bottom: 18px; }
+  .perf-head { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+  .perf-head .handle { font-weight: 800; font-size: 17px; }
+  .perf-head .s { font-size: 12.5px; color: var(--muted); }
+  .metric-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; }
+  .mt { background: #101015; border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+  .mt .v { font-size: 24px; font-weight: 900; letter-spacing: -.5px; }
+  .mt .l { font-size: 11.5px; color: var(--muted); font-weight: 700; margin-top: 3px; }
+  .mention-strip { display: flex; gap: 12px; overflow-x: auto; padding-top: 14px; }
+  .mention { flex: 0 0 130px; border-radius: 10px; overflow: hidden; background: #101015; border: 1px solid var(--line); text-decoration: none; color: inherit; }
+  .mention .mimg { width: 130px; height: 130px; background: #22222a center/cover no-repeat; }
+  .mention .mby { font-size: 11px; color: var(--muted); padding: 8px 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* ── Scheduled ───────────────────────────────────────── */
+  .sched-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 14px;
+    display: flex; gap: 16px; align-items: flex-start; }
+  .sched-card .msg { font-size: 14px; line-height: 1.5; color: #e6e6ee; }
+  .sched-card .when { font-size: 12.5px; color: var(--green-bright); font-weight: 700; margin-top: 6px; }
+  .sched-actions { margin-left: auto; display: flex; gap: 8px; flex-shrink: 0; align-items: center; }
+  .mini-btn { border: 1px solid #34343f; background: transparent; color: var(--text); border-radius: 999px;
+    font-weight: 700; font-size: 12.5px; padding: 8px 16px; cursor: pointer; font-family: inherit; transition: all .15s; }
+  .mini-btn:hover { border-color: var(--green-bright); color: var(--green-bright); }
+  .mini-btn.danger:hover { border-color: #dc2743; color: #ff8fa0; }
+
+  /* ── Integrations ────────────────────────────────────── */
+  .status-banner { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 22px; }
+  .status-card { flex: 1; min-width: 200px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; }
+  .status-card .t { font-size: 12px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: var(--faint); }
+  .status-card .v { font-size: 19px; font-weight: 800; margin-top: 6px; display: flex; align-items: center; gap: 9px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot.ok { background: var(--green-bright); box-shadow: 0 0 10px var(--green-bright); }
+  .dot.bad { background: #dc2743; box-shadow: 0 0 10px #dc2743; }
+  .tool-table { width: 100%; border-collapse: collapse; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+  .tool-table th { text-align: left; font-size: 11px; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase;
+    color: var(--faint); padding: 14px 18px; border-bottom: 1px solid var(--line); background: #101015; }
+  .tool-table td { padding: 13px 18px; border-bottom: 1px solid #1c1c24; font-size: 13.5px; vertical-align: middle; }
+  .tool-table tr:last-child td { border-bottom: none; }
+  .tool-table tr:hover td { background: #1b1b23; }
+  .tool-table .area { font-weight: 800; }
+  .tool-table .what { color: var(--muted); }
+  .tool-table .slug { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; color: var(--faint); }
+  .table-scroll { overflow-x: auto; border-radius: var(--radius); }
+
+  /* ── Dock ────────────────────────────────────────────── */
+  .dock { grid-column: 1 / 3; grid-row: 2; background: #101014; border-top: 1px solid var(--line);
+    display: flex; align-items: center; gap: 18px; padding: 0 26px; }
+  .dock .disc { width: 52px; height: 52px; border-radius: 12px; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--violet), var(--ig-b)); display: flex; align-items: center; justify-content: center; }
+  .dock .dmeta { min-width: 0; flex: 1; }
+  .dock .dtitle { font-weight: 800; font-size: 14px; }
+  .dock .dsub { font-size: 12.5px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .btn { border: none; border-radius: 999px; font-weight: 800; font-size: 14px; cursor: pointer;
+    padding: 13px 34px; font-family: inherit; transition: transform .12s, filter .12s; }
+  .btn:hover { transform: scale(1.04); filter: brightness(1.1); }
+  .btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+  .btn.primary { background: var(--green-bright); color: #000; }
+  .btn.ghost { background: transparent; color: var(--text); border: 1.5px solid #3a3a46; padding: 12px 24px; }
+  .btn.danger { background: #dc2743; color: #fff; }
+
+  /* ── Modals & toasts ─────────────────────────────────── */
+  .modal-veil { position: fixed; inset: 0; background: rgba(0,0,0,.72); display: none;
+    align-items: center; justify-content: center; z-index: 50; backdrop-filter: blur(4px); }
+  .modal-veil.open { display: flex; }
+  .modal { width: 460px; max-width: 92vw; background: #1a1a21; border-radius: 16px; padding: 28px; border: 1px solid #2c2c37; }
+  .modal h3 { font-size: 20px; font-weight: 800; margin-bottom: 6px; }
+  .modal .sub { color: var(--muted); font-size: 13.5px; margin-bottom: 18px; line-height: 1.5; }
+  .modal .tgt-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 22px; }
+  .modal .tgt { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 14px; }
+  .modal .actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 6px; }
+  .result-line { font-size: 13px; margin-top: 6px; line-height: 1.5; }
+  .result-line a { color: var(--green-bright); }
+  .result-line.err { color: #ff8fa0; }
+
+  /* Post detail drawer-style modal */
+  .detail { width: 780px; max-width: 94vw; max-height: 88vh; overflow-y: auto; background: #17171d;
+    border-radius: 18px; border: 1px solid #2c2c37; display: grid; grid-template-columns: 300px 1fr; }
+  .detail .dimg { background: #101015 center/cover no-repeat; min-height: 300px; border-radius: 18px 0 0 18px;
+    display: flex; align-items: center; justify-content: center; color: #45454f; font-size: 44px; }
+  .detail .dbody { padding: 26px 28px; min-width: 0; }
+  .detail .dcap { font-size: 14px; line-height: 1.55; color: #e6e6ee; white-space: pre-wrap; }
+  .detail .dmeta { margin: 10px 0 16px; font-size: 12.5px; color: var(--muted); display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .detail h4 { font-size: 12px; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; color: var(--faint); margin: 18px 0 10px; }
+  .detail .comment { padding: 10px 0; border-bottom: 1px solid #22222a; font-size: 13px; line-height: 1.5; }
+  .detail .comment b { color: #cfcfdd; }
+  .detail .comment .cm { color: var(--muted); font-size: 11.5px; margin-top: 2px; }
+  .reaction-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+  .detail textarea { min-height: 90px; margin-bottom: 10px; }
+  .detail .manage { display: flex; gap: 10px; margin-top: 6px; flex-wrap: wrap; }
+  .dclose { position: sticky; top: 10px; float: right; margin: 10px; background: rgba(0,0,0,.5); border: none; color: #fff;
+    width: 34px; height: 34px; border-radius: 50%; font-size: 16px; cursor: pointer; }
+
+  .toasts { position: fixed; top: 20px; right: 20px; z-index: 60; display: flex; flex-direction: column; gap: 10px; }
+  .toast { background: #1f1f28; border-left: 4px solid var(--green-bright); border-radius: 8px; padding: 13px 18px;
+    font-size: 13.5px; font-weight: 600; min-width: 250px; box-shadow: 0 8px 30px rgba(0,0,0,.5); animation: slidein .25s ease; }
+  .toast.err { border-left-color: #dc2743; }
+  @keyframes slidein { from { transform: translateX(30px); opacity: 0; } }
+  .spin { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(0,0,0,.3); border-top-color: #000;
+    border-radius: 50%; animation: rot .7s linear infinite; vertical-align: -2px; }
+  @keyframes rot { to { transform: rotate(360deg); } }
+  ::-webkit-scrollbar { width: 12px; height: 12px; }
+  ::-webkit-scrollbar-thumb { background: #2c2c37; border-radius: 6px; border: 3px solid var(--bg); }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">FLOWS</div>
+    <div class="brand-sub">Business social hub</div>
+    <div class="nav-item active" data-view="home">
+      <svg class="i" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg> Dashboard</div>
+    <div class="nav-item" data-view="publish">
+      <svg class="i" viewBox="0 0 24 24"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg> Publish</div>
+    <div class="nav-item" data-view="analytics">
+      <svg class="i" viewBox="0 0 24 24"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-6"/><path d="M22 20H2"/></svg> Analytics</div>
+    <div class="nav-item" data-view="scheduled">
+      <svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg> Scheduled</div>
+    <div class="nav-item" data-view="integrations">
+      <svg class="i" viewBox="0 0 24 24"><path d="M9 3v4a2 2 0 0 1-2 2H3"/><path d="M15 21v-4a2 2 0 0 1 2-2h4"/><path d="M21 9h-4a2 2 0 0 1-2-2V3"/><path d="M3 15h4a2 2 0 0 1 2 2v4"/></svg> Integrations</div>
+    <div class="side-label">Your accounts</div>
+    <div id="sideAccounts"></div>
+    <div class="pipe-badge"><span class="pipe-dot"></span>Connected through the <b>Composio pipe</b><br>Instagram &amp; Facebook, one secure channel</div>
+  </aside>
+
+  <main class="main">
+    <!-- DASHBOARD -->
+    <div id="view-home">
+      <div class="hero grad-home">
+        <h1 id="greeting">Good evening</h1>
+        <p>Your accounts, content and performance — together in one place, always live.</p>
+        <div class="chips" id="filterChips"></div>
+      </div>
+      <div class="notice" id="homeNotice"></div>
+      <div class="section">
+        <div class="kpis" id="kpiStrip"></div>
+      </div>
+      <div class="section">
+        <div class="eyebrow">Portfolio</div>
+        <h2>Accounts <small id="refreshedAt"></small></h2>
+        <div class="sub">Live profile and audience figures for every connected account.</div>
+        <div class="acct-row" id="acctCards"></div>
+      </div>
+      <div class="section">
+        <div class="eyebrow">Content</div>
+        <h2>Recent posts</h2>
+        <div class="sub">Your latest published content across every platform. Select a post to see its performance, comments and reactions.</div>
+        <div class="grid" id="postGrid"></div>
+      </div>
+      <div style="height:30px"></div>
+    </div>
+
+    <!-- PUBLISH -->
+    <div id="view-publish" style="display:none">
+      <div class="hero grad-publish">
+        <h1>Publish</h1>
+        <p>Create a post once and share it to every destination you choose. Nothing goes live until you confirm.</p>
+      </div>
+      <div class="section">
+        <div class="compose-grid">
+          <div>
+            <div class="field-label">Your message</div>
+            <textarea id="caption" placeholder="Write the post your audience will see…"></textarea>
+            <div class="field-label">Image link <span>· a public https image — required for Instagram</span></div>
+            <input type="text" id="imageUrl" placeholder="https://example.com/photo.jpg">
+            <div class="field-label">Destinations</div>
+            <div class="target-pills" id="targetPills"></div>
+            <div class="field-label">Publish later <span>· Facebook pages only, optional</span></div>
+            <input type="datetime-local" id="scheduleTime" style="max-width:280px">
+            <p class="hint" style="margin-top:10px">Instagram publishes immediately and allows up to 25 posts per day per account. <b>Scheduling applies to Facebook pages only.</b></p>
+          </div>
+          <div>
+            <div class="field-label">Preview</div>
+            <div class="preview-box">
+              <div class="ph" id="previewImg">🖼</div>
+              <div class="pt" id="previewText">Your post preview appears here…</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANALYTICS -->
+    <div id="view-analytics" style="display:none">
+      <div class="hero grad-perf">
+        <h1>Analytics</h1>
+        <p>How your content performed over the last 7 days — reach, engagement and mentions for every account.</p>
+      </div>
+      <div class="section" id="analyticsBody"></div>
+      <div style="height:30px"></div>
+    </div>
+
+    <!-- SCHEDULED -->
+    <div id="view-scheduled" style="display:none">
+      <div class="hero grad-sched">
+        <h1>Scheduled</h1>
+        <p>Posts waiting in your Facebook publishing queue. Move them to a new time or remove them before they go live.</p>
+      </div>
+      <div class="section" id="schedBody"></div>
+    </div>
+
+    <!-- INTEGRATIONS -->
+    <div id="view-integrations" style="display:none">
+      <div class="hero grad-integr">
+        <h1>Integrations</h1>
+        <p>Every platform capability wired into this hub — all of it running through the Composio pipe, checked live.</p>
+      </div>
+      <div class="section" id="integrationsBody"></div>
+      <div style="height:30px"></div>
+    </div>
+  </main>
+
+  <!-- DOCK -->
+  <div class="dock">
+    <div class="disc"><svg class="i" viewBox="0 0 24 24" style="width:24px;height:24px"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg></div>
+    <div class="dmeta">
+      <div class="dtitle" id="dockTitle">No draft in progress</div>
+      <div class="dsub" id="dockSub">Open Publish to create your next post</div>
+    </div>
+    <button class="btn ghost" id="refreshBtn">Refresh data</button>
+    <button class="btn primary" id="postBtn" disabled>Publish</button>
+  </div>
+</div>
+
+<!-- CONFIRM PUBLISH MODAL -->
+<div class="modal-veil" id="modalVeil">
+  <div class="modal">
+    <h3>Confirm publication</h3>
+    <div class="sub" id="modalSub">This will publish publicly to the destinations below.</div>
+    <div class="tgt-list" id="modalTargets"></div>
+    <div id="modalResults"></div>
+    <div class="actions">
+      <button class="btn ghost" id="modalCancel">Cancel</button>
+      <button class="btn primary" id="modalConfirm">Publish now</button>
+    </div>
+  </div>
+</div>
+
+<!-- POST DETAIL MODAL -->
+<div class="modal-veil" id="detailVeil">
+  <div class="detail" id="detailBox"></div>
+</div>
+
+<div class="toasts" id="toasts"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+let ACCOUNTS = [], OVERVIEW = null, ANALYTICS = null, INTEGRATIONS = null;
+let filter = 'all', selected = new Set(), currentView = 'home';
+
+const platBadge = p => `<span class="badge ${p === 'instagram' ? 'ig' : 'fb'}">${p === 'instagram' ? 'Instagram' : 'Facebook'}</span>`;
+const initials = s => s.replace(/[@]/g, '').split(/[.\s/]/).filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('');
+const fmt = n => n == null ? '—' : (n >= 1e6 ? (n/1e6).toFixed(1)+'M' : n >= 1e3 ? (n/1e3).toFixed(1)+'K' : String(n));
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const REACT_ICON = { LIKE:'👍', LOVE:'❤️', HAHA:'😆', WOW:'😮', SAD:'😢', ANGRY:'😡', THANKFUL:'🌻', CARE:'🤗' };
+const METRIC_LABEL = {
+  reach:'Accounts reached', total_interactions:'Interactions', likes:'Likes', comments:'Comments',
+  shares:'Shares', saves:'Saves', saved:'Saves', views:'Views',
+  page_follows:'Total followers', page_daily_follows_unique:'New followers',
+  page_daily_unfollows_unique:'Unfollows', page_media_view:'Content views',
+  page_post_engagements:'Post engagement', page_total_actions:'Actions taken',
+  post_media_view:'Views',
+};
+
+function toast(msg, err) {
+  const t = document.createElement('div');
+  t.className = 'toast' + (err ? ' err' : '');
+  t.textContent = msg;
+  $('toasts').appendChild(t);
+  setTimeout(() => t.remove(), 5200);
+}
+
+async function api(path, opts) {
+  const r = await fetch(path, opts);
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.error || r.statusText);
+  return j;
+}
+
+function greeting() {
+  const h = new Date().getHours();
+  $('greeting').textContent = h < 5 ? 'Working late' : h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+}
+
+function avatarEl(a, profile, size) {
+  const pic = profile && (profile.profile_picture_url || (profile.picture && profile.picture.data && profile.picture.data.url));
+  const style = size ? `width:${size}px;height:${size}px;font-size:${Math.round(size/2.6)}px;` : '';
+  if (pic) return `<div class="avatar img" style="${style}background-image:url('${esc(pic)}')"></div>`;
+  return `<div class="avatar ${a.platform === 'instagram' ? 'ig' : 'fb'}" style="${style}">${initials(a.handle)}</div>`;
+}
+
+/* ── Dashboard rendering ───────────────────────────────── */
+function renderSidebar() {
+  $('sideAccounts').innerHTML = ACCOUNTS.map(a => {
+    const p = OVERVIEW && OVERVIEW.accounts.find(x => x.key === a.key);
+    return `<div class="side-acct" onclick="setFilter('${a.key}'); showView('home')">
+      ${avatarEl(a, p && p.profile)}
+      <div style="min-width:0"><div class="h">${esc(a.handle)}</div>
+      <div class="s">${a.platform === 'instagram' ? 'Instagram' : 'Facebook Page'}</div></div></div>`;
+  }).join('');
+}
+
+function renderChips() {
+  const chips = [{k:'all', l:'All accounts'}].concat(ACCOUNTS.map(a => ({k:a.key, l:a.handle})));
+  $('filterChips').innerHTML = chips.map(c =>
+    `<div class="chip ${filter === c.k ? 'on' : ''}" onclick="setFilter('${c.k}')">${esc(c.l)}</div>`).join('');
+}
+function setFilter(k) { filter = k; renderChips(); renderPosts(); }
+
+function renderKpis() {
+  if (!OVERVIEW) { $('kpiStrip').innerHTML = Array(4).fill('<div class="skeleton" style="height:100px"></div>').join(''); return; }
+  let followers = 0, published = 0, igUsed = 0, igCap = 0;
+  for (const a of OVERVIEW.accounts) {
+    const p = a.profile || {};
+    followers += (p.followers_count ?? p.fan_count ?? 0);
+    published += (a.media || []).length;
+    if (a.platform === 'instagram') { igCap += 25; igUsed += (a.quota ? (a.quota.used || 0) : 0); }
+  }
+  $('kpiStrip').innerHTML = `
+    <div class="kpi"><div class="v">${fmt(followers)}</div><div class="l">Total audience</div><div class="d">followers across all accounts</div></div>
+    <div class="kpi"><div class="v">${published}</div><div class="l">Recent posts</div><div class="d">shown from your latest content</div></div>
+    <div class="kpi"><div class="v">${igCap - igUsed}</div><div class="l">Instagram capacity</div><div class="d">posts still available today (of ${igCap})</div></div>
+    <div class="kpi"><div class="v" style="background:linear-gradient(90deg,var(--green-bright),#8affc1);-webkit-background-clip:text;background-clip:text">Live</div>
+      <div class="l">Connection status</div><div class="d">all data flows through Composio</div></div>`;
+}
+
+function renderAccounts() {
+  if (!OVERVIEW) { $('acctCards').innerHTML = ACCOUNTS.map(() => `<div class="skeleton" style="height:120px"></div>`).join(''); return; }
+  $('acctCards').innerHTML = OVERVIEW.accounts.map(a => {
+    const p = a.profile || {};
+    const followers = p.followers_count ?? p.fan_count;
+    const posts = p.media_count;
+    const quota = a.quota ? `${25 - (a.quota.used || 0)} posts available today` : null;
+    const err = (a.errors || []).length ? `<span class="pill warn">partial data</span>` : '';
+    return `<div class="acct-card">
+      ${avatarEl(a, p)}
+      <div class="info">
+        <div class="handle">${esc(a.handle)} ${platBadge(a.platform)}</div>
+        <div class="bio">${esc(p.biography || p.about || p.category || '')}</div>
+        <div class="stat-pills">
+          <span class="pill green">${fmt(followers)} followers</span>
+          ${posts != null ? `<span class="pill">${fmt(posts)} posts</span>` : ''}
+          ${quota ? `<span class="pill blue">${quota}</span>` : ''}
+          ${err}
+        </div>
+      </div></div>`;
+  }).join('');
+  $('refreshedAt').textContent = 'updated ' + new Date(OVERVIEW.generated_at).toLocaleTimeString();
+}
+
+function normalizePosts() {
+  if (!OVERVIEW) return [];
+  const out = [];
+  for (const a of OVERVIEW.accounts) {
+    for (const m of (a.media || [])) {
+      if (a.platform === 'instagram') {
+        out.push({ acct: a, id: m.id, ts: m.timestamp, img: m.media_url || m.thumbnail_url,
+          cap: m.caption, likes: m.like_count, comments: m.comments_count, link: m.permalink });
+      } else {
+        out.push({ acct: a, id: m.id, ts: m.created_time, img: m.full_picture, cap: m.message,
+          likes: m.reactions && m.reactions.summary && m.reactions.summary.total_count,
+          comments: m.comments && m.comments.summary && m.comments.summary.total_count,
+          link: m.permalink_url });
+      }
+    }
+  }
+  return out.sort((x, y) => new Date(y.ts || 0) - new Date(x.ts || 0));
+}
+
+function renderPosts() {
+  if (!OVERVIEW) { $('postGrid').innerHTML = Array(8).fill(`<div class="skeleton" style="height:300px"></div>`).join(''); return; }
+  const posts = normalizePosts().filter(p => filter === 'all' || p.acct.key === filter);
+  if (!posts.length) {
+    $('postGrid').innerHTML = `<p class="hint">No published posts on this feed yet. When you're ready, head to Publish to share your first one.</p>`;
+    return;
+  }
+  $('postGrid').innerHTML = posts.map((p, i) => `
+    <div class="post-card" onclick="openDetail(${i})">
+      <div class="thumb" style="${p.img ? `background-image:url('${esc(p.img)}')` : ''}">${p.img ? '' : '📝'}</div>
+      <div class="body">
+        <div class="cap">${esc(p.cap || '(no caption)')}</div>
+        <div class="row">
+          <span>♥ ${fmt(p.likes || 0)} · 💬 ${fmt(p.comments || 0)}</span>
+          ${platBadge(p.acct.platform)}
+        </div>
+        <div class="row" style="margin-top:6px">
+          <span>${p.ts ? new Date(p.ts).toLocaleDateString() : ''}</span>
+          <a class="openlink" href="${esc(p.link || '#')}" target="_blank" rel="noopener" onclick="event.stopPropagation()">View live ↗</a>
+        </div>
+      </div>
+    </div>`).join('');
+  window.__posts = posts;
+}
+
+/* ── Post detail ───────────────────────────────────────── */
+async function openDetail(i) {
+  const p = window.__posts[i];
+  if (!p || !p.id) return;
+  const veil = $('detailVeil'), box = $('detailBox');
+  box.innerHTML = `<div class="dimg" style="${p.img ? `background-image:url('${esc(p.img)}')` : ''}">${p.img ? '' : '📝'}</div>
+    <div class="dbody">
+      <div class="dmeta">${platBadge(p.acct.platform)} <span>${esc(p.acct.handle)}</span>
+        <span>${p.ts ? new Date(p.ts).toLocaleString() : ''}</span>
+        ${p.link ? `<a class="openlink" href="${esc(p.link)}" target="_blank" rel="noopener">View live ↗</a>` : ''}</div>
+      <div class="dcap">${esc(p.cap || '(no caption)')}</div>
+      <h4>Performance</h4><div class="skeleton" style="height:70px"></div>
+      <h4>Comments</h4><div class="skeleton" style="height:60px"></div>
+    </div>`;
+  veil.classList.add('open');
+  try {
+    const d = await api(`/api/post-details?key=${encodeURIComponent(p.acct.key)}&post_id=${encodeURIComponent(p.id)}`);
+    const isFb = p.acct.platform === 'facebook';
+    const baseTiles = [['likes', p.likes], ['comments', p.comments]];
+    const tiles = Object.entries(d.metrics || {});
+    const tileHtml = (tiles.length ? tiles : baseTiles).map(([k, v]) =>
+      `<div class="mt"><div class="v">${fmt(v)}</div><div class="l">${esc(METRIC_LABEL[k] || k)}</div></div>`).join('');
+    let reactHtml = '';
+    if (isFb && d.reactions && d.reactions.total != null) {
+      const counts = {};
+      for (const t of (d.reactions.recent || [])) counts[t] = (counts[t] || 0) + 1;
+      reactHtml = `<h4>Reactions · ${fmt(d.reactions.total)} total</h4><div class="reaction-pills">` +
+        (Object.keys(counts).length
+          ? Object.entries(counts).map(([t, c]) => `<span class="pill">${REACT_ICON[t] || t} ${c}</span>`).join('')
+          : '<span class="hint">No reactions yet.</span>') + `</div>`;
+    }
+    const comments = (d.comments || []).map(c => {
+      const who = c.username || (c.from && c.from.name) || 'Someone';
+      const text = c.text || c.message || '';
+      const when = c.timestamp || c.created_time;
+      return `<div class="comment"><b>${esc(who)}</b> — ${esc(text)}
+        <div class="cm">${when ? new Date(when).toLocaleString() : ''} · ${fmt(c.like_count || 0)} likes</div></div>`;
+    }).join('') || '<p class="hint">No comments yet — check back after your audience engages.</p>';
+    const notes = (d.notes || []).map(n => {
+      const v = Object.values(n)[0] || '';
+      if (/at least 1,?000|1000 followers|not enough/i.test(v))
+        return '<p class="hint">📈 Detailed post metrics unlock automatically once this account reaches 1,000 followers.</p>';
+      return `<p class="hint">Some metrics are unavailable right now.</p>`;
+    }).join('');
+    let manage = '';
+    if (isFb) {
+      manage = `<h4>Manage this post</h4>
+        <textarea id="editMsg">${esc(p.cap || '')}</textarea>
+        <div class="manage">
+          <button class="mini-btn" onclick="savePostEdit('${p.acct.key}','${esc(p.id)}')">Save changes</button>
+          <button class="mini-btn danger" id="delBtn" onclick="deletePost('${p.acct.key}','${esc(p.id)}', this)">Remove post…</button>
+        </div>`;
+    }
+    box.querySelector('.dbody').innerHTML = `
+      <div class="dmeta">${platBadge(p.acct.platform)} <span>${esc(p.acct.handle)}</span>
+        <span>${p.ts ? new Date(p.ts).toLocaleString() : ''}</span>
+        ${p.link ? `<a class="openlink" href="${esc(p.link)}" target="_blank" rel="noopener">View live ↗</a>` : ''}</div>
+      <div class="dcap">${esc(p.cap || '(no caption)')}</div>
+      <h4>Performance</h4>
+      <div class="metric-tiles">${tileHtml}</div>
+      ${notes}
+      ${reactHtml}
+      <h4>Comments (${(d.comments || []).length})</h4>
+      ${comments}
+      ${manage}`;
+  } catch (e) {
+    box.querySelector('.dbody').innerHTML += `<p class="hint">Could not load post details: ${esc(e.message)}</p>`;
+  }
+}
+
+async function savePostEdit(key, postId) {
+  const msg = $('editMsg').value.trim();
+  if (!msg) return toast('Updated text can\'t be empty', true);
+  try {
+    await api('/api/post/update', { method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ key, post_id: postId, message: msg }) });
+    toast('Post updated successfully');
+    $('detailVeil').classList.remove('open');
+    loadOverview(true);
+  } catch (e) { toast('Update failed: ' + e.message, true); }
+}
+
+async function deletePost(key, postId, btn) {
+  if (btn.dataset.armed !== '1') {
+    btn.dataset.armed = '1';
+    btn.textContent = 'Click again to permanently remove';
+    setTimeout(() => { btn.dataset.armed = ''; btn.textContent = 'Remove post…'; }, 4000);
+    return;
+  }
+  try {
+    await api('/api/post/delete', { method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ key, post_id: postId }) });
+    toast('Post removed');
+    $('detailVeil').classList.remove('open');
+    loadOverview(true);
+  } catch (e) { toast('Removal failed: ' + e.message, true); }
+}
+
+/* ── Analytics ─────────────────────────────────────────── */
+async function loadAnalytics(fresh) {
+  $('analyticsBody').innerHTML = Array(3).fill('<div class="skeleton" style="height:180px;margin-bottom:18px"></div>').join('');
+  try {
+    ANALYTICS = await api('/api/analytics' + (fresh ? '?fresh=true' : ''));
+    $('analyticsBody').innerHTML = ACCOUNTS.map(a => {
+      const d = (ANALYTICS.accounts || {})[a.key] || {};
+      const p = OVERVIEW && OVERVIEW.accounts.find(x => x.key === a.key);
+      const entries = Object.entries(d.metrics || {}).filter(([, v]) => v != null);
+      const tiles = entries.length
+        ? `<div class="metric-tiles">${entries.map(([k, v]) =>
+            `<div class="mt"><div class="v">${fmt(v)}</div><div class="l">${esc(METRIC_LABEL[k] || k)}</div></div>`).join('')}</div>`
+        : `<p class="hint">Performance data will appear here as this account builds activity. New and small accounts may not report metrics yet — that's normal.</p>`;
+      const mentions = (d.tagged || []).length
+        ? `<h4 style="font-size:12px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:var(--faint);margin:18px 0 4px">Recent mentions</h4>
+           <div class="mention-strip">${d.tagged.map(t => `
+             <a class="mention" href="${esc(t.permalink || '#')}" target="_blank" rel="noopener">
+               <div class="mimg" style="${t.media_url ? `background-image:url('${esc(t.media_url)}')` : ''}"></div>
+               <div class="mby">@${esc(t.username || '')}</div></a>`).join('')}</div>`
+        : (a.platform === 'instagram' ? `<p class="hint" style="margin-top:12px">No tagged mentions in the current window.</p>` : '');
+      return `<div class="perf-card">
+        <div class="perf-head">${avatarEl(a, p && p.profile, 48)}
+          <div><div class="handle">${esc(a.handle)} ${platBadge(a.platform)}</div>
+          <div class="s">Last 7 days · refreshed ${new Date(ANALYTICS.generated_at).toLocaleTimeString()}</div></div></div>
+        ${tiles}${mentions}</div>`;
+    }).join('');
+  } catch (e) {
+    $('analyticsBody').innerHTML = `<p class="hint">Analytics couldn't be loaded: ${esc(e.message)}</p>`;
+  }
+}
+
+/* ── Scheduled ─────────────────────────────────────────── */
+async function loadScheduled() {
+  $('schedBody').innerHTML = '<div class="skeleton" style="height:120px"></div>';
+  try {
+    const j = await api('/api/scheduled');
+    const cards = [];
+    for (const [key, v] of Object.entries(j.scheduled || {})) {
+      const acct = ACCOUNTS.find(a => a.key === key) || { handle: key, platform: 'facebook' };
+      for (const p of (v.posts || [])) {
+        const when = p.scheduled_publish_time ? new Date(p.scheduled_publish_time * 1000) : null;
+        cards.push(`<div class="sched-card">
+          <div style="min-width:0">
+            <div class="msg">${esc(p.message || '(no text)')}</div>
+            <div class="when">Publishing ${when ? when.toLocaleString() : 'soon'} · ${esc(acct.handle)}</div>
+          </div>
+          <div class="sched-actions">
+            <input type="datetime-local" id="rs_${esc(p.id)}" style="max-width:210px;padding:8px 10px;font-size:12.5px">
+            <button class="mini-btn" onclick="reschedulePost('${key}','${esc(p.id)}')">Move</button>
+            <button class="mini-btn danger" onclick="deleteScheduled('${key}','${esc(p.id)}', this)">Remove</button>
+          </div></div>`);
+      }
+      if (v.error) cards.push(`<p class="hint">⚠ ${esc(acct.handle)}: ${esc(v.error)}</p>`);
+    }
+    $('schedBody').innerHTML = cards.join('') ||
+      `<p class="hint">Your publishing queue is empty. Schedule a Facebook post from the Publish page and it will appear here.</p>`;
+  } catch (e) {
+    $('schedBody').innerHTML = `<p class="hint">Queue couldn't be loaded: ${esc(e.message)}</p>`;
+  }
+}
+
+async function reschedulePost(key, postId) {
+  const input = $('rs_' + postId);
+  if (!input || !input.value) return toast('Choose a new date and time first', true);
+  try {
+    await api('/api/post/reschedule', { method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ key, post_id: postId, schedule_time: Math.floor(new Date(input.value).getTime() / 1000) }) });
+    toast('Post moved to its new time');
+    loadScheduled();
+  } catch (e) { toast('Couldn\'t move the post: ' + e.message, true); }
+}
+
+async function deleteScheduled(key, postId, btn) {
+  if (btn.dataset.armed !== '1') {
+    btn.dataset.armed = '1'; btn.textContent = 'Confirm remove';
+    setTimeout(() => { btn.dataset.armed = ''; btn.textContent = 'Remove'; }, 4000);
+    return;
+  }
+  try {
+    await api('/api/post/delete', { method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ key, post_id: postId }) });
+    toast('Removed from the queue');
+    loadScheduled();
+  } catch (e) { toast('Couldn\'t remove it: ' + e.message, true); }
+}
+
+/* ── Integrations ──────────────────────────────────────── */
+async function loadIntegrations(fresh) {
+  $('integrationsBody').innerHTML = '<div class="skeleton" style="height:300px"></div>';
+  try {
+    INTEGRATIONS = await api('/api/integrations' + (fresh ? '?fresh=true' : ''));
+    const ok = s => `<div class="v"><span class="dot ${s ? 'ok' : 'bad'}"></span>${s ? 'Operational' : 'Attention needed'}</div>`;
+    const groups = {};
+    for (const t of INTEGRATIONS.tools) (groups[t.platform] = groups[t.platform] || []).push(t);
+    const tables = Object.entries(groups).map(([plat, tools]) => `
+      <div class="eyebrow" style="margin-top:26px">${plat} · ${tools.length} capabilities</div>
+      <div class="table-scroll"><table class="tool-table">
+        <tr><th style="width:190px">Capability</th><th>What it does for you</th><th style="width:120px">Status</th></tr>
+        ${tools.map(t => `<tr>
+          <td class="area">${esc(t.area)}<div class="slug">${esc(t.slug)}</div></td>
+          <td class="what">${esc(t.what)}</td>
+          <td><span class="pill green">● Live</span></td></tr>`).join('')}
+      </table></div>`).join('');
+    const pages = (INTEGRATIONS.managed_pages || []).map(p =>
+      `<span class="pill blue">${esc(p.name)} · ${esc(p.category || 'Page')}</span>`).join(' ');
+    $('integrationsBody').innerHTML = `
+      <div class="status-banner">
+        <div class="status-card"><div class="t">Composio pipe</div>${ok(INTEGRATIONS.pipe === 'operational')}</div>
+        <div class="status-card"><div class="t">Instagram connection</div>${ok(INTEGRATIONS.instagram_ok)}</div>
+        <div class="status-card"><div class="t">Facebook connection</div>${ok(INTEGRATIONS.facebook_ok)}</div>
+        <div class="status-card"><div class="t">Last verified</div><div class="v">${new Date(INTEGRATIONS.checked_at).toLocaleTimeString()}</div></div>
+      </div>
+      ${pages ? `<div class="eyebrow">Pages your business manages</div><div class="stat-pills" style="margin-bottom:8px">${pages}</div>` : ''}
+      ${tables}`;
+  } catch (e) {
+    $('integrationsBody').innerHTML = `<p class="hint">Integration status couldn't be loaded: ${esc(e.message)}</p>`;
+  }
+}
+
+/* ── Publish flow ──────────────────────────────────────── */
+function renderTargets() {
+  $('targetPills').innerHTML = ACCOUNTS.map(a => `
+    <div class="target ${selected.has(a.key) ? 'on' : ''}" onclick="toggleTarget('${a.key}')">
+      <div class="avatar ${a.platform === 'instagram' ? 'ig' : 'fb'}">${initials(a.handle)}</div>
+      ${esc(a.handle)}</div>`).join('');
+  updateDock();
+}
+function toggleTarget(k) { selected.has(k) ? selected.delete(k) : selected.add(k); renderTargets(); }
+
+function updateDock() {
+  const cap = $('caption').value.trim();
+  const n = selected.size;
+  if (!n && !cap) {
+    $('dockTitle').textContent = 'No draft in progress';
+    $('dockSub').textContent = 'Open Publish to create your next post';
+    $('postBtn').disabled = true;
+    return;
+  }
+  $('dockTitle').textContent = n ? `Draft ready · ${n} destination${n > 1 ? 's' : ''}` : 'Draft in progress — choose destinations';
+  $('dockSub').textContent = cap ? `“${cap.slice(0, 80)}${cap.length > 80 ? '…' : ''}”` : 'Add your message to continue';
+  $('postBtn').disabled = !(n && (cap || $('imageUrl').value.trim()));
+}
+
+function openModal() {
+  const img = $('imageUrl').value.trim(), sched = $('scheduleTime').value;
+  const igSel = [...selected].filter(k => ACCOUNTS.find(a => a.key === k).platform === 'instagram');
+  if (igSel.length && !img) return toast('Instagram needs an image — add a public image link', true);
+  if (igSel.length && sched) return toast('Scheduling is Facebook-only. Remove Instagram or clear the schedule.', true);
+  $('modalTargets').innerHTML = [...selected].map(k => {
+    const a = ACCOUNTS.find(x => x.key === k);
+    return `<div class="tgt"><div class="avatar ${a.platform === 'instagram' ? 'ig' : 'fb'}" style="width:30px;height:30px;font-size:12px">${initials(a.handle)}</div>${esc(a.handle)} ${platBadge(a.platform)}</div>`;
+  }).join('');
+  $('modalSub').textContent = sched
+    ? `Scheduled for ${new Date(sched).toLocaleString()} — Facebook pages only.`
+    : 'This will publish publicly, right away, to the destinations below.';
+  $('modalResults').innerHTML = '';
+  $('modalConfirm').style.display = '';
+  $('modalConfirm').innerHTML = sched ? 'Schedule post' : 'Publish now';
+  $('modalCancel').textContent = 'Cancel';
+  $('modalVeil').classList.add('open');
+}
+
+async function confirmPost() {
+  const btn = $('modalConfirm');
+  btn.innerHTML = '<span class="spin"></span> Publishing…'; btn.disabled = true;
+  const sched = $('scheduleTime').value;
+  try {
+    const j = await api('/api/post', { method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        targets: [...selected],
+        caption: $('caption').value.trim(),
+        image_url: $('imageUrl').value.trim() || null,
+        schedule_time: sched ? Math.floor(new Date(sched).getTime() / 1000) : null,
+      }) });
+    const lines = Object.entries(j.results).map(([k, v]) => {
+      const a = ACCOUNTS.find(x => x.key === k);
+      if (v.ok) return `<div class="result-line">✅ ${esc(a.handle)} — ${v.scheduled ? 'added to the queue' : 'published'}${v.permalink ? ` · <a href="${esc(v.permalink)}" target="_blank" rel="noopener">view post</a>` : ''}</div>`;
+      return `<div class="result-line err">✖ ${esc(a.handle)} — ${esc(v.error)}</div>`;
+    });
+    $('modalResults').innerHTML = lines.join('');
+    const okAll = Object.values(j.results).every(v => v.ok);
+    toast(okAll ? 'Your post is live 🎉' : 'Finished, with some issues', !okAll);
+    btn.style.display = 'none';
+    $('modalCancel').textContent = 'Close';
+    if (okAll) { $('caption').value = ''; $('imageUrl').value = ''; $('scheduleTime').value = ''; selected.clear(); renderTargets(); syncPreview(); }
+    loadOverview(true);
+  } catch (e) {
+    $('modalResults').innerHTML = `<div class="result-line err">✖ ${esc(e.message)}</div>`;
+    toast('Publishing failed: ' + e.message, true);
+  } finally {
+    btn.disabled = false; btn.innerHTML = 'Publish now';
+  }
+}
+
+/* ── Data loading ──────────────────────────────────────── */
+async function loadOverview(fresh) {
+  renderKpis(); renderAccounts(); renderPosts();
+  try {
+    OVERVIEW = await api('/api/overview' + (fresh ? '?fresh=true' : ''));
+    const errs = OVERVIEW.accounts.flatMap(a => (a.errors || []).map(e => `${a.handle}: ${Object.keys(e)[0]}`));
+    const strip = $('homeNotice');
+    if (errs.length) { strip.style.display = 'block'; strip.textContent = 'Some figures are temporarily unavailable — ' + errs.join(' · ') + '. Everything else is live.'; }
+    else strip.style.display = 'none';
+    renderSidebar(); renderKpis(); renderAccounts(); renderPosts();
+  } catch (e) {
+    $('homeNotice').style.display = 'block';
+    $('homeNotice').textContent = 'We couldn\'t reach the data pipe: ' + e.message;
+    toast('Refresh failed: ' + e.message, true);
+  }
+}
+
+/* ── View switching ────────────────────────────────────── */
+function showView(v) {
+  currentView = v;
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.view === v));
+  for (const name of ['home', 'publish', 'analytics', 'scheduled', 'integrations'])
+    $('view-' + name).style.display = name === v ? '' : 'none';
+  if (v === 'scheduled') loadScheduled();
+  if (v === 'analytics') loadAnalytics(false);
+  if (v === 'integrations') loadIntegrations(false);
+  document.querySelector('.main').scrollTop = 0;
+}
+
+function syncPreview() {
+  const cap = $('caption').value, img = $('imageUrl').value.trim();
+  $('previewText').textContent = cap || 'Your post preview appears here…';
+  const ph = $('previewImg');
+  if (img) { ph.style.backgroundImage = `url('${img}')`; ph.textContent = ''; }
+  else { ph.style.backgroundImage = ''; ph.textContent = '🖼'; }
+  updateDock();
+}
+
+document.querySelectorAll('.nav-item').forEach(n => n.addEventListener('click', () => showView(n.dataset.view)));
+$('caption').addEventListener('input', syncPreview);
+$('imageUrl').addEventListener('input', syncPreview);
+$('postBtn').addEventListener('click', () => {
+  if ($('postBtn').disabled) return;
+  openModal();
+});
+$('modalCancel').addEventListener('click', () => $('modalVeil').classList.remove('open'));
+$('modalConfirm').addEventListener('click', confirmPost);
+$('refreshBtn').addEventListener('click', () => {
+  toast('Refreshing live data…');
+  loadOverview(true);
+  if (currentView === 'analytics') loadAnalytics(true);
+  if (currentView === 'scheduled') loadScheduled();
+  if (currentView === 'integrations') loadIntegrations(true);
+});
+for (const veil of ['modalVeil', 'detailVeil'])
+  $(veil).addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('open'); });
+
+(async function init() {
+  greeting();
+  ACCOUNTS = (await api('/api/accounts')).accounts;
+  renderSidebar(); renderChips(); renderTargets();
+  loadOverview(false);
+})();
+</script>
+</body>
+</html>

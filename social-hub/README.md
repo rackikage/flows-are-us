@@ -1,63 +1,105 @@
-# Social Media Hub
+# FLOWS · Social Hub
 
-All-accounts dashboard for Instagram & Facebook via Composio connectors.
+Live all-accounts hub for Instagram + Facebook — Spotify-style dark UI, wired
+**exclusively through the Composio clean pipe** (strict rule: no hand-made Graph
+API calls anywhere).
+
+![stack](https://img.shields.io/badge/pipe-Composio%20MCP-1db954) ![ui](https://img.shields.io/badge/ui-vibrant%20dark-7c3aed)
+
+## Run it
+
+```bash
+python3 social-hub/server.py
+# → http://127.0.0.1:8787
+```
+
+CLI dashboard (same pipe):
+
+```bash
+python3 social-hub/hub.py
+```
+
+## Architecture
+
+```
+static/index.html   Spotify-style UI (sidebar / hero / cards / compose dock)
+        │  fetch /api/*
+server.py           FastAPI — overview, insights, scheduled, post
+        │  ComposioPipe.execute / execute_batch
+composio_pipe.py    MCP streamable-HTTP client → COMPOSIO_MULTI_EXECUTE_TOOL
+        │
+Composio (connect.composio.dev) → Instagram / Facebook Graph
+```
+
+Credentials: read at startup from `~/.claude.json` (`mcpServers.composio`) or
+`COMPOSIO_MCP_URL` + `COMPOSIO_MCP_KEY` env vars. Nothing secret lives in this
+repo. **Note:** the old `composio-core` Python SDK is dead (v1/v2 API sunset,
+HTTP 410) — everything now rides the MCP endpoint.
 
 ## Accounts wired
 
-| Platform  | Handle / Page      | Composio Alias           | Account ID          |
+| Platform  | Handle / Page      | Composio account         | Entity ID           |
 |-----------|--------------------|--------------------------|---------------------|
 | Instagram | @rossmorebuilding  | `instagram_okie-ceile`   | 27412531841701728   |
 | Instagram | @human247.365      | `instagram_anode-conch`  | 27330220746665792   |
 | Facebook  | Human 247/365      | `facebook_uberty-minor`  | 1154954434369587    |
 
-## APIs used
+Add/remove accounts in `ACCOUNTS` at the top of `server.py`.
 
-### Instagram Graph API (v21.0)
-| Tool | Endpoint | Data |
-|------|----------|------|
-| `INSTAGRAM_GET_USER_INFO` | `/me` | Profile, bio, follower counts |
-| `INSTAGRAM_GET_IG_USER_MEDIA` | `/me/media` | Posts, reels, carousels |
-| `INSTAGRAM_GET_USER_INSIGHTS` | `/me/insights` | Reach, engagement, interactions |
-| `INSTAGRAM_GET_IG_MEDIA_INSIGHTS` | `/{media_id}/insights` | Per-post reach, likes, saves |
-| `INSTAGRAM_GET_IG_MEDIA_COMMENTS` | `/{media_id}/comments` | Comments + replies |
-| `INSTAGRAM_GET_IG_USER_TAGS` | `/me/tags` | Tagged media |
+## Features
 
-### Facebook Graph API (v23.0)
-| Tool | Endpoint | Data |
-|------|----------|------|
-| `FACEBOOK_LIST_MANAGED_PAGES` | `/me/accounts` | All pages you manage |
-| `FACEBOOK_GET_PAGE_DETAILS` | `/{page_id}` | Page metadata |
-| `FACEBOOK_GET_PAGE_POSTS` | `/{page_id}/feed` | All timeline posts |
-| `FACEBOOK_GET_PAGE_INSIGHTS` | `/{page_id}/insights` | Page impressions, reach |
-| `FACEBOOK_GET_POST_INSIGHTS` | `/{post_id}/insights` | Per-post analytics |
-| `FACEBOOK_GET_COMMENTS` | `/{post_id}/comments` | Comments |
-| `FACEBOOK_GET_POST_REACTIONS` | `/{post_id}/reactions` | Reaction breakdown |
+- **Dashboard** — KPI strip (audience, capacity, connection status), live
+  profiles, unified cross-platform feed, per-account filter chips
+- **Post drill-down** — click any post: per-post views/reach, reactions
+  breakdown, full comment threads; edit or remove Facebook posts in place
+- **Publish** — one message + image to any mix of accounts; live preview;
+  confirm-before-publish modal; per-destination results with permalinks
+- **Analytics** — 7-day account performance (IG insights + FB page insights)
+  and tagged mentions per Instagram account
+- **Scheduled** — the Facebook publish queue with move/remove controls
+  (scheduling is FB-only; the IG Graph API has no native scheduling)
+- **Integrations** — live pipe health checks, managed-page inventory, and the
+  full capability registry (all 24 Composio tools, each marked live)
 
-## Setup
+## Composio tools used
 
-```bash
-pip install composio-core rich
-```
+| Purpose | Tool slug |
+|---------|-----------|
+| IG profile | `INSTAGRAM_GET_USER_INFO` |
+| IG media | `INSTAGRAM_GET_IG_USER_MEDIA` |
+| IG 7-day insights | `INSTAGRAM_GET_USER_INSIGHTS` |
+| IG publish quota | `INSTAGRAM_GET_IG_USER_CONTENT_PUBLISHING_LIMIT` |
+| IG create container | `INSTAGRAM_POST_IG_USER_MEDIA` |
+| IG publish | `INSTAGRAM_POST_IG_USER_MEDIA_PUBLISH` |
+| IG permalink | `INSTAGRAM_GET_IG_MEDIA` |
+| FB page details | `FACEBOOK_GET_PAGE_DETAILS` |
+| FB feed | `FACEBOOK_GET_PAGE_POSTS` |
+| FB text/link post (+schedule) | `FACEBOOK_CREATE_POST` |
+| FB photo post (+schedule) | `FACEBOOK_CREATE_PHOTO_POST` |
+| FB scheduled queue | `FACEBOOK_GET_SCHEDULED_POSTS` |
+| FB permalink | `FACEBOOK_GET_POST` |
+| IG post insights | `INSTAGRAM_GET_IG_MEDIA_INSIGHTS` |
+| IG comments | `INSTAGRAM_GET_IG_MEDIA_COMMENTS` |
+| IG tagged mentions | `INSTAGRAM_GET_IG_USER_TAGS` |
+| FB post insights | `FACEBOOK_GET_POST_INSIGHTS` |
+| FB comments | `FACEBOOK_GET_COMMENTS` |
+| FB reactions | `FACEBOOK_GET_POST_REACTIONS` |
+| FB page insights | `FACEBOOK_GET_PAGE_INSIGHTS` |
+| FB pages inventory | `FACEBOOK_LIST_MANAGED_PAGES` |
+| FB edit post | `FACEBOOK_UPDATE_POST` |
+| FB delete post | `FACEBOOK_DELETE_POST` |
+| FB reschedule | `FACEBOOK_RESCHEDULE_POST` |
 
-Ensure your Composio API key is set:
-```bash
-export COMPOSIO_API_KEY=your_key_here
-```
+## Key pitfalls (learned the hard way)
 
-## Run
-
-```bash
-python social-hub/hub.py
-```
-
-## Pagination
-
-Both Instagram and Facebook paginate via cursor. Use `paging.cursors.after` from each response
-and pass it as the `after` param on the next call until no `paging.next` is returned.
-
-## Key pitfalls
-
-- Instagram insights silently omit metrics with no data — guard missing keys
-- Facebook engagement totals live at `.summary.total_count`, shares at `.count`
-- Instagram media double-nests under `data.data` — always parse defensively
-- Access tokens from `FACEBOOK_LIST_MANAGED_PAGES` are secrets — never log or return them
+- IG posting is two-step: container → publish; container IDs are single-use
+- IG `image_url` must be public HTTPS **JPEG with no query params** (signed
+  S3 URLs are rejected)
+- IG API limit: 25 published posts per rolling 24h window (shown in the UI)
+- FB scheduling needs `published=false` + `scheduled_publish_time` ≥ 10 min out
+- FB engagement lives at `.summary.total_count`; list payloads nest `data.data`
+- Page `access_token` fields are scrubbed server-side before reaching the UI
+- MCP SSE responses must be decoded as UTF-8 explicitly (requests guesses
+  Latin-1 → emoji mojibake)
+- Meta CDN images 403 with a referrer — the UI sets `<meta name="referrer"
+  content="no-referrer">`

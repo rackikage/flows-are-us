@@ -6,19 +6,22 @@ Accounts:
   Instagram  human247.365      id: 27330220746665792  alias: instagram_anode-conch
   Facebook   Human 247/365     id: 1154954434369587   alias: facebook_uberty-minor
 
-Requires: composio-core, rich
-  pip install composio-core rich
+Requires: requests, rich
+  pip install requests rich
+
+All platform calls go through the Composio clean pipe (composio_pipe.py —
+Composio MCP endpoint). The old composio-core SDK is dead (API sunset, HTTP 410).
 """
 
 import json
 from datetime import datetime, timezone
-from composio import ComposioToolSet
+from composio_pipe import ComposioPipe, PipeError
 from rich.console import Console
 from rich.table import Table
 from rich import box
 
 console = Console()
-toolset = ComposioToolSet()
+pipe = ComposioPipe()
 
 # ── Account config ─────────────────────────────────────────────────────────────
 IG_ACCOUNTS = [
@@ -36,15 +39,12 @@ WEEK_EPOCH = NOW_EPOCH - 7 * 86400
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
 def execute(tool_slug: str, arguments: dict, account: str) -> dict:
-    """Execute a Composio tool and return the data dict."""
-    resp = toolset.execute_action(
-        action=tool_slug,
-        params=arguments,
-        connected_account_id=account,
-    )
-    if isinstance(resp, dict):
-        return resp.get("data") or resp
-    return {}
+    """Execute a Composio tool through the clean pipe; empty dict on failure."""
+    try:
+        return pipe.execute(tool_slug, arguments, account=account)
+    except PipeError as e:
+        console.print(f"[red]  ✖ {tool_slug} ({account}): {e}[/red]")
+        return {}
 
 
 def safe_list(d: dict, *keys) -> list:
