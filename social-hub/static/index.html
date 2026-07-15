@@ -381,6 +381,135 @@
   .fatal { padding: 60px 38px; text-align: center; }
   .fatal h2 { margin-bottom: 10px; }
 
+  /* ══ Shell v2: sticky app header ═════════════════════════ */
+  .apphead { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 16px 38px; background: rgba(11,11,18,.82); backdrop-filter: blur(16px) saturate(1.3);
+    border-bottom: 1px solid var(--line); }
+  .apphead-l { display: flex; align-items: baseline; gap: 14px; min-width: 0; }
+  .apphead h1 { font-size: 22px; font-weight: 800; letter-spacing: -.5px; }
+  .apphead .sync { font-size: 12px; color: var(--faint); font-weight: 600; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+  .apphead .sync .pipe-dot { width: 7px; height: 7px; margin: 0; }
+  .apphead-r { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .apphead .btn { padding: 10px 20px; font-size: 13.5px; }
+  .apphead .btn.primary { display: inline-flex; align-items: center; gap: 7px; }
+  .apphead .btn.primary svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; }
+
+  /* Slimmer view intros — no marketing hero. Dashboard drops its intro entirely. */
+  .viewintro { padding: 20px 38px 0; }
+  .viewintro p { color: var(--muted); font-size: 13.5px; line-height: 1.55; max-width: 680px; }
+
+  /* Section headers become quieter dividers */
+  .sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+  .sec-head h2 { font-size: 15px; font-weight: 800; letter-spacing: .2px; }
+  .sec-head .sec-link { font-size: 12.5px; font-weight: 700; color: var(--accent-bright); cursor: pointer; }
+  .sec-head .sec-link:hover { color: #fff; }
+  .sec-note { font-size: 12px; color: var(--faint); font-weight: 600; }
+
+  /* ══ KPI row (compact, controlled) ══════════════════════ */
+  .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(168px, 1fr)); gap: 12px; }
+  .kpi2 { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 15px 17px; min-width: 0;
+    transition: border .18s, background .18s; }
+  .kpi2:hover { border-color: #2c2c44; }
+  .kpi2 .k-top { display: flex; align-items: center; gap: 8px; color: var(--faint); }
+  .kpi2 .k-top svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .kpi2 .k-label { font-size: 11px; font-weight: 800; letter-spacing: .6px; text-transform: uppercase; }
+  .kpi2 .k-val { font-size: 27px; font-weight: 800; letter-spacing: -1px; margin-top: 8px; font-family: var(--font-display); line-height: 1; }
+  .kpi2 .k-sub { font-size: 11.5px; color: var(--muted); margin-top: 6px; font-weight: 600; }
+  .kpi2.attn { border-color: rgba(255,182,72,.4); background: rgba(255,182,72,.06); }
+  .kpi2.attn .k-top, .kpi2.attn .k-val { color: var(--gold); }
+  .kpi2.good .k-val { color: var(--ok); }
+
+  /* ══ Status badges ══════════════════════════════════════ */
+  .sbadge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 800; letter-spacing: .3px;
+    padding: 3px 9px 3px 8px; border-radius: 999px; text-transform: uppercase; white-space: nowrap; }
+  .sbadge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .sbadge.connected, .sbadge.published { color: var(--ok); background: rgba(61,220,132,.13); }
+  .sbadge.scheduled { color: #6aaefc; background: rgba(24,119,242,.16); }
+  .sbadge.draft { color: var(--accent-bright); background: rgba(143,122,255,.16); }
+  .sbadge.warning { color: var(--gold); background: rgba(255,182,72,.14); }
+  .sbadge.failed { color: #ff8fa0; background: rgba(255,84,112,.15); }
+
+  /* ══ Needs-attention panel ══════════════════════════════ */
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; }
+  .panel.healthy { border-color: rgba(61,220,132,.28); background: linear-gradient(180deg, rgba(61,220,132,.05), transparent); }
+  .attn-head { display: flex; align-items: center; gap: 11px; }
+  .attn-icon { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .attn-icon svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .attn-icon.ok { background: rgba(61,220,132,.14); color: var(--ok); }
+  .attn-icon.warn { background: rgba(255,182,72,.14); color: var(--gold); }
+  .attn-head .at { font-weight: 800; font-size: 14.5px; }
+  .attn-head .as { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+  .attn-list { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+  .attn-item { display: flex; align-items: center; gap: 12px; padding: 11px 14px; background: #0e0e18; border: 1px solid var(--line);
+    border-radius: 10px; font-size: 13px; }
+  .attn-item .ai-txt { flex: 1; min-width: 0; } .attn-item .ai-txt b { font-weight: 700; }
+  .attn-item .ai-txt .ai-sub { color: var(--muted); font-size: 12px; margin-top: 1px; }
+
+  /* ══ Schedule overview ══════════════════════════════════ */
+  .sched-over { display: grid; grid-template-columns: 1.3fr 1fr; gap: 14px; }
+  .next-post { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; display: flex; gap: 15px; align-items: center; }
+  .next-post .np-thumb { width: 58px; height: 58px; border-radius: 10px; background: #191926 center/cover no-repeat; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; color: #47475c; font-size: 22px; }
+  .next-post .np-body { min-width: 0; flex: 1; }
+  .next-post .np-when { font-size: 12.5px; font-weight: 800; color: var(--accent-bright); }
+  .next-post .np-msg { font-size: 13.5px; color: #e7e7f0; margin-top: 3px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.45; }
+
+  /* ══ Compact account list ═══════════════════════════════ */
+  .acct-list { display: flex; flex-direction: column; gap: 8px; }
+  .acct-item { display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center;
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px;
+    transition: border .18s, background .18s; }
+  .acct-item:hover { border-color: #2c2c44; background: var(--card-hover); }
+  .acct-item .ai-id { min-width: 0; }
+  .acct-item .ai-name { font-weight: 800; font-size: 14.5px; display: flex; align-items: center; gap: 8px; }
+  .acct-item .ai-meta { font-size: 12px; color: var(--muted); margin-top: 3px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .acct-item .ai-meta .sep { color: #33334a; }
+  .acct-item .ai-act { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+  .health-dot { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; }
+  .health-dot::before { content: ""; width: 7px; height: 7px; border-radius: 50%; }
+  .health-dot.ok { color: var(--ok); } .health-dot.ok::before { background: var(--ok); box-shadow: 0 0 7px var(--ok); }
+  .health-dot.warn { color: var(--gold); } .health-dot.warn::before { background: var(--gold); }
+
+  /* ══ Structured recent-content rows ═════════════════════ */
+  .content-list { display: flex; flex-direction: column; gap: 8px; }
+  .content-row { display: grid; grid-template-columns: 52px 1fr auto; gap: 15px; align-items: center;
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 11px 16px; cursor: pointer;
+    transition: border .18s, background .18s; }
+  .content-row:hover { border-color: #2c2c44; background: var(--card-hover); }
+  .content-row .cr-thumb { width: 52px; height: 52px; border-radius: 9px; background: #191926 center/cover no-repeat; position: relative;
+    display: flex; align-items: center; justify-content: center; color: #47475c; font-size: 20px; }
+  .content-row .cr-mid { min-width: 0; }
+  .content-row .cr-cap { font-size: 13.5px; color: #e7e7f0; font-weight: 600; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+  .content-row .cr-cap.none { color: var(--faint); font-style: italic; font-weight: 500; }
+  .content-row .cr-meta { font-size: 12px; color: var(--muted); margin-top: 4px; display: flex; gap: 9px; align-items: center; flex-wrap: wrap; }
+  .content-row .cr-meta .sep { color: #33334a; }
+  .content-row .cr-right { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+  .content-row .cr-eng { font-size: 12.5px; color: var(--muted); font-weight: 700; text-align: right; white-space: nowrap; }
+  .content-row .cr-view { color: var(--faint); text-decoration: none; font-weight: 700; font-size: 12px; }
+  .content-row .cr-view:hover { color: var(--accent-bright); }
+
+  /* ══ Empty-state component ══════════════════════════════ */
+  .empty { text-align: center; padding: 30px 24px; background: var(--card); border: 1px dashed #2c2c44; border-radius: var(--radius); }
+  .empty .e-icon { width: 44px; height: 44px; margin: 0 auto 12px; border-radius: 12px; background: rgba(143,122,255,.12);
+    display: flex; align-items: center; justify-content: center; color: var(--accent-bright); }
+  .empty .e-icon svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .empty .e-title { font-weight: 800; font-size: 14.5px; }
+  .empty .e-sub { font-size: 12.5px; color: var(--muted); margin-top: 5px; margin-bottom: 14px; line-height: 1.5; }
+
+  /* Dashboard sections get tighter, consistent rhythm */
+  #view-home .section { padding: 22px 38px 4px; }
+  #view-home .section:last-of-type { padding-bottom: 26px; }
+
+  /* Dock only appears on Publish now */
+  .app.no-dock { grid-template-rows: 1fr 0; }
+  .app.no-dock .dock { display: none; }
+
+  /* Other views: the sticky header carries the title, so heroes become slim intros */
+  .hero h1 { display: none; }
+  .hero { background: none; padding: 16px 38px 4px; }
+  .hero p { color: var(--muted); font-size: 13.5px; max-width: 680px; }
+  .hero .chips { margin-top: 12px; }
+
   /* ── Phone layout ────────────────────────────────────── */
   @media (max-width: 880px) {
     body { overflow: auto; }
@@ -406,7 +535,19 @@
     .hero h1 { font-size: 27px; }
     .hero p { font-size: 13.5px; }
     .section { padding: 6px 18px 22px; }
+    #view-home .section { padding: 16px 18px 4px; }
     .notice { margin: 0 18px 14px; }
+    /* Desktop app-header hides on phone — the top bar carries title + actions */
+    .apphead { display: none; }
+    .viewintro { padding: 14px 18px 0; }
+    .kpi-row { grid-template-columns: 1fr 1fr; }
+    .sched-over { grid-template-columns: 1fr; }
+    .acct-item { grid-template-columns: auto 1fr; }
+    .acct-item .ai-act { grid-column: 2; justify-content: flex-start; margin-top: 2px; }
+    .content-row { grid-template-columns: 46px 1fr; }
+    .content-row .cr-thumb { width: 46px; height: 46px; }
+    .content-row .cr-right { grid-column: 2; justify-content: space-between; margin-top: 2px; }
+    .topbar .page-t { font-weight: 800; font-size: 15px; }
     .compose-grid { grid-template-columns: 1fr; }
     .preview-box { position: static; }
     .grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
@@ -425,10 +566,10 @@
 </style>
 </head>
 <body>
-<div class="app">
+<div class="app no-dock">
   <!-- Mobile top bar -->
   <div class="topbar">
-    <div class="brand">FLOWS</div>
+    <div class="page-t" id="pageTitleMobile">Dashboard</div>
     <div style="display:flex;gap:8px;align-items:center">
       <button class="mini-btn" id="refreshBtnMobile">Refresh</button>
       <button class="mini-btn" onclick="showView('integrations')" aria-label="Setup" style="padding:7px 10px">
@@ -463,34 +604,59 @@
   </aside>
 
   <main class="main">
+    <!-- Sticky app header (desktop) — page context + primary action -->
+    <header class="apphead">
+      <div class="apphead-l">
+        <h1 id="pageTitle">Dashboard</h1>
+        <span class="sync" id="syncStatus"><span class="pipe-dot"></span>Live</span>
+      </div>
+      <div class="apphead-r">
+        <button class="btn ghost" id="refreshBtnHead" style="padding:10px 18px;font-size:13.5px">Refresh</button>
+        <button class="btn primary" onclick="showView('publish')">
+          <svg viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></svg>Create post</button>
+      </div>
+    </header>
+
     <!-- DASHBOARD -->
     <div id="view-home">
-      <div class="hero grad-home">
-        <h1 id="greeting">Good evening</h1>
-        <p>Your accounts, content and performance — together in one place, always live.</p>
-        <div class="chips" id="filterChips"></div>
-      </div>
       <div class="notice" id="homeNotice"></div>
-      <div class="section"><div class="kpis" id="kpiStrip"></div></div>
+
+      <!-- 1 · Health & KPI summary -->
+      <div class="section">
+        <div class="kpi-row" id="kpiStrip"></div>
+      </div>
+
+      <!-- 2 · Needs attention -->
+      <div class="section">
+        <div class="sec-head"><h2>Needs attention</h2></div>
+        <div id="needsAttention"><div class="skeleton" style="height:78px"></div></div>
+      </div>
+
+      <!-- 3 · Up next (schedule overview) -->
+      <div class="section">
+        <div class="sec-head"><h2>Up next</h2><span class="sec-link" onclick="showView('scheduled')">Open queue →</span></div>
+        <div id="schedOverview"><div class="skeleton" style="height:96px"></div></div>
+      </div>
+
+      <!-- 4 · Connected accounts -->
+      <div class="section">
+        <div class="sec-head"><h2>Connected accounts</h2><span class="sec-note" id="refreshedAt"></span></div>
+        <div class="acct-list" id="acctCards"></div>
+      </div>
+
+      <!-- 5 · Recent content -->
+      <div class="section">
+        <div class="sec-head"><h2>Recent content</h2><div class="chips" id="filterChips"></div></div>
+        <div class="content-list" id="postGrid"></div>
+      </div>
+
+      <!-- Live stories (demoted, only when active) -->
       <div class="section" id="storiesSection" style="display:none">
-        <div class="eyebrow">Live right now</div>
-        <h2>Active stories</h2>
-        <div class="sub">Stories currently in their 24-hour window across your Instagram accounts.</div>
+        <div class="sec-head"><h2>Live stories</h2><span class="sec-note">In their 24-hour window</span></div>
         <div class="story-strip" id="storyStrip"></div>
       </div>
-      <div class="section">
-        <div class="eyebrow">Portfolio</div>
-        <h2>Accounts <small id="refreshedAt"></small></h2>
-        <div class="sub">Live profile and audience figures. Select an account to focus its content.</div>
-        <div class="acct-row" id="acctCards"></div>
-      </div>
-      <div class="section">
-        <div class="eyebrow">Content</div>
-        <h2>Recent posts</h2>
-        <div class="sub">Your latest published content across every platform. Tap a post to see how it's doing — status, reach, comments and reactions.</div>
-        <div class="grid" id="postGrid"></div>
-      </div>
-      <div style="height:30px"></div>
+
+      <div style="height:20px"></div>
     </div>
 
     <!-- PUBLISH -->
@@ -664,7 +830,7 @@
 
 <script>
 const $ = id => document.getElementById(id);
-let ACCOUNTS = [], OVERVIEW = null, ANALYTICS = null, INTEGRATIONS = null, LIBRARY = null;
+let ACCOUNTS = [], OVERVIEW = null, ANALYTICS = null, INTEGRATIONS = null, LIBRARY = null, SCHEDULED = null;
 let filter = 'all', libFilter = 'all', selected = new Set(), currentView = 'home', postType = 'photo';
 
 const POST_TYPES = {
@@ -677,6 +843,19 @@ const POST_TYPES = {
 const platBadge = p => `<span class="badge ${p === 'instagram' ? 'ig' : 'fb'}">${p === 'instagram' ? 'Instagram' : 'Facebook'}</span>`;
 const initials = s => s.replace(/[@]/g, '').split(/[.\s/]/).filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('');
 const fmt = n => n == null ? '—' : (n >= 1e6 ? (n/1e6).toFixed(1)+'M' : n >= 1e3 ? (n/1e3).toFixed(1)+'K' : String(n));
+const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
+function relTime(iso) {
+  if (!iso) return 'Updated just now';
+  const s = Math.max(0, (Date.now() - new Date(iso).getTime()) / 1000);
+  if (s < 45) return 'Updated just now';
+  if (s < 3600) return `Updated ${Math.round(s/60)} min ago`;
+  if (s < 86400) return `Updated ${Math.round(s/3600)} hr ago`;
+  return 'Updated ' + new Date(iso).toLocaleDateString();
+}
+function setSync(iso) {
+  const el = $('syncStatus');
+  if (el) el.innerHTML = `<span class="pipe-dot"></span>${esc(relTime(iso))}`;
+}
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const cssUrl = s => String(s ?? '').replace(/["'()\\]/g, '');
 const REACT_ICON = { LIKE:'👍', LOVE:'❤️', HAHA:'😆', WOW:'😮', SAD:'😢', ANGRY:'😡', THANKFUL:'🌻', CARE:'🤗' };
@@ -705,11 +884,6 @@ async function api(path, opts) {
   return j;
 }
 
-function greeting() {
-  const h = new Date().getHours();
-  $('greeting').textContent = h < 5 ? 'Working late' : h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
-}
-
 function avatarEl(a, profile, size) {
   const pic = profile && (profile.profile_picture_url || (profile.picture && profile.picture.data && profile.picture.data.url));
   const style = size ? `width:${size}px;height:${size}px;font-size:${Math.round(size/2.6)}px;` : '';
@@ -735,47 +909,162 @@ function renderChips() {
 }
 function setFilter(k) { filter = k; renderChips(); renderPosts(); }
 
+const ICON = {
+  users: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  alert: '<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>',
+  zap: '<path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/>',
+  check: '<path d="M20 6 9 17l-5-5"/>',
+  calendar: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+};
 function renderKpis() {
-  if (!OVERVIEW) { $('kpiStrip').innerHTML = Array(4).fill('<div class="skeleton" style="height:100px"></div>').join(''); return; }
-  let followers = 0, published = 0, igUsed = 0, igCap = 0;
+  if (!OVERVIEW) { $('kpiStrip').innerHTML = Array(5).fill('<div class="skeleton" style="height:96px"></div>').join(''); return; }
+  const igAccts = OVERVIEW.accounts.filter(a => a.platform === 'instagram');
+  const fbAccts = OVERVIEW.accounts.filter(a => a.platform === 'facebook');
+  let igCap = 0, igUsed = 0;
+  for (const a of igAccts) { igCap += 25; igUsed += (a.quota ? (a.quota.used || 0) : 0); }
+  const igLeft = igCap - igUsed;
+  const attn = attentionItems().length;
+  const queued = SCHEDULED == null ? null
+    : Object.values(SCHEDULED).reduce((n, v) => n + (v.posts || []).length, 0);
+  const kpi = (icon, label, val, sub, cls) => `
+    <div class="kpi2 ${cls || ''}">
+      <div class="k-top"><svg viewBox="0 0 24 24">${ICON[icon]}</svg><span class="k-label">${label}</span></div>
+      <div class="k-val">${val}</div><div class="k-sub">${sub}</div>
+    </div>`;
+  $('kpiStrip').innerHTML =
+    kpi('users', 'Accounts', ACCOUNTS.length,
+        `${igAccts.length} Instagram · ${fbAccts.length} Facebook`) +
+    kpi('alert', 'Needs attention', attn,
+        attn ? plural(attn, 'item') + ' to review' : 'All clear', attn ? 'attn' : 'good') +
+    kpi('clock', 'Scheduled', queued == null ? '—' : queued,
+        queued ? plural(queued, 'post') + ' in the queue' : 'nothing queued') +
+    kpi('zap', 'IG posts left', igLeft,
+        `today · of ${igCap} across ${plural(igAccts.length, 'account')}`) +
+    kpi('check', 'Connection', 'Live', 'secure Composio pipe', 'good');
+}
+
+/* ── Needs attention ───────────────────────────────────── */
+function attentionItems() {
+  const items = [];
+  if (!OVERVIEW) return items;
   for (const a of OVERVIEW.accounts) {
-    const p = a.profile || {};
-    followers += (p.followers_count ?? p.fan_count ?? 0);
-    published += (a.media || []).length;
-    if (a.platform === 'instagram') { igCap += 25; igUsed += (a.quota ? (a.quota.used || 0) : 0); }
+    if ((a.errors || []).length)
+      items.push({ title: `${a.handle} — some figures didn't load`,
+        sub: 'Live data is partial right now. Refresh to try again.',
+        action: { label: 'Refresh', fn: 'refreshAll()' } });
+    if (a.platform === 'instagram' && a.quota && (a.quota.used || 0) >= 25)
+      items.push({ title: `${a.handle} — daily posting limit reached`,
+        sub: 'Instagram allows 25 posts per account per day. It resets within 24 hours.' });
   }
-  $('kpiStrip').innerHTML = `
-    <div class="kpi"><div class="v">${fmt(followers)}</div><div class="l">Total audience</div><div class="d">followers across all accounts</div></div>
-    <div class="kpi"><div class="v">${published}</div><div class="l">Recent posts</div><div class="d">shown from your latest content</div></div>
-    <div class="kpi"><div class="v">${igCap - igUsed}</div><div class="l">Instagram capacity</div><div class="d">posts still available today (of ${igCap})</div></div>
-    <div class="kpi"><div class="v" style="background:linear-gradient(90deg,var(--ok),#a8ffd0);-webkit-background-clip:text;background-clip:text">Live</div>
-      <div class="l">Connection status</div><div class="d">all data flows through Composio</div></div>`;
+  return items;
+}
+
+function renderNeedsAttention() {
+  const el = $('needsAttention');
+  if (!el) return;
+  if (!OVERVIEW) { el.innerHTML = '<div class="skeleton" style="height:78px"></div>'; return; }
+  const items = attentionItems();
+  if (!items.length) {
+    el.innerHTML = `<div class="panel healthy"><div class="attn-head">
+      <div class="attn-icon ok"><svg viewBox="0 0 24 24">${ICON.check}</svg></div>
+      <div><div class="at">All accounts healthy</div>
+        <div class="as">Every account is connected and reporting live. Nothing needs you right now.</div></div>
+    </div></div>`;
+    return;
+  }
+  el.innerHTML = `<div class="panel"><div class="attn-head">
+      <div class="attn-icon warn"><svg viewBox="0 0 24 24">${ICON.alert}</svg></div>
+      <div><div class="at">${plural(items.length, 'item')} to review</div>
+        <div class="as">These won't stop you working, but they're worth a look.</div></div>
+    </div>
+    <div class="attn-list">${items.map(it => `<div class="attn-item">
+      <div class="attn-icon warn" style="width:28px;height:28px;border-radius:8px"><svg viewBox="0 0 24 24">${ICON.alert}</svg></div>
+      <div class="ai-txt"><b>${esc(it.title)}</b><div class="ai-sub">${esc(it.sub)}</div></div>
+      ${it.action ? `<button class="mini-btn" onclick="${it.action.fn}">${esc(it.action.label)}</button>` : ''}
+    </div>`).join('')}</div></div>`;
+}
+
+/* ── Up next (schedule overview) ───────────────────────── */
+async function loadScheduleOverview() {
+  try { SCHEDULED = (await api('/api/scheduled')).scheduled || {}; }
+  catch (e) { SCHEDULED = {}; }
+  renderScheduleOverview();
+  renderKpis();  // queue count feeds a KPI
+}
+
+function renderScheduleOverview() {
+  const el = $('schedOverview');
+  if (!el) return;
+  if (SCHEDULED == null) { el.innerHTML = '<div class="skeleton" style="height:96px"></div>'; return; }
+  const posts = [];
+  for (const [key, v] of Object.entries(SCHEDULED)) {
+    const acct = ACCOUNTS.find(a => a.key === key) || { handle: key };
+    for (const p of (v.posts || []))
+      posts.push({ acct, msg: p.message, when: p.scheduled_publish_time ? p.scheduled_publish_time * 1000 : null,
+        img: p.full_picture });
+  }
+  posts.sort((a, b) => (a.when || Infinity) - (b.when || Infinity));
+  if (!posts.length) {
+    el.innerHTML = `<div class="empty">
+      <div class="e-icon"><svg viewBox="0 0 24 24">${ICON.calendar}</svg></div>
+      <div class="e-title">Nothing scheduled</div>
+      <div class="e-sub">Line up a Facebook post and it'll appear here and in your queue.</div>
+      <button class="btn primary" style="padding:10px 22px" onclick="showView('publish')">Create your next post</button>
+    </div>`;
+    return;
+  }
+  const startOfTomorrow = new Date(); startOfTomorrow.setHours(24, 0, 0, 0);
+  const todayCount = posts.filter(p => p.when && p.when < startOfTomorrow.getTime()).length;
+  const next = posts[0];
+  const whenTxt = next.when
+    ? (next.when < startOfTomorrow.getTime()
+        ? 'today ' + new Date(next.when).toLocaleTimeString([], {hour: 'numeric', minute: '2-digit'})
+        : new Date(next.when).toLocaleString([], {month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'}))
+    : 'soon';
+  el.innerHTML = `<div class="sched-over">
+    <div class="next-post">
+      <div class="np-thumb" style="${next.img ? `background-image:url('${cssUrl(next.img)}')` : ''}">${next.img ? '' : '🗓'}</div>
+      <div class="np-body">
+        <div class="np-when">Publishing ${esc(whenTxt)}</div>
+        <div class="np-msg">${esc(next.msg || '(no caption)')}</div>
+        <div style="margin-top:7px;display:flex;gap:8px;align-items:center">
+          <span class="sbadge scheduled">Scheduled</span><span class="sec-note">${esc(next.acct.handle)}</span></div>
+      </div>
+    </div>
+    <div class="panel" style="display:flex;flex-direction:column;justify-content:center;gap:2px">
+      <div style="font-size:30px;font-weight:800;letter-spacing:-1px;font-family:var(--font-display)">${posts.length}</div>
+      <div class="sec-note">${plural(posts.length, 'post')} queued${todayCount ? ` · ${todayCount} today` : ''}</div>
+      <button class="mini-btn" style="margin-top:12px;align-self:flex-start" onclick="showView('scheduled')">Manage queue</button>
+    </div>
+  </div>`;
 }
 
 function renderAccounts() {
-  if (!OVERVIEW) { $('acctCards').innerHTML = ACCOUNTS.map(() => `<div class="skeleton" style="height:120px"></div>`).join(''); return; }
+  if (!OVERVIEW) { $('acctCards').innerHTML = ACCOUNTS.map(() => `<div class="skeleton" style="height:68px"></div>`).join(''); return; }
   $('acctCards').innerHTML = OVERVIEW.accounts.map(a => {
     const p = a.profile || {};
     const followers = p.followers_count ?? p.fan_count;
     // IG returns media_count; FB doesn't — fall back to the recent-posts window we already have.
     const posts = p.media_count ?? (a.platform === 'facebook' && (a.media || []).length ? (a.media || []).length : null);
-    const postsLabel = a.platform === 'facebook' ? 'recent posts' : 'posts';
-    const quota = a.quota ? `${25 - (a.quota.used || 0)} posts available today` : null;
-    const err = (a.errors || []).length ? `<span class="pill warn">partial data</span>` : '';
-    return `<div class="acct-card" onclick="setFilter('${a.key}')">
+    const postsLabel = a.platform === 'facebook' ? 'recent' : 'posts';
+    const quota = a.quota ? `${25 - (a.quota.used || 0)} left today` : null;
+    const healthy = !(a.errors || []).length;
+    return `<div class="acct-item">
       ${avatarEl(a, p)}
-      <div class="info">
-        <div class="handle">${esc(a.handle)} ${platBadge(a.platform)}</div>
-        <div class="bio">${esc(p.biography || p.about || p.category || '')}</div>
-        <div class="stat-pills">
-          <span class="pill acc">${fmt(followers)} followers</span>
-          ${posts != null ? `<span class="pill">${fmt(posts)} ${postsLabel}</span>` : ''}
-          ${quota ? `<span class="pill blue">${quota}</span>` : ''}
-          ${err}
+      <div class="ai-id">
+        <div class="ai-name">${esc(a.handle)} ${platBadge(a.platform)}</div>
+        <div class="ai-meta">
+          <span class="health-dot ${healthy ? 'ok' : 'warn'}">${healthy ? 'Connected' : 'Check sync'}</span>
+          <span class="sep">·</span><span>${fmt(followers)} followers</span>
+          ${posts != null ? `<span class="sep">·</span><span>${fmt(posts)} ${postsLabel}</span>` : ''}
+          ${quota ? `<span class="sep">·</span><span>${quota}</span>` : ''}
         </div>
-      </div></div>`;
+      </div>
+      <div class="ai-act"><button class="mini-btn" onclick="setFilter('${a.key}')">Open</button></div>
+    </div>`;
   }).join('');
-  $('refreshedAt').textContent = 'updated ' + new Date(OVERVIEW.generated_at).toLocaleTimeString();
+  if ($('refreshedAt')) $('refreshedAt').textContent = relTime(OVERVIEW.generated_at);
 }
 
 function typeTag(t) {
@@ -806,29 +1095,35 @@ function normalizePosts() {
 }
 
 function renderPosts() {
-  if (!OVERVIEW) { $('postGrid').innerHTML = Array(8).fill(`<div class="skeleton" style="height:300px"></div>`).join(''); return; }
+  if (!OVERVIEW) { $('postGrid').innerHTML = Array(5).fill(`<div class="skeleton" style="height:76px"></div>`).join(''); return; }
   const posts = normalizePosts().filter(p => filter === 'all' || p.acct.key === filter);
+  window.__posts = posts;
   if (!posts.length) {
-    $('postGrid').innerHTML = `<p class="hint">No published posts on this feed yet. When you're ready, head to Publish to share your first one.</p>`;
-    window.__posts = [];
+    $('postGrid').innerHTML = `<div class="empty">
+      <div class="e-icon"><svg viewBox="0 0 24 24">${ICON.zap}</svg></div>
+      <div class="e-title">No posts on this feed yet</div>
+      <div class="e-sub">Content you publish shows up here with its live status and engagement.</div>
+      <button class="btn primary" style="padding:10px 22px" onclick="showView('publish')">Create your first post</button>
+    </div>`;
     return;
   }
-  window.__posts = posts;
-  $('postGrid').innerHTML = posts.map((p, i) => `
-    <div class="post-card" onclick="openDetail(${i})">
-      <div class="thumb" style="${p.img ? `background-image:url('${cssUrl(p.img)}')` : ''}">${p.img ? '' : '📝'}${typeTag(p.mtype)}</div>
-      <div class="body">
-        <div class="cap">${esc(p.cap || '(no caption)')}</div>
-        <div class="row">
-          <span>♥ ${fmt(p.likes || 0)} · 💬 ${fmt(p.comments || 0)}</span>
-          ${platBadge(p.acct.platform)}
-        </div>
-        <div class="row" style="margin-top:6px">
-          <span>${p.ts ? new Date(p.ts).toLocaleDateString() : ''}</span>
-          <a class="openlink" href="${esc(p.link || '#')}" target="_blank" rel="noopener" onclick="event.stopPropagation()">View live ↗</a>
-        </div>
+  $('postGrid').innerHTML = posts.map((p, i) => {
+    const type = TYPE_LABEL[p.mtype] || p.mtype || 'Post';
+    const date = p.ts ? new Date(p.ts).toLocaleDateString([], {month: 'short', day: 'numeric', year: 'numeric'}) : '';
+    const noCap = !(p.cap && p.cap.trim());
+    return `<div class="content-row" onclick="openDetail(${i})">
+      <div class="cr-thumb" style="${p.img ? `background-image:url('${cssUrl(p.img)}')` : ''}">${p.img ? '' : '📝'}</div>
+      <div class="cr-mid">
+        <div class="cr-cap ${noCap ? 'none' : ''}">${noCap ? 'No caption' : esc(p.cap)}</div>
+        <div class="cr-meta">${platBadge(p.acct.platform)}<span class="sbadge published">Published</span>
+          <span>${esc(type)}</span><span class="sep">·</span><span>${esc(date)}</span></div>
       </div>
-    </div>`).join('');
+      <div class="cr-right">
+        <span class="cr-eng">♥ ${fmt(p.likes || 0)} · 💬 ${fmt(p.comments || 0)}</span>
+        <a class="cr-view" href="${esc(p.link || '#')}" target="_blank" rel="noopener" onclick="event.stopPropagation()">View ↗</a>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 /* ── Post detail — instant, structured, then deepened ──── */
@@ -1478,6 +1773,7 @@ async function confirmPost() {
       LIBRARY = null;  // stale now
     }
     loadOverview(true);
+    loadScheduleOverview();
   } catch (e) {
     $('modalResults').innerHTML = `<div class="result-line err">✖ ${esc(e.message)}</div>`;
     toast('Publishing failed: ' + e.message, true);
@@ -1489,14 +1785,12 @@ async function confirmPost() {
 
 /* ── Data loading ──────────────────────────────────────── */
 async function loadOverview(fresh) {
-  renderKpis(); renderAccounts(); renderPosts();
+  renderKpis(); renderNeedsAttention(); renderAccounts(); renderPosts();
   try {
     OVERVIEW = await api('/api/overview' + (fresh ? '?fresh=true' : ''));
-    const errs = OVERVIEW.accounts.flatMap(a => (a.errors || []).map(e => `${a.handle}: ${Object.keys(e)[0]}`));
-    const strip = $('homeNotice');
-    if (errs.length) { strip.style.display = 'block'; strip.textContent = 'Some figures are temporarily unavailable — ' + errs.join(' · ') + '. Everything else is live.'; }
-    else strip.style.display = 'none';
-    renderSidebar(); renderKpis(); renderAccounts(); renderPosts();
+    setSync(OVERVIEW.generated_at);
+    $('homeNotice').style.display = 'none';  // per-account issues now surface in Needs attention
+    renderSidebar(); renderKpis(); renderNeedsAttention(); renderAccounts(); renderPosts();
   } catch (e) {
     $('homeNotice').style.display = 'block';
     $('homeNotice').textContent = 'We couldn\'t reach the data pipe: ' + e.message;
@@ -1505,11 +1799,17 @@ async function loadOverview(fresh) {
 }
 
 /* ── View switching ────────────────────────────────────── */
+const VIEW_TITLES = { home: 'Dashboard', publish: 'Publish', library: 'Library',
+  inbox: 'Inbox', analytics: 'Analytics', scheduled: 'Scheduled', integrations: 'Integrations' };
 function showView(v) {
   currentView = v;
   document.querySelectorAll('.nav-item, .tab').forEach(n => n.classList.toggle('active', n.dataset.view === v));
   for (const name of ['home', 'publish', 'library', 'inbox', 'analytics', 'scheduled', 'integrations'])
     $('view-' + name).style.display = name === v ? '' : 'none';
+  const title = VIEW_TITLES[v] || 'FLOWS';
+  if ($('pageTitle')) $('pageTitle').textContent = title;
+  if ($('pageTitleMobile')) $('pageTitleMobile').textContent = title;
+  document.querySelector('.app').classList.toggle('no-dock', v !== 'publish');
   if (v === 'library') loadLibrary(false);
   if (v === 'inbox') loadInbox(false);
   if (v === 'scheduled') loadScheduled();
@@ -1522,6 +1822,7 @@ function refreshAll() {
   toast('Refreshing live data…');
   loadOverview(true);
   loadStories();
+  loadScheduleOverview();
   if (currentView === 'library') loadLibrary(true);
   if (currentView === 'inbox') loadInbox(true);
   if (currentView === 'analytics') loadAnalytics(true);
@@ -1539,13 +1840,13 @@ $('modalCancel').addEventListener('click', () => $('modalVeil').classList.remove
 $('modalConfirm').addEventListener('click', confirmPost);
 $('refreshBtn').addEventListener('click', refreshAll);
 $('refreshBtnMobile').addEventListener('click', refreshAll);
+$('refreshBtnHead').addEventListener('click', refreshAll);
 for (const veil of ['modalVeil', 'detailVeil'])
   $(veil).addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('open'); });
 
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
 
 (async function init() {
-  greeting();
   try {
     ACCOUNTS = (await api('/api/accounts')).accounts;
   } catch (e) {
@@ -1554,8 +1855,10 @@ if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').cat
     return;
   }
   renderSidebar(); renderChips(); renderTypeRow(); renderTargets(); syncFields(); syncPreview();
+  showView('home');
   loadOverview(false);
   loadStories();
+  loadScheduleOverview();
 })();
 </script>
 </body>

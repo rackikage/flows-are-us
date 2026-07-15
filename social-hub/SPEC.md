@@ -56,7 +56,7 @@ so in plain language before the user hits the wall.
 
 | View | What it's for | Backing endpoints |
 |------|---------------|-------------------|
-| Dashboard | KPIs, live stories strip, account cards, unified recent posts | `/api/overview`, `/api/stories` |
+| Dashboard | Operational overview: KPI row, needs-attention panel, up-next schedule block, compact account list, structured recent-content rows, live stories | `/api/overview`, `/api/scheduled`, `/api/stories` |
 | Publish | Photo / Video·Reel / Carousel / Story / Text to any valid mix of accounts, optional FB scheduling | `/api/post` |
 | Library | Everything ever published; one-click *Post again* / *Schedule* | `/api/library` |
 | Inbox | Instagram customer DMs; read threads, reply inside the 24-h window | `/api/inbox`, `/api/inbox/thread`, `/api/inbox/send` |
