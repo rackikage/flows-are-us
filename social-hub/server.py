@@ -533,10 +533,189 @@ def api_qr():
     return {"url": url, "svg": svg}
 
 
+# ── Stories: everything live right now ─────────────────────────────────────
+
+@app.get("/api/stories")
+def api_stories(fresh: bool = False):
+    def build():
+        ig = [a for a in ACCOUNTS if a["platform"] == "instagram"]
+        tools = [{"tool_slug": "INSTAGRAM_GET_IG_USER_STORIES",
+                  "arguments": {"ig_user_id": "me",
+                                "fields": "id,media_type,media_url,"
+                                          "thumbnail_url,permalink,timestamp"},
+                  "account": a["account"]} for a in ig]
+        results = pipe.execute_batch(tools, thought="active stories check")
+        out = {}
+        for a, res in zip(ig, results):
+            out[a["key"]] = {
+                "stories": unwrap_list(scrub(res["data"] or {}))
+                if res["successful"] else [],
+                "error": None if res["successful"] else str(res["error"])[:250],
+            }
+        return {"stories": out}
+
+    try:
+        return cached("stories", fresh, build)
+    except Exception as e:
+        return JSONResponse(status_code=502, content={"error": str(e)[:400]})
+
+
+# ── Inbox: Instagram DMs ────────────────────────────────────────────────────
+
+@app.get("/api/inbox")
+def api_inbox(fresh: bool = False):
+    def build():
+        ig = [a for a in ACCOUNTS if a["platform"] == "instagram"]
+        tools = [{"tool_slug": "INSTAGRAM_LIST_ALL_CONVERSATIONS",
+                  "arguments": {"limit": 25},
+                  "account": a["account"]} for a in ig]
+        results = pipe.execute_batch(tools, thought="inbox conversations")
+        out = {}
+        for a, res in zip(ig, results):
+            out[a["key"]] = {
+                "conversations": unwrap_list(scrub(res["data"] or {}))
+                if res["successful"] else [],
+                "error": None if res["successful"] else str(res["error"])[:250],
+            }
+        return {"inbox": out}
+
+    try:
+        return cached("inbox", fresh, build)
+    except Exception as e:
+        return JSONResponse(status_code=502, content={"error": str(e)[:400]})
+
+
+@app.get("/api/inbox/thread")
+def api_inbox_thread(key: str, conversation_id: str):
+    acct = BY_KEY.get(key)
+    if not acct or acct["platform"] != "instagram":
+        return JSONResponse(status_code=400,
+                            content={"error": "Unknown Instagram account"})
+
+    def build():
+        results = pipe.execute_batch([
+            {"tool_slug": "INSTAGRAM_GET_CONVERSATION",
+             "arguments": {"conversation_id": conversation_id},
+             "account": acct["account"]},
+            {"tool_slug": "INSTAGRAM_LIST_ALL_MESSAGES",
+             "arguments": {"conversation_id": conversation_id, "limit": 50},
+             "account": acct["account"]},
+        ], thought="inbox thread read")
+        convo = scrub(results[0]["data"] or {}) if results[0]["successful"] \
+            else {}
+        messages = unwrap_list(scrub(results[1]["data"] or {})) \
+            if results[1]["successful"] else []
+        # The other participant is whoever isn't this business account.
+        me = acct["entity_id"]
+        participants = unwrap_list(convo.get("participants") or {}) or \
+            [p for m in messages for p in unwrap_list(m.get("from") or {})]
+        if isinstance(convo.get("participants"), dict):
+            participants = (convo["participants"].get("data") or [])
+        other = next((p for p in participants
+                      if str(p.get("id")) != str(me)), None)
+        notes = [str(r["error"])[:250] for r in results
+                 if not r["successful"]]
+        return {"messages": messages, "participants": participants,
+                "other": other, "notes": notes}
+
+    try:
+        return cached(f"thread:{key}:{conversation_id}", False, build)
+    except Exception as e:
+        return JSONResponse(status_code=502, content={"error": str(e)[:400]})
+
+
+class InboxSendRequest(BaseModel):
+    key: str
+    recipient_id: str
+    text: str
+
+
+@app.post("/api/inbox/send")
+def api_inbox_send(req: InboxSendRequest):
+    acct = BY_KEY.get(req.key)
+    if not acct or acct["platform"] != "instagram":
+        return JSONResponse(status_code=400,
+                            content={"error": "Unknown Instagram account"})
+    if not req.text.strip():
+        return JSONResponse(status_code=400,
+                            content={"error": "Write the reply first"})
+    try:
+        pipe.execute("INSTAGRAM_SEND_TEXT_MESSAGE",
+                     {"recipient_id": req.recipient_id, "text": req.text},
+                     account=acct["account"])
+        with _cache_lock:
+            _cache.clear()
+        return {"ok": True}
+    except PipeError as e:
+        msg = str(e)
+        if "2534022" in msg or "allowed window" in msg.lower():
+            msg = ("Instagram only lets a business reply within 24 hours of "
+                   "the customer's last message. This conversation is outside "
+                   "that window — it reopens when they message you again.")
+        return JSONResponse(status_code=502, content={"error": msg[:400]})
+
+
+# ── Comment actions: reply (FB) and remove (both platforms) ────────────────
+
+class CommentRequest(BaseModel):
+    key: str
+    comment_id: str | None = None
+    object_id: str | None = None  # post or comment to reply under (FB)
+    message: str | None = None
+
+
+@app.post("/api/comment/reply")
+def api_comment_reply(req: CommentRequest):
+    acct = BY_KEY.get(req.key)
+    if not acct:
+        return JSONResponse(status_code=400, content={"error": "Unknown account"})
+    if acct["platform"] != "facebook":
+        return JSONResponse(status_code=400, content={
+            "error": "Replying to comments is available on Facebook pages — "
+                     "Instagram's API doesn't allow comment replies yet"})
+    if not (req.message or "").strip() or not req.object_id:
+        return JSONResponse(status_code=400,
+                            content={"error": "Write the reply first"})
+    try:
+        data = pipe.execute("FACEBOOK_CREATE_COMMENT",
+                            {"object_id": req.object_id,
+                             "message": req.message},
+                            account=acct["account"])
+        with _cache_lock:
+            _cache.clear()
+        resp = data.get("response_data") if isinstance(data, dict) else None
+        resp = resp if isinstance(resp, dict) else data
+        return {"ok": True, "comment_id": resp.get("id")}
+    except PipeError as e:
+        return JSONResponse(status_code=502, content={"error": str(e)[:400]})
+
+
+@app.post("/api/comment/delete")
+def api_comment_delete(req: CommentRequest):
+    acct = BY_KEY.get(req.key)
+    if not acct:
+        return JSONResponse(status_code=400, content={"error": "Unknown account"})
+    if not req.comment_id:
+        return JSONResponse(status_code=400,
+                            content={"error": "No comment selected"})
+    slug = ("INSTAGRAM_DELETE_COMMENT" if acct["platform"] == "instagram"
+            else "FACEBOOK_DELETE_COMMENT")
+    args = ({"ig_comment_id": req.comment_id}
+            if acct["platform"] == "instagram"
+            else {"comment_id": req.comment_id})
+    try:
+        pipe.execute(slug, args, account=acct["account"])
+        with _cache_lock:
+            _cache.clear()
+        return {"ok": True}
+    except PipeError as e:
+        return JSONResponse(status_code=502, content={"error": str(e)[:400]})
+
+
 # ── Post detail: performance, comments, reactions ──────────────────────────
 
 @app.get("/api/post-details")
-def api_post_details(key: str, post_id: str):
+def api_post_details(key: str, post_id: str, carousel: bool = False):
     acct = BY_KEY.get(key)
     if not acct:
         return JSONResponse(status_code=400, content={"error": "Unknown account"})
@@ -555,6 +734,11 @@ def api_post_details(key: str, post_id: str):
                  "account": acct["account"]},
             ]
             kinds = ["insights", "comments"]
+            if carousel:
+                tools.append({"tool_slug": "INSTAGRAM_GET_IG_MEDIA_CHILDREN",
+                              "arguments": {"ig_media_id": post_id},
+                              "account": acct["account"]})
+                kinds.append("children")
         else:
             tools = [
                 {"tool_slug": "FACEBOOK_GET_POST_INSIGHTS",
@@ -572,13 +756,16 @@ def api_post_details(key: str, post_id: str):
             kinds = ["insights", "comments", "reactions"]
 
         results = pipe.execute_batch(tools, thought="post performance detail")
-        out = {"metrics": {}, "comments": [], "reactions": None, "notes": []}
+        out = {"metrics": {}, "comments": [], "reactions": None,
+               "children": [], "notes": []}
         for kind, res in zip(kinds, results):
             if not res["successful"]:
                 out["notes"].append({kind: str(res["error"])[:250]})
                 continue
             data = scrub(res["data"] or {})
-            if kind == "insights":
+            if kind == "children":
+                out["children"] = unwrap_list(data)
+            elif kind == "insights":
                 for m in unwrap_list(data):
                     name = m.get("name")
                     vals = m.get("values") or []
@@ -775,6 +962,33 @@ TOOL_REGISTRY = [
     {"platform": "Instagram", "area": "Mentions",
      "slug": "INSTAGRAM_GET_IG_USER_TAGS",
      "what": "Posts where your account is tagged"},
+    {"platform": "Instagram", "area": "Stories",
+     "slug": "INSTAGRAM_GET_IG_USER_STORIES",
+     "what": "Every story currently live in its 24-hour window"},
+    {"platform": "Instagram", "area": "Carousel detail",
+     "slug": "INSTAGRAM_GET_IG_MEDIA_CHILDREN",
+     "what": "Every image inside a published carousel"},
+    {"platform": "Instagram", "area": "Comment threads",
+     "slug": "INSTAGRAM_GET_IG_COMMENT_REPLIES",
+     "what": "Replies under any comment on your posts"},
+    {"platform": "Instagram", "area": "Comment moderation",
+     "slug": "INSTAGRAM_DELETE_COMMENT",
+     "what": "Remove a comment from your posts"},
+    {"platform": "Instagram", "area": "Inbox",
+     "slug": "INSTAGRAM_LIST_ALL_CONVERSATIONS",
+     "what": "Every customer DM conversation"},
+    {"platform": "Instagram", "area": "Inbox",
+     "slug": "INSTAGRAM_GET_CONVERSATION",
+     "what": "Who's in a conversation"},
+    {"platform": "Instagram", "area": "Inbox",
+     "slug": "INSTAGRAM_LIST_ALL_MESSAGES",
+     "what": "Full message history of a conversation"},
+    {"platform": "Instagram", "area": "Inbox",
+     "slug": "INSTAGRAM_SEND_TEXT_MESSAGE",
+     "what": "Reply to a customer DM (within Meta's 24-hour window)"},
+    {"platform": "Instagram", "area": "Inbox",
+     "slug": "INSTAGRAM_MARK_SEEN",
+     "what": "Mark a conversation as read"},
     {"platform": "Instagram", "area": "Publishing capacity",
      "slug": "INSTAGRAM_GET_IG_USER_CONTENT_PUBLISHING_LIMIT",
      "what": "Live usage of the 25-posts-per-day publishing allowance"},
@@ -814,6 +1028,15 @@ TOOL_REGISTRY = [
     {"platform": "Facebook", "area": "Comments",
      "slug": "FACEBOOK_GET_COMMENTS",
      "what": "Comment threads on any page post"},
+    {"platform": "Facebook", "area": "Comment replies",
+     "slug": "FACEBOOK_CREATE_COMMENT",
+     "what": "Reply to any comment as your page"},
+    {"platform": "Facebook", "area": "Comment moderation",
+     "slug": "FACEBOOK_UPDATE_COMMENT",
+     "what": "Edit a reply your page wrote"},
+    {"platform": "Facebook", "area": "Comment moderation",
+     "slug": "FACEBOOK_DELETE_COMMENT",
+     "what": "Remove a comment from your page's posts"},
     {"platform": "Facebook", "area": "Reactions",
      "slug": "FACEBOOK_GET_POST_REACTIONS",
      "what": "Reaction totals and recent reaction types"},

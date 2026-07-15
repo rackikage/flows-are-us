@@ -86,6 +86,7 @@
   .hero.grad-library { background: linear-gradient(180deg, rgba(255,182,72,.34), rgba(106,77,255,.14) 55%, transparent); }
   .hero.grad-perf    { background: linear-gradient(180deg, rgba(143,122,255,.44), rgba(255,84,112,.12) 55%, transparent); }
   .hero.grad-sched   { background: linear-gradient(180deg, rgba(24,119,242,.4),  rgba(106,77,255,.1) 60%, transparent); }
+  .hero.grad-inbox   { background: linear-gradient(180deg, rgba(255,84,112,.36), rgba(255,182,72,.12) 55%, transparent); }
   .hero.grad-integr  { background: linear-gradient(180deg, rgba(61,220,132,.3),  rgba(106,77,255,.14) 60%, transparent); }
   .hero h1 { font-size: 37px; font-weight: 800; letter-spacing: -1.2px; }
   .hero p  { color: #d9d9e6; margin-top: 8px; font-size: 14.5px; max-width: 640px; line-height: 1.55; }
@@ -202,6 +203,44 @@
   .mention { flex: 0 0 130px; border-radius: 10px; overflow: hidden; background: #0e0e18; border: 1px solid var(--line); text-decoration: none; color: inherit; }
   .mention .mimg { width: 130px; height: 130px; background: #1d1d2b center/cover no-repeat; }
   .mention .mby { font-size: 11px; color: var(--muted); padding: 8px 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* ── Stories strip ───────────────────────────────────── */
+  .story-strip { display: flex; gap: 14px; overflow-x: auto; padding: 4px 2px 8px; }
+  .story { flex: 0 0 auto; width: 96px; text-decoration: none; color: inherit; text-align: center; }
+  .story .ring { width: 84px; height: 84px; margin: 0 auto; border-radius: 50%; padding: 3px;
+    background: linear-gradient(45deg, var(--ig-a), var(--ig-b), var(--ig-c)); }
+  .story .ring > div { width: 100%; height: 100%; border-radius: 50%; background: #1d1d2b center/cover no-repeat;
+    border: 3px solid var(--bg); display: flex; align-items: center; justify-content: center; font-size: 22px; }
+  .story .sh { font-size: 11px; color: var(--muted); margin-top: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* ── Inbox ───────────────────────────────────────────── */
+  .inbox-grid { display: grid; grid-template-columns: 320px 1fr; gap: 18px; align-items: start; }
+  .thread-card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px;
+    margin-bottom: 10px; cursor: pointer; transition: background .15s, border .15s; }
+  .thread-card:hover { background: var(--card-hover); }
+  .thread-card.on { border-color: var(--accent); }
+  .thread-card .tc-top { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+  .thread-card .tc-name { font-weight: 800; font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .thread-card .tc-when { font-size: 11px; color: var(--faint); flex-shrink: 0; }
+  .thread-card .tc-snippet { font-size: 12.5px; color: var(--muted); margin-top: 4px;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .thread-panel { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); min-height: 320px;
+    display: flex; flex-direction: column; }
+  .thread-msgs { flex: 1; padding: 20px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; max-height: 55vh; }
+  .msg { max-width: 78%; padding: 10px 14px; border-radius: 16px; font-size: 13.5px; line-height: 1.5; }
+  .msg.them { align-self: flex-start; background: #22222f; border-bottom-left-radius: 5px; }
+  .msg.us { align-self: flex-end; background: var(--accent-deep); color: #fff; border-bottom-right-radius: 5px; }
+  .msg .mw { display: block; font-size: 10.5px; opacity: .65; margin-top: 4px; }
+  .thread-reply { display: flex; gap: 10px; padding: 14px; border-top: 1px solid var(--line); }
+  .thread-reply input[type=text] { flex: 1; }
+  .comment-actions { display: inline-flex; gap: 8px; margin-left: 8px; }
+  .comment-actions button { border: none; background: none; color: var(--accent-bright); font-weight: 700;
+    font-size: 11.5px; cursor: pointer; padding: 0; font-family: var(--font-body); }
+  .comment-actions button.danger { color: #ff8fa0; }
+  .reply-box { display: flex; gap: 8px; margin: 8px 0 4px; }
+  .reply-box input { padding: 8px 12px; font-size: 13px; }
+  .child-strip { display: flex; gap: 8px; overflow-x: auto; margin-top: 8px; }
+  .child-strip img { width: 74px; height: 74px; border-radius: 8px; object-fit: cover; border: 1px solid var(--line); }
 
   /* ── Scheduled ───────────────────────────────────────── */
   .sched-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 14px;
@@ -345,6 +384,8 @@
     .detail { grid-template-columns: 1fr; max-height: 92vh; width: 94vw; }
     .detail .dimg { border-radius: 18px 18px 0 0; min-height: 220px; max-height: 40vh; }
     .install-grid { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+    .inbox-grid { grid-template-columns: 1fr; }
+    .thread-msgs { max-height: 44vh; }
     .os-steps { grid-template-columns: 1fr; text-align: left; }
     .publish-bar-mobile { display: flex; gap: 10px; position: sticky; bottom: 0; margin: 8px -18px -22px;
       padding: 12px 18px calc(12px + env(safe-area-inset-bottom)); background: rgba(13,13,22,.96); backdrop-filter: blur(14px); border-top: 1px solid var(--line); }
@@ -358,7 +399,11 @@
   <!-- Mobile top bar -->
   <div class="topbar">
     <div class="brand">FLOWS</div>
-    <button class="mini-btn" id="refreshBtnMobile">Refresh</button>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button class="mini-btn" id="refreshBtnMobile">Refresh</button>
+      <button class="mini-btn" onclick="showView('integrations')" aria-label="Setup" style="padding:7px 10px">
+        <svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px;vertical-align:-3px"><path d="M9 3v4a2 2 0 0 1-2 2H3"/><path d="M15 21v-4a2 2 0 0 1 2-2h4"/><path d="M21 9h-4a2 2 0 0 1-2-2V3"/><path d="M3 15h4a2 2 0 0 1 2 2v4"/></svg></button>
+    </div>
   </div>
 
   <aside class="sidebar">
@@ -370,6 +415,8 @@
       <svg class="i" viewBox="0 0 24 24"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg> Publish</div>
     <div class="nav-item" data-view="library">
       <svg class="i" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg> Library</div>
+    <div class="nav-item" data-view="inbox">
+      <svg class="i" viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9 9 0 0 1-3.8-.8L3 20l1-4.9a8.4 8.4 0 1 1 17-3.6z"/></svg> Inbox</div>
     <div class="nav-item" data-view="analytics">
       <svg class="i" viewBox="0 0 24 24"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-6"/><path d="M22 20H2"/></svg> Analytics</div>
     <div class="nav-item" data-view="scheduled">
@@ -395,6 +442,12 @@
       </div>
       <div class="notice" id="homeNotice"></div>
       <div class="section"><div class="kpis" id="kpiStrip"></div></div>
+      <div class="section" id="storiesSection" style="display:none">
+        <div class="eyebrow">Live right now</div>
+        <h2>Active stories</h2>
+        <div class="sub">Stories currently in their 24-hour window across your Instagram accounts.</div>
+        <div class="story-strip" id="storyStrip"></div>
+      </div>
       <div class="section">
         <div class="eyebrow">Portfolio</div>
         <h2>Accounts <small id="refreshedAt"></small></h2>
@@ -479,6 +532,23 @@
       <div style="height:30px"></div>
     </div>
 
+    <!-- INBOX -->
+    <div id="view-inbox" style="display:none">
+      <div class="hero grad-inbox">
+        <h1>Inbox</h1>
+        <p>Customer messages from your Instagram accounts. Open a conversation and reply as your business — Meta allows replies within 24 hours of the customer's last message.</p>
+      </div>
+      <div class="section">
+        <div class="inbox-grid">
+          <div id="threadList"></div>
+          <div class="thread-panel" id="threadPanel">
+            <p class="hint" style="padding:22px">Select a conversation to read it and reply.</p>
+          </div>
+        </div>
+      </div>
+      <div style="height:30px"></div>
+    </div>
+
     <!-- ANALYTICS -->
     <div id="view-analytics" style="display:none">
       <div class="hero grad-perf">
@@ -531,10 +601,10 @@
       <div class="pubdisc"><svg class="i" viewBox="0 0 24 24"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg></div>Publish</div>
     <div class="tab" data-view="analytics">
       <svg class="i" viewBox="0 0 24 24"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-6"/><path d="M22 20H2"/></svg>Insights</div>
+    <div class="tab" data-view="inbox">
+      <svg class="i" viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9 9 0 0 1-3.8-.8L3 20l1-4.9a8.4 8.4 0 1 1 17-3.6z"/></svg>Inbox</div>
     <div class="tab" data-view="scheduled">
       <svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Queue</div>
-    <div class="tab" data-view="integrations">
-      <svg class="i" viewBox="0 0 24 24"><path d="M9 3v4a2 2 0 0 1-2 2H3"/><path d="M15 21v-4a2 2 0 0 1 2-2h4"/><path d="M21 9h-4a2 2 0 0 1-2-2V3"/><path d="M3 15h4a2 2 0 0 1 2 2v4"/></svg>Setup</div>
   </nav>
 </div>
 
@@ -762,8 +832,14 @@ async function openDetail(i) {
   $('detailBox').innerHTML = detailShell(p);   // everything we know: instantly
   $('detailVeil').classList.add('open');
   try {
-    const d = await api(`/api/post-details?key=${encodeURIComponent(p.acct.key)}&post_id=${encodeURIComponent(p.id)}`);
+    const d = await api(`/api/post-details?key=${encodeURIComponent(p.acct.key)}&post_id=${encodeURIComponent(p.id)}`
+      + (p.mtype === 'CAROUSEL_ALBUM' ? '&carousel=true' : ''));
     const isFb = p.acct.platform === 'facebook';
+    if ((d.children || []).length) {
+      $('dTiles').insertAdjacentHTML('beforebegin',
+        `<h4>In this carousel · ${d.children.length} images</h4><div class="child-strip">` +
+        d.children.map(c => `<img src="${esc(c.media_url || c.thumbnail_url || '')}" alt="carousel item">`).join('') + `</div>`);
+    }
     const deep = Object.entries(d.metrics || {});
     if (deep.length) {
       $('dTiles').innerHTML = deep.map(([k, v]) =>
@@ -783,12 +859,19 @@ async function openDetail(i) {
           ? Object.entries(counts).map(([t, c]) => `<span class="pill">${REACT_ICON[t] || t} ${c}</span>`).join('')
           : '<span class="hint">No reactions yet.</span>') + `</div>`;
     }
-    $('dComments').innerHTML = (d.comments || []).map(c => {
+    $('dComments').innerHTML = (d.comments || []).map((c, ci) => {
       const who = c.username || (c.from && c.from.name) || 'Someone';
       const text = c.text || c.message || '';
       const when = c.timestamp || c.created_time;
-      return `<div class="comment"><b>${esc(who)}</b> — ${esc(text)}
-        <div class="cm">${when ? new Date(when).toLocaleString() : ''} · ${fmt(c.like_count || 0)} likes</div></div>`;
+      const actions = `<span class="comment-actions">` +
+        (isFb ? `<button onclick="toggleReplyBox('${ci}')">Reply</button>` : '') +
+        `<button class="danger" onclick="removeComment('${p.acct.key}','${esc(c.id)}', this)">Remove</button></span>`;
+      const replyBox = isFb ? `<div class="reply-box" id="rb_${ci}" style="display:none">
+          <input type="text" id="ri_${ci}" placeholder="Reply as your page…">
+          <button class="mini-btn accent" onclick="sendCommentReply('${p.acct.key}','${esc(c.id)}','${ci}')">Post reply</button>
+        </div>` : '';
+      return `<div class="comment"><b>${esc(who)}</b> — ${esc(text)}${actions}
+        <div class="cm">${when ? new Date(when).toLocaleString() : ''} · ${fmt(c.like_count || 0)} likes</div>${replyBox}</div>`;
     }).join('') || '<p class="hint">No comments yet — check back after your audience engages.</p>';
     if (isFb) {
       $('dManage').innerHTML = `<h4>Manage this post</h4>
@@ -829,6 +912,139 @@ async function deletePost(key, postId, btn) {
     $('detailVeil').classList.remove('open');
     loadOverview(true);
   } catch (e) { toast('Removal failed: ' + e.message, true); }
+}
+
+/* ── Stories strip ─────────────────────────────────────── */
+async function loadStories() {
+  try {
+    const j = await api('/api/stories');
+    const items = [];
+    for (const [key, v] of Object.entries(j.stories || {})) {
+      const acct = ACCOUNTS.find(a => a.key === key) || { handle: key };
+      for (const s of (v.stories || [])) {
+        const img = s.media_url || s.thumbnail_url;
+        items.push(`<a class="story" href="${esc(s.permalink || '#')}" target="_blank" rel="noopener">
+          <div class="ring"><div style="${img ? `background-image:url('${cssUrl(img)}')` : ''}">${img ? '' : '⏱'}</div></div>
+          <div class="sh">${esc(acct.handle)}</div></a>`);
+      }
+    }
+    $('storiesSection').style.display = items.length ? '' : 'none';
+    $('storyStrip').innerHTML = items.join('');
+  } catch (e) { /* stories are decorative — stay quiet */ }
+}
+
+/* ── Inbox ─────────────────────────────────────────────── */
+let currentThread = null;
+async function loadInbox(fresh) {
+  $('threadList').innerHTML = Array(4).fill('<div class="skeleton" style="height:70px;margin-bottom:10px"></div>').join('');
+  try {
+    const j = await api('/api/inbox' + (fresh ? '?fresh=true' : ''));
+    const cards = [];
+    window.__threads = [];
+    for (const [key, v] of Object.entries(j.inbox || {})) {
+      const acct = ACCOUNTS.find(a => a.key === key) || { handle: key };
+      for (const c of (v.conversations || [])) {
+        const i = window.__threads.length;
+        window.__threads.push({ key, id: c.id, acct });
+        const when = c.updated_time ? new Date(c.updated_time).toLocaleDateString() : '';
+        cards.push(`<div class="thread-card" id="tc_${i}" onclick="openThread(${i})">
+          <div class="tc-top"><span class="tc-name">${esc(acct.handle)}</span><span class="tc-when">${when}</span></div>
+          <div class="tc-snippet">${esc(c.snippet || 'Open to read this conversation')}</div>
+        </div>`);
+      }
+      if (v.error) cards.push(`<p class="hint" style="margin-bottom:10px">⚠ ${esc(acct.handle)}: ${esc(v.error)}</p>`);
+    }
+    $('threadList').innerHTML = cards.join('') ||
+      `<p class="hint">No customer conversations yet. When someone DMs one of your Instagram accounts, the thread appears here.</p>`;
+  } catch (e) {
+    $('threadList').innerHTML = `<p class="hint">Inbox couldn't be loaded: ${esc(e.message)}</p>`;
+  }
+}
+
+async function openThread(i) {
+  const t = window.__threads[i];
+  if (!t) return;
+  currentThread = t;
+  document.querySelectorAll('.thread-card').forEach((el, j) => el.classList.toggle('on', el.id === 'tc_' + i));
+  $('threadPanel').innerHTML = '<div class="skeleton" style="height:220px;margin:16px"></div>';
+  try {
+    const d = await api(`/api/inbox/thread?key=${encodeURIComponent(t.key)}&conversation_id=${encodeURIComponent(t.id)}`);
+    const me = String((ACCOUNTS.find(a => a.key === t.key) || {}).entity_id || '');
+    const msgs = (d.messages || []).slice().reverse().map(m => {
+      const fromId = String((m.from && (m.from.id || (m.from.data && m.from.data[0] && m.from.data[0].id))) || '');
+      const mine = fromId === me;
+      const when = m.created_time ? new Date(m.created_time).toLocaleString() : '';
+      return `<div class="msg ${mine ? 'us' : 'them'}">${esc(m.message || '(attachment)')}<span class="mw">${when}</span></div>`;
+    }).join('') || '<p class="hint">No readable messages in this thread.</p>';
+    const other = d.other || {};
+    const otherName = other.username || other.name || 'customer';
+    const canReply = !!other.id;
+    $('threadPanel').innerHTML = `
+      <div style="padding:16px 20px;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:center">
+        <b style="font-size:14px">@${esc(otherName)}</b>
+        <span class="pill acc">${esc(t.acct.handle)}</span>
+      </div>
+      <div class="thread-msgs" id="threadMsgs">${msgs}</div>
+      <div class="thread-reply">
+        <input type="text" id="replyText" placeholder="${canReply ? 'Write your reply…' : 'Reply unavailable — participant unknown'}" ${canReply ? '' : 'disabled'}>
+        <button class="btn primary" style="padding:11px 22px" id="replySend" ${canReply ? '' : 'disabled'}
+          onclick="sendReply('${esc(t.key)}','${esc(other.id || '')}')">Send</button>
+      </div>
+      ${(d.notes || []).length ? `<p class="hint" style="padding:0 16px 12px">${esc(d.notes[0])}</p>` : ''}`;
+    const box = $('threadMsgs');
+    box.scrollTop = box.scrollHeight;
+    $('replyText') && $('replyText').addEventListener('keydown', e => { if (e.key === 'Enter') $('replySend').click(); });
+  } catch (e) {
+    $('threadPanel').innerHTML = `<p class="hint" style="padding:22px">Couldn't open the conversation: ${esc(e.message)}</p>`;
+  }
+}
+
+async function sendReply(key, recipientId) {
+  const input = $('replyText'), btn = $('replySend');
+  const text = (input.value || '').trim();
+  if (!text) return toast('Write the reply first', true);
+  btn.disabled = true; btn.innerHTML = '<span class="spin"></span>';
+  try {
+    await api('/api/inbox/send', { method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ key, recipient_id: recipientId, text }) });
+    toast('Reply sent');
+    input.value = '';
+    if (currentThread) openThread(window.__threads.indexOf(currentThread));
+  } catch (e) {
+    toast(e.message, true);
+  } finally { btn.disabled = false; btn.textContent = 'Send'; }
+}
+
+/* ── Comment actions ───────────────────────────────────── */
+function toggleReplyBox(id) {
+  const el = $('rb_' + id);
+  if (el) el.style.display = el.style.display === 'none' ? 'flex' : 'none';
+}
+
+async function sendCommentReply(key, objectId, boxId) {
+  const input = $('ri_' + boxId);
+  const text = (input.value || '').trim();
+  if (!text) return toast('Write the reply first', true);
+  try {
+    await api('/api/comment/reply', { method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ key, object_id: objectId, message: text }) });
+    toast('Reply posted');
+    input.value = '';
+  } catch (e) { toast(e.message, true); }
+}
+
+async function removeComment(key, commentId, btn) {
+  if (btn.dataset.armed !== '1') {
+    btn.dataset.armed = '1'; btn.textContent = 'Confirm remove';
+    setTimeout(() => { btn.dataset.armed = ''; btn.textContent = 'Remove'; }, 4000);
+    return;
+  }
+  try {
+    await api('/api/comment/delete', { method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ key, comment_id: commentId }) });
+    toast('Comment removed');
+    btn.closest('.comment').style.opacity = .35;
+  } catch (e) { toast(e.message, true); }
 }
 
 /* ── Library ───────────────────────────────────────────── */
@@ -1255,9 +1471,10 @@ async function loadOverview(fresh) {
 function showView(v) {
   currentView = v;
   document.querySelectorAll('.nav-item, .tab').forEach(n => n.classList.toggle('active', n.dataset.view === v));
-  for (const name of ['home', 'publish', 'library', 'analytics', 'scheduled', 'integrations'])
+  for (const name of ['home', 'publish', 'library', 'inbox', 'analytics', 'scheduled', 'integrations'])
     $('view-' + name).style.display = name === v ? '' : 'none';
   if (v === 'library') loadLibrary(false);
+  if (v === 'inbox') loadInbox(false);
   if (v === 'scheduled') loadScheduled();
   if (v === 'analytics') loadAnalytics(false);
   if (v === 'integrations') loadIntegrations(false);
@@ -1267,7 +1484,9 @@ function showView(v) {
 function refreshAll() {
   toast('Refreshing live data…');
   loadOverview(true);
+  loadStories();
   if (currentView === 'library') loadLibrary(true);
+  if (currentView === 'inbox') loadInbox(true);
   if (currentView === 'analytics') loadAnalytics(true);
   if (currentView === 'scheduled') loadScheduled();
   if (currentView === 'integrations') loadIntegrations(true);
@@ -1299,6 +1518,7 @@ if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').cat
   }
   renderSidebar(); renderChips(); renderTypeRow(); renderTargets(); syncFields(); syncPreview();
   loadOverview(false);
+  loadStories();
 })();
 </script>
 </body>
