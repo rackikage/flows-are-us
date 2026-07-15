@@ -1,17 +1,23 @@
-# FLOWS · Social Hub
+# FLOWS · Business Social Hub
 
-Live all-accounts hub for Instagram + Facebook — Spotify-style dark UI, wired
+Live all-accounts hub for Instagram + Facebook — its own vibrant dark identity
+(Sora/Inter type, iris + coral), installable as a phone app, wired
 **exclusively through the Composio clean pipe** (strict rule: no hand-made Graph
 API calls anywhere).
 
-![stack](https://img.shields.io/badge/pipe-Composio%20MCP-1db954) ![ui](https://img.shields.io/badge/ui-vibrant%20dark-7c3aed)
+![stack](https://img.shields.io/badge/pipe-Composio%20MCP-8f7aff) ![ui](https://img.shields.io/badge/ui-vibrant%20dark-ff5470) ![pwa](https://img.shields.io/badge/phone-installable%20PWA-6a4dff)
 
 ## Run it
 
 ```bash
 python3 social-hub/server.py
-# → http://127.0.0.1:8787
+# → http://<your-lan-ip>:8787  (binds all interfaces)
 ```
+
+**On a phone (iPhone or Samsung/Android):** open Integrations → "FLOWS on
+every phone" and scan the QR with the phone camera. Add to Home Screen
+(Safari) / Install (Chrome) and it runs as a standalone app. Anyone on the
+business Wi-Fi can do the same — that's the sharing model.
 
 CLI dashboard (same pipe):
 
@@ -22,9 +28,12 @@ python3 social-hub/hub.py
 ## Architecture
 
 ```
-static/index.html   Spotify-style UI (sidebar / hero / cards / compose dock)
+static/index.html   FLOWS UI — desktop sidebar+dock, phone bottom-tab PWA
+static/sw.js        offline shell (never caches /api — live data stays live)
+static/manifest.json + icons/    installable app identity
         │  fetch /api/*
-server.py           FastAPI — overview, insights, scheduled, post
+server.py           FastAPI — overview, insights, library, scheduled, qr, post
+qr.py               dependency-free QR encoder (SVG) for scan-to-open
         │  ComposioPipe.execute / execute_batch
 composio_pipe.py    MCP streamable-HTTP client → COMPOSIO_MULTI_EXECUTE_TOOL
         │
@@ -49,17 +58,25 @@ Add/remove accounts in `ACCOUNTS` at the top of `server.py`.
 ## Features
 
 - **Dashboard** — KPI strip (audience, capacity, connection status), live
-  profiles, unified cross-platform feed, per-account filter chips
-- **Post drill-down** — click any post: per-post views/reach, reactions
-  breakdown, full comment threads; edit or remove Facebook posts in place
-- **Publish** — one message + image to any mix of accounts; live preview;
+  profiles, unified cross-platform feed with content-type badges,
+  per-account filter chips
+- **Post drill-down** — tap any post and its status shows instantly,
+  structured (Published · type · date · engagement), then live per-post
+  views/reach, reactions breakdown and full comment threads stream in;
+  edit or remove Facebook posts in place
+- **Publish, five ways** — Photo (IG+FB), Video·Reel (Reel on IG, video on
+  FB), Carousel (2–10 images, IG), Story (IG), Text (FB). Destinations that
+  can't take a type grey out with a plain-English reason; live preview;
   confirm-before-publish modal; per-destination results with permalinks
+- **Library** — everything ever published across all accounts in one shelf;
+  one click to *Post again* (prefilled, confirm-guarded) or *Schedule* it
 - **Analytics** — 7-day account performance (IG insights + FB page insights)
   and tagged mentions per Instagram account
 - **Scheduled** — the Facebook publish queue with move/remove controls
   (scheduling is FB-only; the IG Graph API has no native scheduling)
-- **Integrations** — live pipe health checks, managed-page inventory, and the
-  full capability registry (all 24 Composio tools, each marked live)
+- **Integrations** — live pipe health checks, managed-page inventory, the
+  phone install card (QR + steps for iPhone/Samsung), and the full
+  capability registry — every Composio tool marked live
 
 ## Composio tools used
 
@@ -74,8 +91,10 @@ Add/remove accounts in `ACCOUNTS` at the top of `server.py`.
 | IG permalink | `INSTAGRAM_GET_IG_MEDIA` |
 | FB page details | `FACEBOOK_GET_PAGE_DETAILS` |
 | FB feed | `FACEBOOK_GET_PAGE_POSTS` |
+| IG reels / stories / carousels | `INSTAGRAM_POST_IG_USER_MEDIA` (media_type + children) |
 | FB text/link post (+schedule) | `FACEBOOK_CREATE_POST` |
 | FB photo post (+schedule) | `FACEBOOK_CREATE_PHOTO_POST` |
+| FB video post (+schedule) | `FACEBOOK_CREATE_VIDEO_POST` |
 | FB scheduled queue | `FACEBOOK_GET_SCHEDULED_POSTS` |
 | FB permalink | `FACEBOOK_GET_POST` |
 | IG post insights | `INSTAGRAM_GET_IG_MEDIA_INSIGHTS` |
@@ -93,6 +112,9 @@ Add/remove accounts in `ACCOUNTS` at the top of `server.py`.
 ## Key pitfalls (learned the hard way)
 
 - IG posting is two-step: container → publish; container IDs are single-use
+- IG carousels are three-step: 2–10 child containers (`is_carousel_item`) →
+  parent container (`media_type=CAROUSEL` + `children`) → publish
+- IG video is always a Reel now (`media_type=REELS`; plain `VIDEO` is dead)
 - IG `image_url` must be public HTTPS **JPEG with no query params** (signed
   S3 URLs are rejected)
 - IG API limit: 25 published posts per rolling 24h window (shown in the UI)

@@ -2,18 +2,24 @@
 """server.py — FLOWS social hub server.
 
 FastAPI app over the Composio clean pipe (composio_pipe.ComposioPipe).
-Serves the Spotify-style dark UI from ./static and exposes:
+Serves the FLOWS dark UI from ./static and exposes:
 
   GET  /api/accounts   — wired account config
   GET  /api/overview   — profiles + recent media + quota for every account
   GET  /api/insights   — 7-day IG insights per account (best effort)
   GET  /api/scheduled  — scheduled FB page posts
-  POST /api/post       — publish (or schedule, FB only) to selected accounts
+  GET  /api/library    — unified content library across every account
+  GET  /api/qr         — scan-to-open QR + LAN URL for phones
+  POST /api/post       — publish or schedule: photo, video/reel, carousel,
+                         story, text — routed per platform
 
-Run:  python3 social-hub/server.py   →  http://127.0.0.1:8787
+Run:  python3 social-hub/server.py   →  http://<lan-ip>:8787 (all interfaces,
+so iPhones and Samsung/Android phones on the same Wi-Fi can open and install
+it as an app).
 """
 
 import os
+import socket
 import time
 import threading
 from concurrent.futures import ThreadPoolExecutor
@@ -24,6 +30,7 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
+import qr
 from composio_pipe import ComposioPipe, PipeError
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -235,27 +242,26 @@ def api_scheduled(fresh: bool = False):
 class PostRequest(BaseModel):
     targets: list[str]
     caption: str = ""
+    post_type: str = "photo"  # photo | video | carousel | story | text
     image_url: str | None = None
-    schedule_time: int | None = None  # unix epoch, FB only
+    image_urls: list[str] | None = None  # carousel: 2-10 public JPEG URLs
+    video_url: str | None = None         # video/reel: public MP4 URL
+    cover_url: str | None = None         # optional reel cover image
+    schedule_time: int | None = None     # unix epoch, FB only
 
 
-def publish_instagram(acct, req: PostRequest):
-    container = pipe.execute(
-        "INSTAGRAM_POST_IG_USER_MEDIA",
-        {"ig_user_id": "me", "caption": req.caption,
-         "image_url": req.image_url},
-        account=acct["account"])
-    creation_id = (container.get("id")
-                   or (container.get("data") or {}).get("id"))
-    if not creation_id:
-        raise PipeError(f"No container id in response: {str(container)[:200]}")
+def _container_id(resp):
+    return (resp.get("id") or (resp.get("data") or {}).get("id"))
+
+
+def _ig_publish_container(acct, creation_id):
+    """Step 2 of Instagram publishing: push a staged container live."""
     published = pipe.execute(
         "INSTAGRAM_POST_IG_USER_MEDIA_PUBLISH",
         {"ig_user_id": "me", "creation_id": str(creation_id),
-         "max_wait_seconds": 90},
+         "max_wait_seconds": 120},
         account=acct["account"])
-    media_id = (published.get("id")
-                or (published.get("data") or {}).get("id"))
+    media_id = _container_id(published)
     permalink = None
     if media_id:
         try:
@@ -269,27 +275,82 @@ def publish_instagram(acct, req: PostRequest):
     return {"id": media_id, "permalink": permalink}
 
 
+def publish_instagram(acct, req: PostRequest):
+    """Instagram publishing, all container shapes.
+
+    photo    → image container → publish
+    video    → REELS container (video_url, optional cover) → publish
+    story    → STORIES container (image or video) → publish
+    carousel → 2-10 child containers → parent CAROUSEL container → publish
+    """
+    base = {"ig_user_id": "me"}
+    if req.post_type == "carousel":
+        children = []
+        for url in (req.image_urls or []):
+            child = pipe.execute(
+                "INSTAGRAM_POST_IG_USER_MEDIA",
+                {**base, "image_url": url, "is_carousel_item": True},
+                account=acct["account"])
+            cid = _container_id(child)
+            if not cid:
+                raise PipeError(f"Carousel item failed: {str(child)[:200]}")
+            children.append(str(cid))
+        container = pipe.execute(
+            "INSTAGRAM_POST_IG_USER_MEDIA",
+            {**base, "caption": req.caption, "media_type": "CAROUSEL",
+             "children": children},
+            account=acct["account"])
+    elif req.post_type == "video":
+        args = {**base, "caption": req.caption, "media_type": "REELS",
+                "video_url": req.video_url, "share_to_feed": True}
+        if req.cover_url:
+            args["cover_url"] = req.cover_url
+        container = pipe.execute("INSTAGRAM_POST_IG_USER_MEDIA", args,
+                                 account=acct["account"])
+    elif req.post_type == "story":
+        args = {**base, "media_type": "STORIES"}
+        if req.video_url:
+            args["video_url"] = req.video_url
+        else:
+            args["image_url"] = req.image_url
+        container = pipe.execute("INSTAGRAM_POST_IG_USER_MEDIA", args,
+                                 account=acct["account"])
+    else:  # photo
+        container = pipe.execute(
+            "INSTAGRAM_POST_IG_USER_MEDIA",
+            {**base, "caption": req.caption, "image_url": req.image_url},
+            account=acct["account"])
+    creation_id = _container_id(container)
+    if not creation_id:
+        raise PipeError(f"No container id in response: {str(container)[:200]}")
+    return _ig_publish_container(acct, creation_id)
+
+
 def publish_facebook(acct, req: PostRequest):
-    if req.image_url:
+    """Facebook page publishing: text, photo or video — schedulable."""
+    scheduled = {"published": False,
+                 "scheduled_publish_time": req.schedule_time} \
+        if req.schedule_time else {}
+    if req.post_type == "video":
+        args = {"page_id": acct["entity_id"], "file_url": req.video_url,
+                "description": req.caption, **scheduled}
+        data = pipe.execute("FACEBOOK_CREATE_VIDEO_POST", args,
+                            account=acct["account"])
+    elif req.image_url:
         args = {"page_id": acct["entity_id"], "message": req.caption,
-                "url": req.image_url}
-        if req.schedule_time:
-            args.update({"published": False,
-                         "scheduled_publish_time": req.schedule_time})
+                "url": req.image_url, **scheduled}
         data = pipe.execute("FACEBOOK_CREATE_PHOTO_POST", args,
                             account=acct["account"])
     else:
-        args = {"page_id": acct["entity_id"], "message": req.caption}
-        if req.schedule_time:
-            args.update({"published": False,
-                         "scheduled_publish_time": req.schedule_time})
+        args = {"page_id": acct["entity_id"], "message": req.caption,
+                **scheduled}
         data = pipe.execute("FACEBOOK_CREATE_POST", args,
                             account=acct["account"])
     resp = data.get("response_data") if isinstance(data, dict) else None
     resp = resp if isinstance(resp, dict) else data
     post_id = resp.get("post_id") or resp.get("id") or data.get("id")
     permalink = None
-    if post_id and not req.schedule_time:
+    if post_id and not req.schedule_time and req.post_type != "video":
         try:
             post = pipe.execute("FACEBOOK_GET_POST",
                                 {"post_id": str(post_id),
@@ -303,6 +364,55 @@ def publish_facebook(acct, req: PostRequest):
             "scheduled": bool(req.schedule_time)}
 
 
+# Which platforms each post type can go to, and what media it needs.
+POST_TYPES = {
+    "photo":    {"platforms": {"instagram", "facebook"}},
+    "video":    {"platforms": {"instagram", "facebook"}},
+    "carousel": {"platforms": {"instagram"}},
+    "story":    {"platforms": {"instagram"}},
+    "text":     {"platforms": {"facebook"}},
+}
+
+
+def _validate_post(req: PostRequest):
+    """Return an error string, or None when the request is publishable."""
+    if req.post_type not in POST_TYPES:
+        return f"Unknown post type: {req.post_type}"
+    bad_platform = [BY_KEY[t]["handle"] for t in req.targets
+                    if BY_KEY[t]["platform"]
+                    not in POST_TYPES[req.post_type]["platforms"]]
+    if bad_platform:
+        kinds = " and ".join(sorted(POST_TYPES[req.post_type]["platforms"]))
+        return (f"A {req.post_type} post can only go to {kinds} — "
+                f"remove {', '.join(bad_platform)} from the destinations")
+    if req.post_type == "photo" and not req.image_url:
+        ig = any(BY_KEY[t]["platform"] == "instagram" for t in req.targets)
+        if ig:
+            return ("Instagram needs a public image link (a direct JPEG URL "
+                    "with no query parameters)")
+        if not req.caption.strip():
+            return "Add a message or an image link first"
+    if req.post_type == "video" and not req.video_url:
+        return "Add a public video link (a direct MP4 URL) first"
+    if req.post_type == "carousel":
+        urls = [u for u in (req.image_urls or []) if u.strip()]
+        if not 2 <= len(urls) <= 10:
+            return "A carousel needs between 2 and 10 image links"
+    if req.post_type == "story" and not (req.image_url or req.video_url):
+        return "A story needs an image or video link"
+    if req.post_type == "text" and not req.caption.strip():
+        return "Write the message for your post first"
+    ig_targets = [t for t in req.targets
+                  if BY_KEY[t]["platform"] == "instagram"]
+    if ig_targets and req.schedule_time:
+        return ("Scheduling is available for Facebook pages only — "
+                "Instagram publishes immediately. Remove the Instagram "
+                "destinations or clear the schedule.")
+    if req.schedule_time and req.schedule_time < int(time.time()) + 600:
+        return "Schedule time must be at least 10 minutes from now"
+    return None
+
+
 @app.post("/api/post")
 def api_post(req: PostRequest):
     if not req.targets:
@@ -312,22 +422,9 @@ def api_post(req: PostRequest):
     if unknown:
         return JSONResponse(status_code=400,
                             content={"error": f"Unknown targets: {unknown}"})
-    ig_targets = [t for t in req.targets
-                  if BY_KEY[t]["platform"] == "instagram"]
-    if ig_targets and not req.image_url:
-        return JSONResponse(status_code=400, content={
-            "error": "Instagram requires a public image URL (JPEG, "
-                     "no query params)"})
-    if ig_targets and req.schedule_time:
-        return JSONResponse(status_code=400, content={
-            "error": "Scheduling is Facebook-only; Instagram publishes "
-                     "immediately. Deselect IG targets or clear the schedule."})
-    if not req.caption.strip() and not req.image_url:
-        return JSONResponse(status_code=400,
-                            content={"error": "Post needs a caption or image"})
-    if req.schedule_time and req.schedule_time < int(time.time()) + 600:
-        return JSONResponse(status_code=400, content={
-            "error": "Schedule time must be at least 10 minutes from now"})
+    problem = _validate_post(req)
+    if problem:
+        return JSONResponse(status_code=400, content={"error": problem})
 
     results = {}
     with ThreadPoolExecutor(max_workers=len(req.targets)) as ex:
@@ -346,6 +443,94 @@ def api_post(req: PostRequest):
     with _cache_lock:  # posts change the feeds — drop caches
         _cache.clear()
     return {"results": results}
+
+
+# ── Content library: everything published, across every account ────────────
+
+@app.get("/api/library")
+def api_library(fresh: bool = False):
+    def build():
+        tools, keys = [], []
+        for a in ACCOUNTS:
+            if a["platform"] == "instagram":
+                tools.append({"tool_slug": "INSTAGRAM_GET_IG_USER_MEDIA",
+                              "arguments": {"ig_user_id": "me", "limit": 36,
+                                            "fields": IG_MEDIA_FIELDS},
+                              "account": a["account"]})
+            else:
+                tools.append({"tool_slug": "FACEBOOK_GET_PAGE_POSTS",
+                              "arguments": {"page_id": a["entity_id"],
+                                            "limit": 36,
+                                            "fields": FB_POST_FIELDS},
+                              "account": a["account"]})
+            keys.append(a["key"])
+        results = pipe.execute_batch(tools, thought="content library pull")
+        items, notes = [], []
+        for key, res in zip(keys, results):
+            acct = BY_KEY[key]
+            if not res["successful"]:
+                notes.append({key: str(res["error"])[:250]})
+                continue
+            for m in unwrap_list(scrub(res["data"] or {})):
+                if acct["platform"] == "instagram":
+                    items.append({
+                        "key": key, "id": m.get("id"),
+                        "ts": m.get("timestamp"),
+                        "img": m.get("media_url") or m.get("thumbnail_url"),
+                        "caption": m.get("caption"),
+                        "media_type": m.get("media_type"),
+                        "product": m.get("media_product_type"),
+                        "likes": m.get("like_count"),
+                        "comments": m.get("comments_count"),
+                        "link": m.get("permalink"),
+                    })
+                else:
+                    items.append({
+                        "key": key, "id": m.get("id"),
+                        "ts": m.get("created_time"),
+                        "img": m.get("full_picture"),
+                        "caption": m.get("message"),
+                        "media_type": "IMAGE" if m.get("full_picture")
+                                      else "TEXT",
+                        "product": "PAGE",
+                        "likes": ((m.get("reactions") or {}).get("summary")
+                                  or {}).get("total_count"),
+                        "comments": ((m.get("comments") or {}).get("summary")
+                                     or {}).get("total_count"),
+                        "link": m.get("permalink_url"),
+                    })
+        items.sort(key=lambda x: x.get("ts") or "", reverse=True)
+        return {"items": items, "notes": notes,
+                "generated_at": datetime.now(timezone.utc).isoformat()}
+
+    try:
+        return cached("library", fresh, build)
+    except Exception as e:
+        return JSONResponse(status_code=502, content={"error": str(e)[:400]})
+
+
+# ── Phone access: LAN address + scan-to-open QR ─────────────────────────────
+
+def lan_ip():
+    """Best-effort LAN address — the address phones on this Wi-Fi can reach."""
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        s.connect(("8.8.8.8", 80))  # no packets sent; just picks the route
+        return s.getsockname()[0]
+    except OSError:
+        return "127.0.0.1"
+    finally:
+        s.close()
+
+
+@app.get("/api/qr")
+def api_qr():
+    url = f"http://{lan_ip()}:8787"
+    try:
+        svg = qr.render_svg(url)
+    except ValueError as e:
+        return JSONResponse(status_code=500, content={"error": str(e)})
+    return {"url": url, "svg": svg}
 
 
 # ── Post detail: performance, comments, reactions ──────────────────────────
@@ -593,12 +778,21 @@ TOOL_REGISTRY = [
     {"platform": "Instagram", "area": "Publishing capacity",
      "slug": "INSTAGRAM_GET_IG_USER_CONTENT_PUBLISHING_LIMIT",
      "what": "Live usage of the 25-posts-per-day publishing allowance"},
-    {"platform": "Instagram", "area": "Publishing",
+    {"platform": "Instagram", "area": "Publishing · Photos",
      "slug": "INSTAGRAM_POST_IG_USER_MEDIA",
-     "what": "Stage a new post (image, reel or carousel draft)"},
+     "what": "Stage a photo post"},
+    {"platform": "Instagram", "area": "Publishing · Reels",
+     "slug": "INSTAGRAM_POST_IG_USER_MEDIA",
+     "what": "Stage a video as a Reel, with optional custom cover"},
+    {"platform": "Instagram", "area": "Publishing · Carousels",
+     "slug": "INSTAGRAM_POST_IG_USER_MEDIA",
+     "what": "Stage a 2-10 image carousel (child + parent containers)"},
+    {"platform": "Instagram", "area": "Publishing · Stories",
+     "slug": "INSTAGRAM_POST_IG_USER_MEDIA",
+     "what": "Stage an image or video story"},
     {"platform": "Instagram", "area": "Publishing",
      "slug": "INSTAGRAM_POST_IG_USER_MEDIA_PUBLISH",
-     "what": "Push a staged post live"},
+     "what": "Push any staged post live"},
     {"platform": "Instagram", "area": "Post lookup",
      "slug": "INSTAGRAM_GET_IG_MEDIA",
      "what": "Confirm a published post and fetch its link"},
@@ -629,6 +823,9 @@ TOOL_REGISTRY = [
     {"platform": "Facebook", "area": "Publishing",
      "slug": "FACEBOOK_CREATE_PHOTO_POST",
      "what": "Publish or schedule a photo post"},
+    {"platform": "Facebook", "area": "Publishing",
+     "slug": "FACEBOOK_CREATE_VIDEO_POST",
+     "what": "Publish or schedule a video post"},
     {"platform": "Facebook", "area": "Post management",
      "slug": "FACEBOOK_UPDATE_POST",
      "what": "Edit the text of a live post"},
@@ -682,4 +879,5 @@ app.mount("/", StaticFiles(directory=os.path.join(HERE, "static"), html=True),
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8787)
+    # All interfaces, so phones on the same Wi-Fi can open the hub.
+    uvicorn.run(app, host="0.0.0.0", port=8787)
