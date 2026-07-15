@@ -530,6 +530,129 @@
   .hero p { color: var(--muted); font-size: 13.5px; max-width: 680px; }
   .hero .chips { margin-top: 12px; }
 
+  /* ══ Convergence pass v5 — shared browse/console/planner language ══════════ */
+
+  /* Shared: view toolbar + segmented control (Library type filter, Inbox triage) */
+  .view-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 14px 20px; flex-wrap: wrap; margin-bottom: 18px; }
+  .view-toolbar .chips { margin: 0; }
+  .toolbar-r { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .seg { display: inline-flex; gap: 3px; padding: 4px; background: #0e0e18; border: 1px solid var(--line); border-radius: 999px; }
+  .seg-btn { padding: 7px 14px; border-radius: 999px; font-size: 12.5px; font-weight: 700; color: var(--muted);
+    cursor: pointer; border: none; background: transparent; font-family: var(--font-body); transition: color .15s, background .15s; white-space: nowrap; }
+  .seg-btn:hover { color: var(--text); }
+  .seg-btn.on { background: var(--accent-deep); color: #fff; }
+  .seg-btn .seg-count { opacity: .68; margin-left: 5px; font-weight: 600; font-size: 11px; }
+  .result-count { font-size: 12px; color: var(--faint); font-weight: 600; }
+
+  /* Shared: compact summary stat strip (lighter than dashboard KPI) */
+  .stat-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .stat { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; transition: border .18s; }
+  .stat:hover { border-color: #2c2c44; }
+  .stat .s-val { font-size: 24px; font-weight: 800; letter-spacing: -.6px; font-family: var(--font-display); line-height: 1; }
+  .stat .s-lab { font-size: 11px; font-weight: 700; color: var(--muted); margin-top: 7px; letter-spacing: .3px; }
+  .stat.accent .s-val { color: var(--accent-bright); }
+  .stat.coral .s-val { color: #ff8298; }
+
+  /* ══ Library — editorial asset browser ═════════════════════════════════════ */
+  .featured-strip { display: flex; gap: 14px; overflow-x: auto; padding: 2px 2px 12px; scroll-snap-type: x proximity; }
+  .featured-strip .asset-card { flex: 0 0 196px; scroll-snap-align: start; }
+  .asset-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(224px, 1fr)); gap: 16px; }
+  .asset-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden;
+    display: flex; flex-direction: column; transition: border .18s, transform .18s, background .18s; }
+  .asset-card:hover { border-color: #30304a; transform: translateY(-3px); background: var(--card-hover); }
+  .asset-thumb { position: relative; width: 100%; aspect-ratio: 4 / 5; background: #191926 center/cover no-repeat;
+    display: flex; align-items: center; justify-content: center; color: #3f3f54; font-size: 34px; }
+  .asset-thumb::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(180deg, rgba(6,6,12,.35) 0%, transparent 26%, transparent 58%, rgba(6,6,12,.78) 100%); }
+  .asset-top { position: absolute; top: 10px; left: 10px; right: 10px; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+  .asset-type { font-size: 10px; font-weight: 800; letter-spacing: .7px; text-transform: uppercase; padding: 3px 8px; border-radius: 6px;
+    background: rgba(6,6,12,.7); backdrop-filter: blur(4px); color: #fff; }
+  .asset-type.reel { color: #ff98ab; } .asset-type.carousel { color: var(--gold); } .asset-type.photo { color: var(--accent-bright); } .asset-type.text { color: #9db4ff; }
+  .asset-eng { position: absolute; left: 12px; bottom: 10px; z-index: 1; display: flex; gap: 12px; font-size: 12px; font-weight: 700;
+    color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,.7); }
+  .asset-body { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+  .asset-cap { font-size: 13px; line-height: 1.45; color: #e7e7f0; min-height: 37px;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .asset-cap.none { color: var(--faint); font-style: italic; }
+  .asset-meta { font-size: 11.5px; color: var(--faint); font-weight: 600; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .asset-meta .sep { color: #33334a; }
+  .asset-actions { display: flex; gap: 8px; margin-top: auto; }
+  .asset-actions .mini-btn { flex: 1; padding: 8px 6px; font-size: 12px; }
+
+  /* ══ Inbox — communication console ═════════════════════════════════════════ */
+  .rail-group { font-size: 10.5px; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; color: var(--faint); margin: 18px 4px 9px; }
+  .rail-group:first-child { margin-top: 2px; }
+  .thread-card { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: start; }
+  .thread-card .tc-av { position: relative; }
+  .thread-card .tc-av .avatar { width: 42px; height: 42px; font-size: 15px; }
+  .thread-card .tc-unread { position: absolute; top: -2px; right: -2px; width: 11px; height: 11px; border-radius: 50%;
+    background: var(--accent); border: 2px solid var(--card); box-shadow: 0 0 8px var(--accent); }
+  .thread-card .tc-body { min-width: 0; }
+  .thread-card.unread { border-color: #2e2e4c; background: linear-gradient(180deg, rgba(143,122,255,.05), transparent); }
+  .thread-card.unread .tc-name, .thread-card.unread .tc-snippet { color: var(--text); }
+  .thread-card.unread .tc-name { font-weight: 800; }
+  .thread-card .tc-acct { font-size: 11px; color: var(--faint); font-weight: 600; margin-top: 3px; display: flex; align-items: center; gap: 6px; }
+  .thread-head { display: flex; align-items: center; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--line); }
+  .thread-head .th-meta { min-width: 0; flex: 1; }
+  .thread-head .th-name { font-size: 15px; font-weight: 800; }
+  .thread-head .th-sub { font-size: 11.5px; color: var(--muted); margin-top: 2px; display: flex; align-items: center; gap: 7px; }
+  .reply-window { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; }
+  .reply-window::before { content: ""; width: 6px; height: 6px; border-radius: 50%; }
+  .reply-window.open { color: var(--ok); } .reply-window.open::before { background: var(--ok); box-shadow: 0 0 6px var(--ok); }
+  .reply-window.closed { color: var(--faint); } .reply-window.closed::before { background: var(--faint); }
+  .thread-reply input[type=text] { border-radius: 999px; }
+  .thread-reply .btn { border-radius: 999px; }
+  .inbox-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+    padding: 48px 30px; flex: 1; }
+  .inbox-placeholder .ip-icon { width: 52px; height: 52px; border-radius: 15px; background: rgba(143,122,255,.1); color: var(--accent-bright);
+    display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
+  .inbox-placeholder .ip-icon svg { width: 26px; height: 26px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .inbox-placeholder .ip-t { font-weight: 800; font-size: 15px; }
+  .inbox-placeholder .ip-s { font-size: 12.5px; color: var(--muted); margin-top: 5px; line-height: 1.5; max-width: 260px; }
+
+  /* ══ Analytics — decision surface ══════════════════════════════════════════ */
+  .perf-card .perf-head { justify-content: space-between; }
+  .perf-card .perf-head .ph-l { display: flex; align-items: center; gap: 14px; min-width: 0; }
+  .perf-card .ph-window { font-size: 11px; font-weight: 700; color: var(--faint); white-space: nowrap; }
+  .mt.primary { background: linear-gradient(180deg, rgba(143,122,255,.12), rgba(20,20,31,.4)); border-color: rgba(143,122,255,.32); }
+  .mt.primary .v { background: linear-gradient(90deg, #fff, var(--accent-bright)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .analytics-empty { color: var(--muted); font-size: 12.5px; line-height: 1.6; background: #0e0e18; border: 1px solid var(--line);
+    border-radius: 10px; padding: 14px 16px; }
+  .an-metric-head { font-size: 11px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--faint); margin: 2px 0 12px; }
+
+  /* ══ Scheduled — planner / timeline ════════════════════════════════════════ */
+  .next-up-hero { display: grid; grid-template-columns: auto 1fr auto; gap: 18px; align-items: center;
+    background: linear-gradient(120deg, rgba(24,119,242,.14), rgba(106,77,255,.08) 60%, transparent);
+    border: 1px solid #26264a; border-radius: var(--radius); padding: 18px 22px; margin-bottom: 22px; }
+  .next-up-hero .nu-thumb { width: 68px; height: 68px; border-radius: 12px; background: #191926 center/cover no-repeat; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; color: #47475c; font-size: 26px; }
+  .next-up-hero .nu-body { min-width: 0; }
+  .next-up-hero .nu-eyebrow { font-size: 10.5px; font-weight: 800; letter-spacing: 1.6px; text-transform: uppercase; color: var(--accent-bright); }
+  .next-up-hero .nu-when { font-size: 17px; font-weight: 800; font-family: var(--font-display); margin-top: 4px; letter-spacing: -.3px; }
+  .next-up-hero .nu-msg { font-size: 13px; color: var(--muted); margin-top: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.45; }
+  .next-up-hero .nu-count { text-align: center; flex-shrink: 0; }
+  .next-up-hero .nu-count .n { font-size: 30px; font-weight: 800; font-family: var(--font-display); letter-spacing: -1px; line-height: 1; }
+  .next-up-hero .nu-count .l { font-size: 11px; color: var(--muted); font-weight: 600; margin-top: 4px; }
+  .time-group { margin-bottom: 24px; }
+  .time-group-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .time-group-head .tg-label { font-size: 13px; font-weight: 800; letter-spacing: .3px; white-space: nowrap; }
+  .time-group-head .tg-count { font-size: 11.5px; color: var(--faint); font-weight: 600; white-space: nowrap; }
+  .time-group-head .tg-rule { flex: 1; height: 1px; background: var(--line); }
+  .time-group.attn .tg-label { color: var(--gold); }
+  .sched-card { display: grid; grid-template-columns: 60px 1fr auto; gap: 16px; align-items: start; }
+  .sched-card.pastdue { border-color: rgba(255,182,72,.4); background: rgba(255,182,72,.05); }
+  .sched-card .sc-thumb { width: 60px; height: 60px; border-radius: 11px; background: #191926 center/cover no-repeat; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; color: #47475c; font-size: 22px; }
+  .sched-card .sc-body { min-width: 0; }
+  .sched-card .sc-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 7px; }
+  .sched-card .sc-when { font-size: 13px; font-weight: 800; color: var(--accent-bright); }
+  .sched-card .sc-when.pastdue { color: var(--gold); }
+  .sched-card .sc-msg { font-size: 13.5px; color: #e7e7f0; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .sched-card .sc-controls { display: flex; flex-direction: column; gap: 8px; align-items: stretch; flex-shrink: 0; width: 220px; }
+  .sched-card .sc-controls input[type=datetime-local] { padding: 8px 11px; font-size: 12.5px; }
+  .sched-card .sc-btns { display: flex; gap: 8px; }
+  .sched-card .sc-btns .mini-btn { flex: 1; }
+
   /* ── Phone layout ────────────────────────────────────── */
   @media (max-width: 880px) {
     body { overflow: auto; }
@@ -586,6 +709,21 @@
       padding: 12px 18px calc(12px + env(safe-area-inset-bottom)); background: rgba(13,13,22,.96); backdrop-filter: blur(14px); border-top: 1px solid var(--line); }
     .publish-bar-mobile .btn { flex: 1; }
     .toasts { top: auto; bottom: calc(96px + env(safe-area-inset-bottom)); right: 12px; left: 12px; align-items: stretch; }
+
+    /* Convergence pass — mobile reflow */
+    .view-toolbar { margin-bottom: 14px; }
+    .seg { width: 100%; justify-content: space-between; }
+    .seg-btn { flex: 1; text-align: center; padding: 8px 6px; }
+    .stat-strip { grid-template-columns: 1fr 1fr; }
+    .asset-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .featured-strip .asset-card { flex: 0 0 168px; }
+    .asset-actions { flex-direction: column; }   /* narrow columns: keep labels on one line */
+    .next-up-hero { grid-template-columns: auto 1fr; }
+    .next-up-hero .nu-count { grid-column: 1 / 3; display: flex; align-items: baseline; gap: 8px; justify-content: flex-start; }
+    .next-up-hero .nu-count .l { margin-top: 0; }
+    .sched-card { grid-template-columns: 52px 1fr; }
+    .sched-card .sc-thumb { width: 52px; height: 52px; }
+    .sched-card .sc-controls { grid-column: 1 / 3; width: auto; }
   }
 </style>
 </head>
@@ -750,12 +888,22 @@
     <!-- LIBRARY -->
     <div id="view-library" style="display:none">
       <div class="hero grad-library">
-        <h1>Library</h1>
         <p>Everything you've ever published, in one shelf. Bring any piece back — one tap to post it again or line it up for later.</p>
-        <div class="chips" id="libChips"></div>
       </div>
       <div class="section">
-        <div class="grid" id="libGrid"></div>
+        <div class="stat-strip" id="libStats"></div>
+        <div class="sec-head" id="libFeaturedHead" style="display:none">
+          <h2>Top performing</h2><span class="sec-note">Your most-engaged pieces — reuse a winner</span>
+        </div>
+        <div class="featured-strip" id="libFeatured" style="display:none"></div>
+        <div class="view-toolbar">
+          <div class="chips" id="libChips"></div>
+          <div class="toolbar-r">
+            <div class="seg" id="libTypeSeg"></div>
+            <span class="result-count" id="libCount"></span>
+          </div>
+        </div>
+        <div class="asset-grid" id="libGrid"></div>
       </div>
       <div style="height:30px"></div>
     </div>
@@ -763,14 +911,21 @@
     <!-- INBOX -->
     <div id="view-inbox" style="display:none">
       <div class="hero grad-inbox">
-        <h1>Inbox</h1>
         <p>Customer messages from your Instagram accounts. Open a conversation and reply as your business — Meta allows replies within 24 hours of the customer's last message.</p>
       </div>
       <div class="section">
+        <div class="stat-strip" id="inboxStats" style="display:none"></div>
         <div class="inbox-grid">
-          <div id="threadList"></div>
+          <div>
+            <div class="seg" id="inboxTriage" style="display:none;margin-bottom:14px"></div>
+            <div id="threadList"></div>
+          </div>
           <div class="thread-panel" id="threadPanel">
-            <p class="hint" style="padding:22px">Select a conversation to read it and reply.</p>
+            <div class="inbox-placeholder">
+              <div class="ip-icon"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9 9 0 0 1-3.8-.8L3 20l1-4.9a8.4 8.4 0 1 1 17-3.6z"/></svg></div>
+              <div class="ip-t">Select a conversation</div>
+              <div class="ip-s">Pick a thread from the list to read it and reply as your business.</div>
+            </div>
           </div>
         </div>
       </div>
@@ -780,20 +935,28 @@
     <!-- ANALYTICS -->
     <div id="view-analytics" style="display:none">
       <div class="hero grad-perf">
-        <h1>Analytics</h1>
         <p>How your content performed over the last 7 days — reach, engagement and mentions for every account.</p>
       </div>
-      <div class="section" id="analyticsBody"></div>
+      <div class="section">
+        <div class="kpi-row" id="analyticsKpis"></div>
+      </div>
+      <div class="section" style="padding-top:2px">
+        <div class="sec-head"><h2>By account</h2><span class="sec-note" id="analyticsWindow"></span></div>
+        <div id="analyticsBody"></div>
+      </div>
       <div style="height:30px"></div>
     </div>
 
     <!-- SCHEDULED -->
     <div id="view-scheduled" style="display:none">
       <div class="hero grad-sched">
-        <h1>Scheduled</h1>
         <p>Posts waiting in your Facebook publishing queue. Move them to a new time or remove them before they go live.</p>
       </div>
-      <div class="section" id="schedBody"></div>
+      <div class="section">
+        <div id="schedNextUp"></div>
+        <div id="schedBody"></div>
+      </div>
+      <div style="height:30px"></div>
     </div>
 
     <!-- INTEGRATIONS -->
@@ -862,7 +1025,8 @@
 <script>
 const $ = id => document.getElementById(id);
 let ACCOUNTS = [], OVERVIEW = null, ANALYTICS = null, INTEGRATIONS = null, LIBRARY = null, SCHEDULED = null;
-let filter = 'all', libFilter = 'all', selected = new Set(), currentView = 'home', postType = 'photo';
+let filter = 'all', libFilter = 'all', libTypeFilter = 'all', selected = new Set(), currentView = 'home', postType = 'photo';
+let inboxFilter = 'all';
 
 const POST_TYPES = {
   photo:    { label: 'Photo',        desc: 'Instagram + Facebook', platforms: ['instagram', 'facebook'] },
@@ -951,6 +1115,9 @@ const ICON = {
   instagram: '<rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.5" y2="6.5"/>',
   facebook: '<path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>',
   phone: '<rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/>',
+  grid: '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
+  chat: '<path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9 9 0 0 1-3.8-.8L3 20l1-4.9a8.4 8.4 0 1 1 17-3.6z"/>',
+  search: '<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>',
 };
 function renderKpis() {
   if (!OVERVIEW) { $('kpiStrip').innerHTML = Array(5).fill('<div class="skeleton" style="height:96px"></div>').join(''); return; }
@@ -1295,31 +1462,106 @@ async function loadStories() {
   } catch (e) { /* stories are decorative — stay quiet */ }
 }
 
-/* ── Inbox ─────────────────────────────────────────────── */
+/* ── Inbox — communication console ─────────────────────── */
 let currentThread = null;
+function relShort(ms) {
+  if (!ms) return '';
+  const s = (Date.now() - ms) / 1000;
+  if (s < 60) return 'now';
+  if (s < 3600) return Math.round(s / 60) + 'm';
+  if (s < 86400) return Math.round(s / 3600) + 'h';
+  if (s < 604800) return Math.round(s / 86400) + 'd';
+  return new Date(ms).toLocaleDateString([], {month: 'short', day: 'numeric'});
+}
+
 async function loadInbox(fresh) {
-  $('threadList').innerHTML = Array(4).fill('<div class="skeleton" style="height:70px;margin-bottom:10px"></div>').join('');
+  $('threadList').innerHTML = Array(5).fill('<div class="skeleton" style="height:74px;margin-bottom:10px;border-radius:12px"></div>').join('');
+  $('inboxStats').style.display = 'none'; $('inboxTriage').style.display = 'none';
   try {
     const j = await api('/api/inbox' + (fresh ? '?fresh=true' : ''));
-    const cards = [];
-    window.__threads = [];
+    window.__threads = []; window.__inboxErrs = [];
     for (const [key, v] of Object.entries(j.inbox || {})) {
-      const acct = ACCOUNTS.find(a => a.key === key) || { handle: key };
+      const acct = ACCOUNTS.find(a => a.key === key) || { handle: key, platform: 'instagram' };
       for (const c of (v.conversations || [])) {
-        const i = window.__threads.length;
-        window.__threads.push({ key, id: c.id, acct });
-        const when = c.updated_time ? new Date(c.updated_time).toLocaleDateString() : '';
-        cards.push(`<div class="thread-card" id="tc_${i}" onclick="openThread(${i})">
-          <div class="tc-top"><span class="tc-name">${esc(acct.handle)}</span><span class="tc-when">${when}</span></div>
-          <div class="tc-snippet">${esc(c.snippet || 'Open to read this conversation')}</div>
-        </div>`);
+        window.__threads.push({ key, id: c.id, acct,
+          when: c.updated_time ? new Date(c.updated_time).getTime() : 0,
+          snippet: c.snippet || '', unread: Number(c.unread_count) || 0 });
       }
-      if (v.error) cards.push(`<p class="hint" style="margin-bottom:10px">⚠ ${esc(acct.handle)}: ${esc(v.error)}</p>`);
+      if (v.error) window.__inboxErrs.push({ acct, error: v.error });
     }
-    $('threadList').innerHTML = cards.join('') ||
-      `<p class="hint">No customer conversations yet. When someone DMs one of your Instagram accounts, the thread appears here.</p>`;
+    renderInbox();
   } catch (e) {
-    $('threadList').innerHTML = `<p class="hint">Inbox couldn't be loaded: ${esc(e.message)}</p>`;
+    $('threadList').innerHTML = `<div class="empty">
+      <div class="e-icon"><svg viewBox="0 0 24 24">${ICON.alert}</svg></div>
+      <div class="e-title">Inbox couldn't be loaded</div>
+      <div class="e-sub">${esc(e.message)}</div>
+      <button class="btn ghost" style="padding:10px 22px" onclick="loadInbox(true)">Try again</button></div>`;
+  }
+}
+function setInboxFilter(k) { inboxFilter = k; renderInbox(); }
+
+function renderInbox() {
+  const threads = window.__threads || [];
+  const total = threads.length;
+  const unread = threads.reduce((n, t) => n + (t.unread ? 1 : 0), 0);
+  const accts = new Set(threads.map(t => t.key)).size;
+  const dayAgo = Date.now() - 86400000;
+  const recentCount = threads.filter(t => t.when > dayAgo).length;
+  const errHtml = (window.__inboxErrs || []).map(e =>
+    `<p class="hint" style="margin:12px 2px">⚠ ${esc(e.acct.handle)}: ${esc(e.error)}</p>`).join('');
+
+  // Summary layer
+  const stat = (v, l, cls) => `<div class="stat ${cls || ''}"><div class="s-val">${v}</div><div class="s-lab">${l}</div></div>`;
+  if (total) {
+    $('inboxStats').style.display = '';
+    $('inboxStats').innerHTML = stat(total, total === 1 ? 'Conversation' : 'Conversations')
+      + stat(unread, 'Unread', unread ? 'accent' : '')
+      + stat(accts, accts === 1 ? '1 account' : accts + ' accounts');
+  } else $('inboxStats').style.display = 'none';
+
+  // Triage rail
+  const tabs = [{k: 'all', l: 'All', n: total}];
+  if (unread) tabs.push({k: 'unread', l: 'Unread', n: unread});
+  if (recentCount) tabs.push({k: 'recent', l: 'Recent', n: recentCount});
+  if (inboxFilter !== 'all' && !tabs.find(t => t.k === inboxFilter)) inboxFilter = 'all';
+  $('inboxTriage').style.display = tabs.length > 1 ? '' : 'none';
+  $('inboxTriage').innerHTML = tabs.map(t =>
+    `<button class="seg-btn ${inboxFilter === t.k ? 'on' : ''}" onclick="setInboxFilter('${t.k}')">${t.l}<span class="seg-count">${t.n}</span></button>`).join('');
+
+  if (!total) {
+    $('threadList').innerHTML = errHtml + `<div class="empty">
+      <div class="e-icon"><svg viewBox="0 0 24 24">${ICON.chat}</svg></div>
+      <div class="e-title">No conversations yet</div>
+      <div class="e-sub">When someone DMs one of your Instagram accounts, the thread appears here.</div></div>`;
+    return;
+  }
+
+  let list = threads.slice();
+  if (inboxFilter === 'unread') list = list.filter(t => t.unread);
+  else if (inboxFilter === 'recent') list = list.filter(t => t.when > dayAgo);
+  list.sort((a, b) => b.when - a.when);
+
+  if (!list.length) {
+    $('threadList').innerHTML = `<div class="empty">
+      <div class="e-icon"><svg viewBox="0 0 24 24">${ICON.check}</svg></div>
+      <div class="e-title">All caught up</div>
+      <div class="e-sub">No ${esc(inboxFilter)} conversations right now.</div></div>` + errHtml;
+    return;
+  }
+  $('threadList').innerHTML = list.map(t => {
+    const i = window.__threads.indexOf(t);
+    return `<div class="thread-card ${t.unread ? 'unread' : ''}" id="tc_${i}" onclick="openThread(${i})">
+      <div class="tc-av">${avatarEl(t.acct, null)}${t.unread ? '<span class="tc-unread"></span>' : ''}</div>
+      <div class="tc-body">
+        <div class="tc-top"><span class="tc-name">${esc(t.acct.handle)}</span><span class="tc-when">${esc(relShort(t.when))}</span></div>
+        <div class="tc-snippet">${esc(t.snippet || 'Open to read this conversation')}</div>
+        ${t.unread ? `<div class="tc-acct">${t.unread} new message${t.unread > 1 ? 's' : ''}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('') + errHtml;
+  if (currentThread) {
+    const el = $('tc_' + window.__threads.indexOf(currentThread));
+    if (el) el.classList.add('on');
   }
 }
 
@@ -1342,9 +1584,13 @@ async function openThread(i) {
     const otherName = other.username || other.name || 'customer';
     const canReply = !!other.id;
     $('threadPanel').innerHTML = `
-      <div style="padding:16px 20px;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:center">
-        <b style="font-size:14px">@${esc(otherName)}</b>
-        <span class="pill acc">${esc(t.acct.handle)}</span>
+      <div class="thread-head">
+        ${avatarEl(t.acct, null, 42)}
+        <div class="th-meta">
+          <div class="th-name">@${esc(otherName)}</div>
+          <div class="th-sub">${platBadge(t.acct.platform)}<span>${esc(t.acct.handle)}</span>
+            <span class="reply-window ${canReply ? 'open' : 'closed'}">${canReply ? 'Can reply' : 'Reply window closed'}</span></div>
+        </div>
       </div>
       <div class="thread-msgs" id="threadMsgs">${msgs}</div>
       <div class="thread-reply">
@@ -1409,50 +1655,125 @@ async function removeComment(key, commentId, btn) {
   } catch (e) { toast(e.message, true); }
 }
 
-/* ── Library ───────────────────────────────────────────── */
+/* ── Library — editorial asset browser ─────────────────── */
+const LIB_TYPES = [{k:'all', l:'All'}, {k:'photo', l:'Photos'}, {k:'reel', l:'Reels'},
+  {k:'carousel', l:'Carousels'}, {k:'text', l:'Text'}];
+const libTypeOf = t => (t === 'VIDEO' || t === 'REELS') ? 'reel'
+  : t === 'CAROUSEL_ALBUM' ? 'carousel' : t === 'TEXT' ? 'text' : 'photo';
+const libEng = m => (m.likes || 0) + (m.comments || 0);
+
 function renderLibChips() {
   const chips = [{k:'all', l:'Everything'}].concat(ACCOUNTS.map(a => ({k:a.key, l:a.handle})));
   $('libChips').innerHTML = chips.map(c =>
     `<div class="chip ${libFilter === c.k ? 'on' : ''}" onclick="setLibFilter('${c.k}')">${esc(c.l)}</div>`).join('');
 }
 function setLibFilter(k) { libFilter = k; renderLibChips(); renderLibrary(); }
+function setLibType(k) { libTypeFilter = k; renderLibrary(); }
+
+function assetCard(m) {
+  const i = (LIBRARY.items || []).indexOf(m);
+  const acct = ACCOUNTS.find(a => a.key === m.key) || {};
+  const reusable = !!m.img;
+  const t = libTypeOf(m.media_type);
+  const tLabel = TYPE_LABEL[m.media_type] || m.media_type || 'Post';
+  const date = m.ts ? new Date(m.ts).toLocaleDateString([], {month: 'short', day: 'numeric'}) : '';
+  const noCap = !(m.caption && m.caption.trim());
+  return `<div class="asset-card">
+    <div class="asset-thumb" style="${m.img ? `background-image:url('${cssUrl(m.img)}')` : ''}">${m.img ? '' : '📝'}
+      <div class="asset-top"><span class="asset-type ${t}">${esc(tLabel)}</span>${platBadge(acct.platform || 'facebook')}</div>
+      <div class="asset-eng"><span>♥ ${fmt(m.likes || 0)}</span><span>💬 ${fmt(m.comments || 0)}</span></div>
+    </div>
+    <div class="asset-body">
+      <div class="asset-cap ${noCap ? 'none' : ''}">${noCap ? 'No caption' : esc(m.caption)}</div>
+      <div class="asset-meta"><span>${esc(acct.handle || '')}</span>${date ? `<span class="sep">·</span><span>${esc(date)}</span>` : ''}</div>
+      <div class="asset-actions">
+        <button class="mini-btn accent" ${reusable ? '' : 'disabled style="opacity:.4"'} onclick="repostFromLibrary(${i}, false)">Post again</button>
+        <button class="mini-btn" ${reusable ? '' : 'disabled style="opacity:.4"'} onclick="repostFromLibrary(${i}, true)">Schedule</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderLibStats() {
+  const all = LIBRARY.items || [];
+  const reusable = all.filter(m => m.img).length;
+  const topEng = all.reduce((mx, m) => Math.max(mx, libEng(m)), 0);
+  const sources = new Set(all.map(m => m.key)).size;
+  const stat = (v, l, cls) => `<div class="stat ${cls || ''}"><div class="s-val">${v}</div><div class="s-lab">${l}</div></div>`;
+  $('libStats').style.display = all.length ? '' : 'none';
+  if (all.length) $('libStats').innerHTML =
+    stat(all.length, 'Pieces in your shelf') +
+    stat(reusable, 'Ready to reuse', 'accent') +
+    stat(fmt(topEng), 'Top engagement', 'coral') +
+    stat(sources, sources === 1 ? '1 source' : sources + ' sources');
+}
+
+function renderLibTypeSeg() {
+  const base = (LIBRARY.items || []).filter(x => libFilter === 'all' || x.key === libFilter);
+  const counts = {};
+  base.forEach(m => { const t = libTypeOf(m.media_type); counts[t] = (counts[t] || 0) + 1; });
+  if (libTypeFilter !== 'all' && !counts[libTypeFilter]) libTypeFilter = 'all';
+  const avail = LIB_TYPES.filter(t => t.k === 'all' || counts[t.k]);
+  $('libTypeSeg').style.display = avail.length > 1 ? '' : 'none';
+  $('libTypeSeg').innerHTML = avail.map(t => {
+    const n = t.k === 'all' ? base.length : counts[t.k];
+    return `<button class="seg-btn ${libTypeFilter === t.k ? 'on' : ''}" onclick="setLibType('${t.k}')">${t.l}<span class="seg-count">${n}</span></button>`;
+  }).join('');
+}
+
+function renderLibFeatured() {
+  const base = (LIBRARY.items || []).filter(x => (libFilter === 'all' || x.key === libFilter) && x.img);
+  const top = base.slice().sort((a, b) => libEng(b) - libEng(a)).filter(m => libEng(m) > 0).slice(0, 8);
+  const show = top.length >= 3 && base.length >= 6;
+  $('libFeatured').style.display = show ? '' : 'none';
+  $('libFeaturedHead').style.display = show ? '' : 'none';
+  if (show) $('libFeatured').innerHTML = top.map(assetCard).join('');
+}
 
 async function loadLibrary(fresh) {
   if (!LIBRARY || fresh) {
-    $('libGrid').innerHTML = Array(8).fill(`<div class="skeleton" style="height:320px"></div>`).join('');
+    $('libGrid').innerHTML = Array(8).fill(`<div class="skeleton" style="height:300px"></div>`).join('');
     try { LIBRARY = await api('/api/library' + (fresh ? '?fresh=true' : '')); }
-    catch (e) { $('libGrid').innerHTML = `<p class="hint">The library couldn't be loaded: ${esc(e.message)}</p>`; return; }
+    catch (e) {
+      $('libStats').style.display = 'none'; $('libTypeSeg').style.display = 'none';
+      $('libFeatured').style.display = 'none'; $('libFeaturedHead').style.display = 'none';
+      $('libGrid').innerHTML = `<div class="empty" style="grid-column:1/-1">
+        <div class="e-icon"><svg viewBox="0 0 24 24">${ICON.alert}</svg></div>
+        <div class="e-title">The library couldn't be loaded</div>
+        <div class="e-sub">${esc(e.message)}</div>
+        <button class="btn ghost" style="padding:10px 22px" onclick="loadLibrary(true)">Try again</button></div>`;
+      return;
+    }
   }
   renderLibrary();
 }
 
 function renderLibrary() {
   if (!LIBRARY) return;
-  const items = (LIBRARY.items || []).filter(x => libFilter === 'all' || x.key === libFilter);
-  if (!items.length) {
-    $('libGrid').innerHTML = `<p class="hint">Nothing here yet — everything you publish lands in this library automatically.</p>`;
-    window.__lib = [];
+  window.__lib = LIBRARY.items || [];   // stable index space for repostFromLibrary()
+  renderLibStats(); renderLibTypeSeg(); renderLibFeatured();
+  if (!(LIBRARY.items || []).length) {
+    $('libCount').textContent = '';
+    $('libGrid').innerHTML = `<div class="empty" style="grid-column:1/-1">
+      <div class="e-icon"><svg viewBox="0 0 24 24">${ICON.grid}</svg></div>
+      <div class="e-title">Your library is empty</div>
+      <div class="e-sub">Everything you publish lands here automatically, ready to reuse in one tap.</div>
+      <button class="btn primary" style="padding:10px 22px" onclick="showView('publish')">Create your first post</button>
+    </div>`;
     return;
   }
-  window.__lib = items;
-  $('libGrid').innerHTML = items.map((m, i) => {
-    const acct = ACCOUNTS.find(a => a.key === m.key) || {};
-    const reusable = !!m.img;
-    return `<div class="post-card" style="cursor:default">
-      <div class="thumb" style="${m.img ? `background-image:url('${cssUrl(m.img)}')` : ''}">${m.img ? '' : '📝'}${typeTag(m.media_type)}</div>
-      <div class="body">
-        <div class="cap">${esc(m.caption || '(no caption)')}</div>
-        <div class="row">
-          <span>♥ ${fmt(m.likes || 0)} · 💬 ${fmt(m.comments || 0)}</span>
-          ${platBadge(acct.platform || 'facebook')}
-        </div>
-        <div class="card-actions">
-          <button class="mini-btn accent" ${reusable ? '' : 'disabled style="opacity:.4"'} onclick="repostFromLibrary(${i}, false)">Post again</button>
-          <button class="mini-btn" ${reusable ? '' : 'disabled style="opacity:.4"'} onclick="repostFromLibrary(${i}, true)">Schedule</button>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
+  const items = (LIBRARY.items || []).filter(x =>
+    (libFilter === 'all' || x.key === libFilter) &&
+    (libTypeFilter === 'all' || libTypeOf(x.media_type) === libTypeFilter));
+  $('libCount').textContent = `${items.length} ${items.length === 1 ? 'piece' : 'pieces'}`;
+  if (!items.length) {
+    $('libGrid').innerHTML = `<div class="empty" style="grid-column:1/-1">
+      <div class="e-icon"><svg viewBox="0 0 24 24">${ICON.search}</svg></div>
+      <div class="e-title">Nothing matches this filter</div>
+      <div class="e-sub">Try a different account or media type.</div></div>`;
+    return;
+  }
+  $('libGrid').innerHTML = items.map(assetCard).join('');
 }
 
 /* ── Publish: import-from-library strip (front-and-center start point) ── */
@@ -1510,68 +1831,184 @@ function repostFromLibrary(i, wantSchedule) {
   }
 }
 
-/* ── Analytics ─────────────────────────────────────────── */
+/* ── Analytics — decision surface ──────────────────────── */
+function renderAnalyticsKpis() {
+  const accts = ANALYTICS.accounts || {};
+  let reach = 0, inter = 0, aud = 0, haveReach = false, haveInter = false;
+  for (const a of ACCOUNTS) {
+    const m = (accts[a.key] || {}).metrics || {};
+    if (m.reach != null) { reach += Number(m.reach) || 0; haveReach = true; }
+    if (m.total_interactions != null) { inter += Number(m.total_interactions) || 0; haveInter = true; }
+    if (m.page_post_engagements != null) { inter += Number(m.page_post_engagements) || 0; haveInter = true; }
+    const p = OVERVIEW && OVERVIEW.accounts.find(x => x.key === a.key);
+    if (p && p.profile) aud += Number(p.profile.followers_count ?? p.profile.fan_count ?? 0) || 0;
+  }
+  const kpi = (icon, label, val, sub, cls) => `
+    <div class="kpi2 ${cls || ''}">
+      <div class="k-top"><svg viewBox="0 0 24 24">${ICON[icon]}</svg><span class="k-label">${label}</span></div>
+      <div class="k-val">${val}</div><div class="k-sub">${sub}</div>
+    </div>`;
+  $('analyticsKpis').innerHTML =
+    kpi('users', 'Total audience', aud ? fmt(aud) : '—', 'followers across accounts') +
+    kpi('activity', 'Reach · 7d', haveReach ? fmt(reach) : '—', haveReach ? 'accounts reached' : 'unlocks with scale') +
+    kpi('zap', 'Interactions · 7d', haveInter ? fmt(inter) : '—', haveInter ? 'likes, comments & saves' : 'unlocks with scale') +
+    kpi('grid', 'Accounts', ACCOUNTS.length, 'Instagram & Facebook');
+}
+
 async function loadAnalytics(fresh) {
+  $('analyticsKpis').innerHTML = Array(4).fill('<div class="skeleton" style="height:96px"></div>').join('');
   $('analyticsBody').innerHTML = Array(3).fill('<div class="skeleton" style="height:180px;margin-bottom:18px"></div>').join('');
   try {
     ANALYTICS = await api('/api/analytics' + (fresh ? '?fresh=true' : ''));
+    if ($('analyticsWindow')) $('analyticsWindow').textContent = 'Refreshed ' + new Date(ANALYTICS.generated_at).toLocaleTimeString();
+    renderAnalyticsKpis();
     $('analyticsBody').innerHTML = ACCOUNTS.map(a => {
       const d = (ANALYTICS.accounts || {})[a.key] || {};
       const p = OVERVIEW && OVERVIEW.accounts.find(x => x.key === a.key);
       const entries = Object.entries(d.metrics || {}).filter(([, v]) => v != null);
       const peak = Math.max(1, ...entries.map(([, v]) => Number(v) || 0));
+      const primaryKey = a.platform === 'instagram' ? 'reach' : 'page_follows';
       const tiles = entries.length
-        ? `<div class="metric-tiles">${entries.map(([k, v]) => {
+        ? `<div class="an-metric-head">7-day performance</div>
+           <div class="metric-tiles">${entries.map(([k, v]) => {
             const pct = Math.max(4, Math.round(((Number(v) || 0) / peak) * 100));
-            return `<div class="mt"><div class="v">${fmt(v)}</div><div class="l">${esc(METRIC_LABEL[k] || k)}</div>
+            return `<div class="mt ${k === primaryKey ? 'primary' : ''}"><div class="v">${fmt(v)}</div><div class="l">${esc(METRIC_LABEL[k] || k)}</div>
                     <div class="bar" style="width:${pct}%"></div></div>`;
           }).join('')}</div>`
-        : `<p class="hint">Performance data will appear here as this account builds activity. New and small accounts may not report metrics yet — that's normal.</p>`;
+        : `<div class="analytics-empty">Performance data will appear here as this account builds activity. New and smaller accounts may not report metrics yet — that's normal.</div>`;
       const mentions = (d.tagged || []).length
-        ? `<h4 style="font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--faint);margin:18px 0 4px">Recent mentions</h4>
+        ? `<div class="an-metric-head" style="margin-top:20px">Recent mentions</div>
            <div class="mention-strip">${d.tagged.map(t => `
              <a class="mention" href="${esc(t.permalink || '#')}" target="_blank" rel="noopener">
                <div class="mimg" style="${t.media_url ? `background-image:url('${cssUrl(t.media_url)}')` : ''}"></div>
                <div class="mby">@${esc(t.username || '')}</div></a>`).join('')}</div>`
-        : (a.platform === 'instagram' ? `<p class="hint" style="margin-top:12px">No tagged mentions in the current window.</p>` : '');
+        : (a.platform === 'instagram' ? `<p class="hint" style="margin-top:14px">No tagged mentions in the current window.</p>` : '');
       return `<div class="perf-card">
-        <div class="perf-head">${avatarEl(a, p && p.profile, 48)}
-          <div><div class="handle">${esc(a.handle)} ${platBadge(a.platform)}</div>
-          <div class="s">Last 7 days · refreshed ${new Date(ANALYTICS.generated_at).toLocaleTimeString()}</div></div></div>
+        <div class="perf-head">
+          <div class="ph-l">${avatarEl(a, p && p.profile, 48)}
+            <div><div class="handle">${esc(a.handle)} ${platBadge(a.platform)}</div>
+            <div class="s">${a.platform === 'instagram' ? 'Instagram account' : 'Facebook page'}</div></div></div>
+          <span class="ph-window">Last 7 days</span>
+        </div>
         ${tiles}${mentions}</div>`;
     }).join('');
   } catch (e) {
-    $('analyticsBody').innerHTML = `<p class="hint">Analytics couldn't be loaded: ${esc(e.message)}</p>`;
+    $('analyticsKpis').innerHTML = '';
+    $('analyticsBody').innerHTML = `<div class="empty">
+      <div class="e-icon"><svg viewBox="0 0 24 24">${ICON.alert}</svg></div>
+      <div class="e-title">Analytics couldn't be loaded</div>
+      <div class="e-sub">${esc(e.message)}</div>
+      <button class="btn ghost" style="padding:10px 22px" onclick="loadAnalytics(true)">Try again</button></div>`;
   }
 }
 
-/* ── Scheduled ─────────────────────────────────────────── */
+/* ── Scheduled — planner / timeline ────────────────────── */
+function schedBucket(when) {
+  if (!when) return 'later';
+  const now = Date.now();
+  if (when < now) return 'attn';
+  const startTom = new Date(); startTom.setHours(24, 0, 0, 0);
+  const startDayAfter = new Date(); startDayAfter.setHours(48, 0, 0, 0);
+  if (when < startTom.getTime()) return 'today';
+  if (when < startDayAfter.getTime()) return 'tomorrow';
+  if (when < now + 7 * 86400000) return 'week';
+  return 'later';
+}
+
+function schedCard(p) {
+  const past = p.when && p.when < Date.now();
+  const whenTxt = p.when
+    ? new Date(p.when).toLocaleString([], {weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'})
+    : 'Time not set';
+  return `<div class="sched-card ${past ? 'pastdue' : ''}">
+    <div class="sc-thumb" style="${p.img ? `background-image:url('${cssUrl(p.img)}')` : ''}">${p.img ? '' : '🗓'}</div>
+    <div class="sc-body">
+      <div class="sc-top">
+        <span class="sbadge ${past ? 'warning' : 'scheduled'}">${past ? 'Overdue' : 'Scheduled'}</span>
+        <span class="sec-note">${esc(p.acct.handle)}</span>
+      </div>
+      <div class="sc-when ${past ? 'pastdue' : ''}">${past ? 'Was due ' : 'Publishing '}${esc(whenTxt)}</div>
+      <div class="sc-msg">${esc(p.msg || '(no text)')}</div>
+    </div>
+    <div class="sc-controls">
+      <input type="datetime-local" id="rs_${esc(p.id)}">
+      <div class="sc-btns">
+        <button class="mini-btn accent" onclick="reschedulePost('${p.key}','${esc(p.id)}')">Move</button>
+        <button class="mini-btn danger" onclick="deleteScheduled('${p.key}','${esc(p.id)}', this)">Remove</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function schedNextUp(posts) {
+  const timed = posts.filter(p => p.when).sort((a, b) => a.when - b.when);
+  const next = timed[0] || posts[0];
+  const startTom = new Date(); startTom.setHours(24, 0, 0, 0);
+  const overdue = posts.filter(p => p.when && p.when < Date.now()).length;
+  const todayCount = posts.filter(p => p.when && p.when >= Date.now() && p.when < startTom.getTime()).length;
+  const whenTxt = next.when
+    ? (next.when < Date.now()
+        ? 'Overdue · ' + new Date(next.when).toLocaleString([], {month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'})
+        : new Date(next.when).toLocaleString([], {weekday: 'long', hour: 'numeric', minute: '2-digit'}))
+    : 'Time not set';
+  const subCount = overdue ? `${overdue} overdue` : todayCount ? `${todayCount} today` : '';
+  $('schedNextUp').innerHTML = `<div class="next-up-hero">
+    <div class="nu-thumb" style="${next.img ? `background-image:url('${cssUrl(next.img)}')` : ''}">${next.img ? '' : '🗓'}</div>
+    <div class="nu-body">
+      <div class="nu-eyebrow">Next to publish</div>
+      <div class="nu-when">${esc(whenTxt)}</div>
+      <div class="nu-msg">${esc(next.msg || '(no caption)')} · ${esc(next.acct.handle)}</div>
+    </div>
+    <div class="nu-count"><div class="n">${posts.length}</div>
+      <div class="l">${posts.length === 1 ? 'post queued' : 'posts queued'}${subCount ? ` · ${subCount}` : ''}</div></div>
+  </div>`;
+}
+
 async function loadScheduled() {
+  $('schedNextUp').innerHTML = '';
   $('schedBody').innerHTML = '<div class="skeleton" style="height:120px"></div>';
   try {
     const j = await api('/api/scheduled');
-    const cards = [];
+    const posts = [], errs = [];
     for (const [key, v] of Object.entries(j.scheduled || {})) {
       const acct = ACCOUNTS.find(a => a.key === key) || { handle: key, platform: 'facebook' };
-      for (const p of (v.posts || [])) {
-        const when = p.scheduled_publish_time ? new Date(p.scheduled_publish_time * 1000) : null;
-        cards.push(`<div class="sched-card">
-          <div style="min-width:0;flex:1">
-            <div class="msg">${esc(p.message || '(no text)')}</div>
-            <div class="when">Publishing ${when ? when.toLocaleString() : 'soon'} · ${esc(acct.handle)}</div>
-          </div>
-          <div class="sched-actions">
-            <input type="datetime-local" id="rs_${esc(p.id)}" style="max-width:210px;padding:8px 10px;font-size:12.5px">
-            <button class="mini-btn" onclick="reschedulePost('${key}','${esc(p.id)}')">Move</button>
-            <button class="mini-btn danger" onclick="deleteScheduled('${key}','${esc(p.id)}', this)">Remove</button>
-          </div></div>`);
-      }
-      if (v.error) cards.push(`<p class="hint">⚠ ${esc(acct.handle)}: ${esc(v.error)}</p>`);
+      for (const p of (v.posts || []))
+        posts.push({ key, id: p.id, acct, msg: p.message, img: p.full_picture,
+          when: p.scheduled_publish_time ? p.scheduled_publish_time * 1000 : 0 });
+      if (v.error) errs.push({ acct, error: v.error });
     }
-    $('schedBody').innerHTML = cards.join('') ||
-      `<p class="hint">Your publishing queue is empty. Schedule a Facebook post from the Publish page and it will appear here.</p>`;
+    const errHtml = errs.map(e => `<p class="hint" style="margin:12px 0">⚠ ${esc(e.acct.handle)}: ${esc(e.error)}</p>`).join('');
+    if (!posts.length) {
+      $('schedBody').innerHTML = errHtml + `<div class="empty">
+        <div class="e-icon"><svg viewBox="0 0 24 24">${ICON.calendar}</svg></div>
+        <div class="e-title">Your queue is empty</div>
+        <div class="e-sub">Schedule a Facebook post from the Publish page and it will appear here on the timeline.</div>
+        <button class="btn primary" style="padding:10px 22px" onclick="showView('publish')">Schedule a post</button></div>`;
+      return;
+    }
+    schedNextUp(posts);
+    const ORDER = ['attn', 'today', 'tomorrow', 'week', 'later'];
+    const LABELS = {attn: 'Needs attention', today: 'Today', tomorrow: 'Tomorrow', week: 'This week', later: 'Later'};
+    const groups = {};
+    posts.forEach(p => { const b = schedBucket(p.when); (groups[b] = groups[b] || []).push(p); });
+    const html = ORDER.filter(k => groups[k] && groups[k].length).map(k => {
+      const items = groups[k].sort((a, b) => (a.when || Infinity) - (b.when || Infinity));
+      return `<div class="time-group ${k === 'attn' ? 'attn' : ''}">
+        <div class="time-group-head">
+          <span class="tg-label">${LABELS[k]}</span>
+          <span class="tg-count">${items.length} post${items.length > 1 ? 's' : ''}</span>
+          <span class="tg-rule"></span>
+        </div>
+        ${items.map(schedCard).join('')}</div>`;
+    }).join('');
+    $('schedBody').innerHTML = html + errHtml;
   } catch (e) {
-    $('schedBody').innerHTML = `<p class="hint">Queue couldn't be loaded: ${esc(e.message)}</p>`;
+    $('schedNextUp').innerHTML = '';
+    $('schedBody').innerHTML = `<div class="empty">
+      <div class="e-icon"><svg viewBox="0 0 24 24">${ICON.alert}</svg></div>
+      <div class="e-title">Queue couldn't be loaded</div>
+      <div class="e-sub">${esc(e.message)}</div>
+      <button class="btn ghost" style="padding:10px 22px" onclick="loadScheduled()">Try again</button></div>`;
   }
 }
 
