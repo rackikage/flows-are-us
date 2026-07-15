@@ -155,7 +155,7 @@
   /* Entrance motion — cards fade up as they appear, staggered by :nth-child */
   @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
   .acct-card, .post-card, .perf-card, .sched-card, .thread-card, .mention, .story,
-  .status-card, .install-grid, .tool-table { animation: fadeUp .38s cubic-bezier(.2,.7,.2,1) both; }
+  .health-hero, .accounts-card, .accordion, .install-card { animation: fadeUp .38s cubic-bezier(.2,.7,.2,1) both; }
   .acct-card:nth-child(2), .post-card:nth-child(2), .thread-card:nth-child(2) { animation-delay: .04s; }
   .acct-card:nth-child(3), .post-card:nth-child(3), .thread-card:nth-child(3) { animation-delay: .08s; }
   .acct-card:nth-child(4), .post-card:nth-child(4), .thread-card:nth-child(4) { animation-delay: .12s; }
@@ -185,6 +185,14 @@
   .type-opt.on { border-color: var(--accent); background: rgba(143,122,255,.13); color: var(--accent-bright); }
   .type-opt .td { font-size: 10.5px; color: var(--faint); font-weight: 600; display: block; }
   .compose-grid { display: grid; grid-template-columns: 1fr 300px; gap: 22px; max-width: 940px; }
+  .lib-import-strip { display: flex; gap: 12px; overflow-x: auto; padding: 2px 2px 12px; }
+  .lib-import-card { flex: 0 0 168px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; transition: border .18s; }
+  .lib-import-card:hover { border-color: #2c2c44; }
+  .lib-import-card .thumb { width: 100%; aspect-ratio: 1; background: #1d1d2b center/cover no-repeat; display: flex; align-items: center; justify-content: center; color: #47475c; font-size: 26px; }
+  .lib-import-card .li-cap { font-size: 11.5px; color: var(--muted); padding: 9px 10px 2px; line-height: 1.4; min-height: 32px;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .lib-import-card .li-act { display: flex; gap: 6px; padding: 8px; }
+  .lib-import-card .li-act .mini-btn { flex: 1; padding: 6px 4px; font-size: 11px; }
   textarea, input[type=text], input[type=url], input[type=datetime-local] {
     width: 100%; background: var(--card); color: var(--text); border: 1px solid var(--line);
     border-radius: 10px; padding: 13px 14px; font-size: 15px; font-family: var(--font-body); outline: none; transition: border .15s; }
@@ -282,37 +290,48 @@
   .mini-btn.accent:hover { background: var(--accent); color: #fff; }
   .mini-btn.danger:hover { border-color: var(--coral); color: #ff8fa0; }
 
-  /* ── Integrations ────────────────────────────────────── */
-  .status-banner { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 22px; }
-  .status-card { flex: 1; min-width: 190px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; }
-  .status-card .t { font-size: 11px; font-weight: 800; letter-spacing: 1.3px; text-transform: uppercase; color: var(--faint); }
-  .status-card .v { font-size: 18px; font-weight: 800; margin-top: 6px; display: flex; align-items: center; gap: 9px; font-family: var(--font-display); }
-  .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-  .dot.ok { background: var(--ok); box-shadow: 0 0 10px var(--ok); }
-  .dot.bad { background: var(--coral); box-shadow: 0 0 10px var(--coral); }
-  .tool-table { width: 100%; border-collapse: collapse; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
-  .tool-table th { text-align: left; font-size: 10.5px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;
-    color: var(--faint); padding: 14px 18px; border-bottom: 1px solid var(--line); background: #0e0e18; }
-  .tool-table td { padding: 13px 18px; border-bottom: 1px solid #1c1c2b; font-size: 13.5px; vertical-align: middle; }
-  .tool-table tr:last-child td { border-bottom: none; }
-  .tool-table tr:hover td { background: #1a1a28; }
-  .tool-table .area { font-weight: 800; }
-  .tool-table .what { color: var(--muted); }
-  .tool-table .slug { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 10.5px; color: var(--faint); }
-  .table-scroll { overflow-x: auto; border-radius: var(--radius); }
+  /* ── Integrations (status console) ─────────────────────── */
+  .health-hero { margin-bottom: 22px; }
+  .health-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-top: 16px; }
+  .health-item { display: flex; align-items: center; gap: 12px; }
+  .health-item .hi-ic { width: 32px; height: 32px; border-radius: 9px; background: #0e0e18; border: 1px solid var(--line); color: var(--faint);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .health-item .hi-ic svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .health-item .hi-body { min-width: 0; }
+  .health-item .hi-label { font-size: 10.5px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--faint); margin-bottom: 3px; }
+  .health-item .hi-time { font-size: 13px; font-weight: 800; font-family: var(--font-display); }
 
-  /* Phone install card */
-  .install-grid { display: grid; grid-template-columns: 190px 1fr; gap: 24px; background: var(--card); border: 1px solid var(--line);
-    border-radius: var(--radius); padding: 24px; margin-bottom: 26px; align-items: center; }
-  .qr-holder { width: 190px; }
-  .qr-holder svg { width: 100%; height: auto; border-radius: 12px; display: block; }
-  .install-steps { min-width: 0; }
-  .install-steps .url { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 14px; color: var(--accent-bright);
-    background: #0e0e18; border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; display: inline-block; margin: 8px 0 14px; }
-  .os-steps { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  .os-steps > div { background: #0e0e18; border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
-  .os-steps .os { font-weight: 800; font-size: 13.5px; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
-  .os-steps ol { padding-left: 18px; font-size: 12.5px; color: var(--muted); line-height: 1.8; }
+  .accounts-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 22px; }
+  .accounts-card .acct-list { margin-top: 12px; }
+
+  .accordion { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; margin-bottom: 14px; }
+  .accordion-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 20px; cursor: pointer; user-select: none; }
+  .accordion-head:hover { background: var(--card-hover); }
+  .accordion-head .ah-t { font-weight: 800; font-size: 14.5px; display: flex; align-items: center; gap: 10px; }
+  .accordion-head .chev { width: 16px; height: 16px; stroke: var(--faint); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+    transition: transform .15s; flex-shrink: 0; }
+  .accordion.open .chev { transform: rotate(180deg); }
+  .accordion-body { display: none; padding: 4px 20px 16px; border-top: 1px solid var(--line); }
+  .accordion.open .accordion-body { display: block; }
+  .cap-cat { font-size: 10.5px; font-weight: 800; letter-spacing: 1.3px; text-transform: uppercase; color: var(--faint); margin: 16px 0 8px; }
+  .cap-cat:first-child { margin-top: 14px; }
+  .cap-row { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1c1c2b; }
+  .cap-row:last-child { border-bottom: none; }
+  .cap-row .cap-name { font-weight: 700; font-size: 13px; min-width: 190px; flex-shrink: 0; }
+  .cap-row .cap-what { color: var(--muted); font-size: 12.5px; flex: 1; min-width: 0; }
+
+  /* Phone install card — compact utility, not a hero */
+  .install-card { display: grid; grid-template-columns: 108px 1fr; gap: 16px; background: var(--card); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 16px 18px; align-items: center; }
+  .install-card .qr-holder { width: 108px; }
+  .install-card .qr-holder svg { width: 100%; height: auto; border-radius: 10px; display: block; }
+  .install-card .install-steps { min-width: 0; }
+  .install-card .url { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px; color: var(--accent-bright);
+    background: #0e0e18; border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; display: inline-block; margin-bottom: 10px; }
+  .os-tabs { display: flex; gap: 8px; margin-bottom: 10px; }
+  .os-panel { display: none; }
+  .os-panel.on { display: block; }
+  .os-panel ol { padding-left: 18px; font-size: 12px; color: var(--muted); line-height: 1.7; }
 
   /* ── Dock (desktop) ──────────────────────────────────── */
   .dock { grid-column: 1 / 3; grid-row: 2; background: #0d0d16; border-top: 1px solid var(--line);
@@ -423,7 +442,7 @@
   .sbadge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 800; letter-spacing: .3px;
     padding: 3px 9px 3px 8px; border-radius: 999px; text-transform: uppercase; white-space: nowrap; }
   .sbadge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-  .sbadge.connected, .sbadge.published { color: var(--ok); background: rgba(61,220,132,.13); }
+  .sbadge.connected, .sbadge.published, .sbadge.live { color: var(--ok); background: rgba(61,220,132,.13); }
   .sbadge.scheduled { color: #6aaefc; background: rgba(24,119,242,.16); }
   .sbadge.draft { color: var(--accent-bright); background: rgba(143,122,255,.16); }
   .sbadge.warning { color: var(--gold); background: rgba(255,182,72,.14); }
@@ -469,6 +488,7 @@
   .health-dot::before { content: ""; width: 7px; height: 7px; border-radius: 50%; }
   .health-dot.ok { color: var(--ok); } .health-dot.ok::before { background: var(--ok); box-shadow: 0 0 7px var(--ok); }
   .health-dot.warn { color: var(--gold); } .health-dot.warn::before { background: var(--gold); }
+  .health-dot.down { color: #ff8fa0; } .health-dot.down::before { background: var(--coral); box-shadow: 0 0 7px var(--coral); }
 
   /* ══ Structured recent-content rows ═════════════════════ */
   .content-list { display: flex; flex-direction: column; gap: 8px; }
@@ -554,10 +574,10 @@
     .acct-row { grid-template-columns: 1fr; }
     .detail { grid-template-columns: 1fr; max-height: 92vh; width: 94vw; }
     .detail .dimg { border-radius: 18px 18px 0 0; min-height: 220px; max-height: 40vh; }
-    .install-grid { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+    .install-card { grid-template-columns: 1fr; justify-items: center; text-align: center; }
     .inbox-grid { grid-template-columns: 1fr; }
     .thread-msgs { max-height: 44vh; }
-    .os-steps { grid-template-columns: 1fr; text-align: left; }
+    .os-tabs { justify-content: center; }
     .publish-bar-mobile { display: flex; gap: 10px; position: sticky; bottom: 0; margin: 8px -18px -22px;
       padding: 12px 18px calc(12px + env(safe-area-inset-bottom)); background: rgba(13,13,22,.96); backdrop-filter: blur(14px); border-top: 1px solid var(--line); }
     .publish-bar-mobile .btn { flex: 1; }
@@ -665,8 +685,16 @@
         <h1>Publish</h1>
         <p>Create once, share everywhere you choose. Photos, videos, carousels and stories — nothing goes live until you confirm.</p>
       </div>
+      <div class="section" style="padding-bottom:6px">
+        <div class="sec-head"><h2>Start from your library</h2><span class="sec-link" onclick="showView('library')">Browse all →</span></div>
+        <div class="lib-import-strip" id="libImportStrip">
+          <div class="skeleton lib-import-card" style="height:150px"></div>
+          <div class="skeleton lib-import-card" style="height:150px"></div>
+          <div class="skeleton lib-import-card" style="height:150px"></div>
+        </div>
+      </div>
       <div class="section">
-        <div class="field-label">What are you posting?</div>
+        <div class="field-label">Or start from scratch</div>
         <div class="type-row" id="typeRow"></div>
         <div style="height:14px"></div>
         <div class="compose-grid">
@@ -768,10 +796,10 @@
     <div id="view-integrations" style="display:none">
       <div class="hero grad-integr">
         <h1>Integrations</h1>
-        <p>Every platform capability wired into this hub — all of it running through the Composio pipe, checked live.</p>
+        <p>Every capability wired into this hub, grouped by what it does for your business.</p>
       </div>
-      <div class="section" id="installSection"></div>
       <div class="section" id="integrationsBody"></div>
+      <div class="section" id="installSection"></div>
       <div style="height:30px"></div>
     </div>
   </main>
@@ -916,6 +944,10 @@ const ICON = {
   zap: '<path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/>',
   check: '<path d="M20 6 9 17l-5-5"/>',
   calendar: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+  activity: '<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>',
+  instagram: '<rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.5" y2="6.5"/>',
+  facebook: '<path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>',
+  phone: '<rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/>',
 };
 function renderKpis() {
   if (!OVERVIEW) { $('kpiStrip').innerHTML = Array(5).fill('<div class="skeleton" style="height:96px"></div>').join(''); return; }
@@ -1420,6 +1452,41 @@ function renderLibrary() {
   }).join('');
 }
 
+/* ── Publish: import-from-library strip (front-and-center start point) ── */
+async function loadLibraryStrip() {
+  const el = $('libImportStrip');
+  if (!el) return;
+  if (!LIBRARY) {
+    try { LIBRARY = await api('/api/library'); }
+    catch (e) { el.innerHTML = `<p class="hint">Your library will appear here once you've published something.</p>`; return; }
+  }
+  renderLibraryStrip();
+}
+
+function renderLibraryStrip() {
+  const el = $('libImportStrip');
+  if (!el || !LIBRARY) return;
+  const items = (LIBRARY.items || []).slice(0, 12);
+  window.__lib = LIBRARY.items || [];  // repostFromLibrary() indexes into this — keep it unfiltered here
+  if (!items.length) {
+    el.innerHTML = `<p class="hint">Nothing published yet — once you post, it'll show up here so you can reuse it in one click.</p>`;
+    return;
+  }
+  el.innerHTML = items.map(m => {
+    const i = window.__lib.indexOf(m);
+    const acct = ACCOUNTS.find(a => a.key === m.key) || {};
+    const reusable = !!m.img;
+    return `<div class="lib-import-card">
+      <div class="thumb" style="${m.img ? `background-image:url('${cssUrl(m.img)}')` : ''}">${m.img ? '' : '📝'}</div>
+      <div class="li-cap">${platBadge(acct.platform || 'facebook')} ${esc(m.caption || 'No caption')}</div>
+      <div class="li-act">
+        <button class="mini-btn accent" ${reusable ? '' : 'disabled style="opacity:.4"'} onclick="repostFromLibrary(${i}, false)">Import</button>
+        <button class="mini-btn" ${reusable ? '' : 'disabled style="opacity:.4"'} onclick="repostFromLibrary(${i}, true)">Schedule</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 function repostFromLibrary(i, wantSchedule) {
   const m = (window.__lib || [])[i];
   if (!m || !m.img) return;
@@ -1530,24 +1597,115 @@ async function deleteScheduled(key, postId, btn) {
   } catch (e) { toast('Couldn\'t remove it: ' + e.message, true); }
 }
 
+/* ── Integrations: capability grouping (client-side; server keeps one flat registry) ── */
+const CAP_CATEGORIES = ['Profile & audience', 'Content library', 'Insights & performance',
+  'Comments & moderation', 'Inbox & messages', 'Publishing', 'Scheduling', 'Post lookup'];
+const AREA_TO_CATEGORY = {
+  'Profile & audience': 'Profile & audience', 'Page inventory': 'Profile & audience', 'Page profile': 'Profile & audience',
+  'Content library': 'Content library', 'Mentions': 'Content library', 'Stories': 'Content library', 'Carousel detail': 'Content library',
+  'Account performance': 'Insights & performance', 'Post performance': 'Insights & performance', 'Page performance': 'Insights & performance',
+  'Comments': 'Comments & moderation', 'Comment threads': 'Comments & moderation', 'Comment moderation': 'Comments & moderation',
+  'Comment replies': 'Comments & moderation', 'Reactions': 'Comments & moderation',
+  'Inbox': 'Inbox & messages',
+  'Publishing capacity': 'Publishing', 'Publishing · Photos': 'Publishing', 'Publishing · Reels': 'Publishing',
+  'Publishing · Carousels': 'Publishing', 'Publishing · Stories': 'Publishing', 'Publishing': 'Publishing', 'Post management': 'Publishing',
+  'Scheduling': 'Scheduling',
+  'Post lookup': 'Post lookup',
+};
+const areaCategory = area => AREA_TO_CATEGORY[area] || 'Publishing';
+
 /* ── Integrations + phone install ──────────────────────── */
+function healthItem(icon, label, ok, timeText) {
+  const state = ok == null
+    ? `<span class="hi-time">${esc(timeText)}</span>`
+    : `<span class="health-dot ${ok ? 'ok' : 'down'}">${ok ? 'Operational' : 'Attention needed'}</span>`;
+  return `<div class="health-item">
+    <div class="hi-ic"><svg viewBox="0 0 24 24">${ICON[icon]}</svg></div>
+    <div class="hi-body"><div class="hi-label">${esc(label)}</div>${state}</div>
+  </div>`;
+}
+
+function renderHealthHero() {
+  const pipeOk = INTEGRATIONS.pipe === 'operational';
+  const igOk = !!INTEGRATIONS.instagram_ok;
+  const fbOk = !!INTEGRATIONS.facebook_ok;
+  const allOk = pipeOk && igOk && fbOk;
+  return `<div class="panel healthy health-hero" id="healthHero">
+    <div class="attn-head">
+      <div class="attn-icon ${allOk ? 'ok' : 'warn'}"><svg viewBox="0 0 24 24">${ICON[allOk ? 'check' : 'alert']}</svg></div>
+      <div class="at">${allOk ? 'All systems operational' : 'Attention needed'}</div>
+    </div>
+    <div class="health-grid">
+      ${healthItem('activity', 'Composio pipe', pipeOk)}
+      ${healthItem('instagram', 'Instagram connection', igOk)}
+      ${healthItem('facebook', 'Facebook connection', fbOk)}
+      ${healthItem('clock', 'Last verified', null, new Date(INTEGRATIONS.checked_at).toLocaleTimeString())}
+    </div>
+  </div>`;
+}
+
+function renderManagedAccounts() {
+  const pages = INTEGRATIONS.managed_pages || [];
+  if (!pages.length) return '';
+  return `<div class="accounts-card" id="managedAccounts">
+    <div class="eyebrow">Managed by this hub</div>
+    <div class="acct-list">
+      ${pages.map(p => `<div class="acct-item">
+        <div class="avatar fb">${initials(p.name || '?')}</div>
+        <div class="ai-id">
+          <div class="ai-name">${esc(p.name || 'Untitled page')} ${platBadge('facebook')}</div>
+          <div class="ai-meta">
+            ${p.category ? `<span>${esc(p.category)}</span><span class="sep">·</span>` : ''}
+            <span class="sbadge live">Verified</span>
+          </div>
+        </div>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function capabilityAccordion(platKey, label, tools) {
+  const groups = {};
+  for (const t of tools) { const c = areaCategory(t.area); (groups[c] = groups[c] || []).push(t); }
+  const body = CAP_CATEGORIES.filter(c => groups[c] && groups[c].length).map(cat => `
+    <div class="cap-cat">${esc(cat)}</div>
+    ${groups[cat].map(t => `<div class="cap-row">
+      <div class="cap-name">${esc(t.area)}</div>
+      <div class="cap-what">${esc(t.what)}</div>
+      <span class="sbadge live">Live</span>
+    </div>`).join('')}`).join('');
+  return `<div class="accordion" id="acc-${platKey}">
+    <div class="accordion-head" onclick="toggleAccordion('acc-${platKey}')">
+      <div class="ah-t">${platBadge(platKey)}<span>${esc(label)} capabilities (${tools.length})</span></div>
+      <svg class="chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+    </div>
+    <div class="accordion-body">${body}</div>
+  </div>`;
+}
+
+function toggleAccordion(id) {
+  const el = $(id);
+  if (el) el.classList.toggle('open');
+}
+
 async function loadInstallCard() {
   try {
     const q = await api('/api/qr');
     $('installSection').innerHTML = `
       <div class="eyebrow">Take it with you</div>
-      <h2>FLOWS on every phone</h2>
-      <div class="sub">Anyone on your business Wi-Fi can open the hub and install it like a normal app — iPhone and Samsung/Android both work.</div>
-      <div class="install-grid" id="installCard">
+      <div class="install-card" id="installCard">
         <div class="qr-holder">${q.svg}</div>
         <div class="install-steps">
-          <div class="eyebrow">Scan with the phone camera, or type</div>
           <span class="url">${esc(q.url)}</span>
-          <div class="os-steps">
-            <div><div class="os"> iPhone (Safari)</div>
-              <ol><li>Scan the QR — it opens in Safari</li><li>Tap <b>Share</b> → <b>Add to Home Screen</b></li><li>FLOWS appears as an app icon</li></ol></div>
-            <div><div class="os">🤖 Samsung / Android (Chrome)</div>
-              <ol><li>Scan the QR — it opens in Chrome</li><li>Tap <b>⋮ menu</b> → <b>Add to Home screen / Install</b></li><li>FLOWS installs as an app</li></ol></div>
+          <div class="os-tabs">
+            <div class="chip on" data-os="iphone" onclick="setOsTab('iphone')">iPhone</div>
+            <div class="chip" data-os="android" onclick="setOsTab('android')">Android</div>
+          </div>
+          <div class="os-panel on" id="osPanel-iphone">
+            <ol><li>Scan the QR — it opens in Safari</li><li>Tap <b>Share</b> → <b>Add to Home Screen</b></li><li>FLOWS appears as an app icon</li></ol>
+          </div>
+          <div class="os-panel" id="osPanel-android">
+            <ol><li>Scan the QR — it opens in Chrome</li><li>Tap <b>⋮ menu</b> → <b>Add to Home screen / Install</b></li><li>FLOWS installs as an app</li></ol>
           </div>
         </div>
       </div>`;
@@ -1556,34 +1714,23 @@ async function loadInstallCard() {
   }
 }
 
+function setOsTab(which) {
+  document.querySelectorAll('.os-tabs .chip').forEach(el => el.classList.toggle('on', el.dataset.os === which));
+  document.querySelectorAll('.os-panel').forEach(el => el.classList.toggle('on', el.id === 'osPanel-' + which));
+}
+
 async function loadIntegrations(fresh) {
-  $('integrationsBody').innerHTML = '<div class="skeleton" style="height:300px"></div>';
+  $('integrationsBody').innerHTML = '<div class="skeleton" style="height:220px"></div>';
   loadInstallCard();
   try {
     INTEGRATIONS = await api('/api/integrations' + (fresh ? '?fresh=true' : ''));
-    const ok = s => `<div class="v"><span class="dot ${s ? 'ok' : 'bad'}"></span>${s ? 'Operational' : 'Attention needed'}</div>`;
-    const groups = {};
-    for (const t of INTEGRATIONS.tools) (groups[t.platform] = groups[t.platform] || []).push(t);
-    const tables = Object.entries(groups).map(([plat, tools]) => `
-      <div class="eyebrow" style="margin-top:26px">${plat} · ${tools.length} capabilities</div>
-      <div class="table-scroll"><table class="tool-table">
-        <tr><th style="width:210px">Capability</th><th>What it does for you</th><th style="width:110px">Status</th></tr>
-        ${tools.map(t => `<tr>
-          <td class="area">${esc(t.area)}<div class="slug">${esc(t.slug)}</div></td>
-          <td class="what">${esc(t.what)}</td>
-          <td><span class="pill ok">● Live</span></td></tr>`).join('')}
-      </table></div>`).join('');
-    const pages = (INTEGRATIONS.managed_pages || []).map(p =>
-      `<span class="pill blue">${esc(p.name)} · ${esc(p.category || 'Page')}</span>`).join(' ');
-    $('integrationsBody').innerHTML = `
-      <div class="status-banner">
-        <div class="status-card"><div class="t">Composio pipe</div>${ok(INTEGRATIONS.pipe === 'operational')}</div>
-        <div class="status-card"><div class="t">Instagram connection</div>${ok(INTEGRATIONS.instagram_ok)}</div>
-        <div class="status-card"><div class="t">Facebook connection</div>${ok(INTEGRATIONS.facebook_ok)}</div>
-        <div class="status-card"><div class="t">Last verified</div><div class="v">${new Date(INTEGRATIONS.checked_at).toLocaleTimeString()}</div></div>
-      </div>
-      ${pages ? `<div class="eyebrow">Pages your business manages</div><div class="stat-pills" style="margin-bottom:8px">${pages}</div>` : ''}
-      ${tables}`;
+    const igTools = INTEGRATIONS.tools.filter(t => t.platform === 'Instagram');
+    const fbTools = INTEGRATIONS.tools.filter(t => t.platform === 'Facebook');
+    $('integrationsBody').innerHTML =
+      renderHealthHero() +
+      renderManagedAccounts() +
+      capabilityAccordion('instagram', 'Instagram', igTools) +
+      capabilityAccordion('facebook', 'Facebook', fbTools);
   } catch (e) {
     $('integrationsBody').innerHTML = `<p class="hint">Integration status couldn't be loaded: ${esc(e.message)}</p>`;
   }
@@ -1810,6 +1957,7 @@ function showView(v) {
   if ($('pageTitle')) $('pageTitle').textContent = title;
   if ($('pageTitleMobile')) $('pageTitleMobile').textContent = title;
   document.querySelector('.app').classList.toggle('no-dock', v !== 'publish');
+  if (v === 'publish') loadLibraryStrip();
   if (v === 'library') loadLibrary(false);
   if (v === 'inbox') loadInbox(false);
   if (v === 'scheduled') loadScheduled();
