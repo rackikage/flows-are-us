@@ -695,27 +695,6 @@
   .set-row b { color: var(--text); font-weight: 700; }
   .set-live { display: inline-flex; align-items: center; gap: 7px; }
 
-  /* Onboarding checklist (dashboard, self-hiding) */
-  .onboard { background: linear-gradient(140deg, var(--accent-soft), transparent 60%), var(--card);
-    border: 1px solid var(--line-strong); border-radius: var(--radius-lg); padding: 18px 20px; margin-bottom: 22px; }
-  .ob-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; margin-bottom: 14px; }
-  .ob-t { font-size: 15px; font-weight: 800; letter-spacing: -.2px; }
-  .ob-s { font-size: 12.5px; color: var(--muted); margin-top: 3px; }
-  .ob-x { border: none; background: transparent; color: var(--faint); font-family: var(--font-body); font-size: 12px;
-    font-weight: 700; cursor: pointer; padding: 4px 8px; border-radius: 8px; transition: color var(--dur-2) var(--ease); }
-  .ob-x:hover { color: var(--text); }
-  .ob-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
-  .ob-step { display: flex; gap: 11px; align-items: flex-start; padding: 12px 14px; border-radius: var(--radius);
-    background: var(--well); border: 1px solid var(--line); transition: border var(--dur-2) var(--ease), transform var(--dur-2) var(--ease); }
-  .ob-step:not(.done) { cursor: pointer; }
-  .ob-step:not(.done):hover { border-color: var(--line-strong); transform: translateY(-1px); }
-  .ob-step b { display: block; font-size: 13px; font-weight: 700; }
-  .ob-step span { display: block; font-size: 11.5px; color: var(--muted); margin-top: 2px; line-height: 1.45; }
-  .ob-check { width: 20px; height: 20px; border-radius: 50%; flex: none; margin-top: 1px;
-    border: 1.5px solid var(--line-strong); display: flex; align-items: center; justify-content: center; }
-  .ob-step.done .ob-check { background: var(--accent); border-color: var(--accent); }
-  .ob-check svg { width: 12px; height: 12px; fill: none; stroke: #fff; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
-
   /* Shared: compact summary stat strip (lighter than dashboard KPI) */
   .stat-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 20px; }
   .stat { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; transition: border .18s; }
@@ -967,12 +946,12 @@
     <div id="sideAccounts"></div>
     <div class="phone-cta" onclick="showView('integrations'); setTimeout(() => document.getElementById('installCard') && document.getElementById('installCard').scrollIntoView({behavior:'smooth'}), 150)">
       <div class="t"><svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px"><rect x="7" y="2" width="10" height="20" rx="2.5"/><path d="M11 18.5h2"/></svg> Use it on your phone</div>
-      <div class="s">Scan a QR and install FLOWS on any iPhone or Samsung on this Wi-Fi.</div>
+      <div class="s">Scan a QR to install.</div>
     </div>
     <button class="install-btn" id="installBtn" style="display:none" onclick="promptInstall()">
       <svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
       Install FLOWS as an app</button>
-    <div class="pipe-badge"><span class="pipe-dot"></span>Connected through the <b>Composio pipe</b> — Instagram &amp; Facebook, one secure channel</div>
+    <div class="pipe-badge"><span class="pipe-dot"></span><b>Composio pipe</b> · connected</div>
   </aside>
 
   <main class="main">
@@ -992,40 +971,39 @@
     <!-- DASHBOARD -->
     <div id="view-home">
       <div class="notice" id="homeNotice"></div>
-      <div id="onboard"></div>
 
-      <!-- 1 · Health & KPI summary -->
+      <!-- Health & KPI summary -->
       <div class="section">
         <div class="kpi-row" id="kpiStrip"></div>
       </div>
 
-      <!-- 2 · Needs attention -->
-      <div class="section">
+      <!-- Needs attention — only when something needs it -->
+      <div class="section" id="secAttention" style="display:none">
         <div class="sec-head"><h2>Needs attention</h2></div>
-        <div id="needsAttention"><div class="skeleton" style="height:78px"></div></div>
+        <div id="needsAttention"></div>
       </div>
 
-      <!-- 3 · Up next (schedule overview) -->
-      <div class="section">
-        <div class="sec-head"><h2>Up next</h2><span class="sec-link" onclick="showView('scheduled')">Open queue →</span></div>
-        <div id="schedOverview"><div class="skeleton" style="height:96px"></div></div>
+      <!-- Up next — only when the queue has something -->
+      <div class="section" id="secUpNext" style="display:none">
+        <div class="sec-head"><h2>Up next</h2><span class="sec-link" onclick="showView('scheduled')">Queue →</span></div>
+        <div id="schedOverview"></div>
       </div>
 
-      <!-- 4 · Connected accounts -->
+      <!-- Connected accounts -->
       <div class="section">
-        <div class="sec-head"><h2>Connected accounts</h2><span class="sec-note" id="refreshedAt"></span></div>
+        <div class="sec-head"><h2>Accounts</h2></div>
         <div class="acct-list" id="acctCards"></div>
       </div>
 
-      <!-- 5 · Recent content -->
+      <!-- Recent content -->
       <div class="section">
         <div class="sec-head"><h2>Recent content</h2><div class="chips" id="filterChips"></div></div>
         <div class="content-list" id="postGrid"></div>
       </div>
 
-      <!-- Live stories (demoted, only when active) -->
+      <!-- Live stories (only when active) -->
       <div class="section" id="storiesSection" style="display:none">
-        <div class="sec-head"><h2>Live stories</h2><span class="sec-note">In their 24-hour window</span></div>
+        <div class="sec-head"><h2>Live stories</h2></div>
         <div class="story-strip" id="storyStrip"></div>
       </div>
 
@@ -1034,10 +1012,7 @@
 
     <!-- PUBLISH -->
     <div id="view-publish" style="display:none">
-      <div class="hero grad-publish">
-        <h1>Publish</h1>
-        <p>Create once, share everywhere you choose. Photos, videos, carousels and stories — nothing goes live until you confirm.</p>
-      </div>
+      <div class="hero grad-publish"><h1>Publish</h1></div>
       <div class="section" style="padding-bottom:6px">
         <div class="sec-head"><h2>Start from your library</h2><span class="sec-link" onclick="showView('library')">Browse all →</span></div>
         <div class="plat-tabs sm" id="stripPlatTabs"></div>
@@ -1059,18 +1034,18 @@
               <div class="count" id="capCount"></div>
             </div>
             <div id="fieldImage">
-              <div class="field-label">Image link <span id="imageHint">· a public https JPEG — required for Instagram</span></div>
+              <div class="field-label">Image link <span id="imageHint">· public JPEG</span></div>
               <input type="url" id="imageUrl" placeholder="https://example.com/photo.jpg">
               <div class="field-warn" id="imageWarn"></div>
             </div>
             <div id="fieldVideo" style="display:none">
-              <div class="field-label">Video link <span>· a public direct MP4 link</span></div>
+              <div class="field-label">Video link <span>· direct MP4</span></div>
               <input type="url" id="videoUrl" placeholder="https://example.com/video.mp4">
-              <div class="field-label">Cover image <span>· optional, Instagram Reels only</span></div>
+              <div class="field-label">Cover image <span>· optional</span></div>
               <input type="url" id="coverUrl" placeholder="https://example.com/cover.jpg">
             </div>
             <div id="fieldCarousel" style="display:none">
-              <div class="field-label">Image links <span>· one per line, 2–10 public JPEG links</span></div>
+              <div class="field-label">Image links <span>· 2–10 JPEGs, one per line</span></div>
               <textarea id="carouselUrls" placeholder="https://example.com/one.jpg&#10;https://example.com/two.jpg"></textarea>
               <div class="field-warn" id="carouselWarn"></div>
             </div>
@@ -1084,10 +1059,9 @@
             </div>
             <div class="target-note" id="targetNote"></div>
             <div id="fieldSchedule">
-              <div class="field-label">Publish later <span>· Facebook pages only, optional</span></div>
+              <div class="field-label">Publish later <span>· Facebook only</span></div>
               <input type="datetime-local" id="scheduleTime" style="max-width:280px">
             </div>
-            <p class="hint" style="margin-top:12px" id="publishHint"></p>
             <div class="publish-bar-mobile">
               <button class="btn primary" id="postBtnMobile" disabled>Publish</button>
             </div>
@@ -1115,14 +1089,12 @@
 
     <!-- LIBRARY -->
     <div id="view-library" style="display:none">
-      <div class="hero grad-library">
-        <p>Everything you've ever published, in one shelf. Bring any piece back — one tap to post it again or line it up for later.</p>
-      </div>
+      <div class="hero grad-library"><h1>Library</h1></div>
       <div class="section">
         <div class="plat-tabs" id="libPlatTabs"></div>
         <div class="stat-strip" id="libStats"></div>
         <div class="sec-head" id="libFeaturedHead" style="display:none">
-          <h2>Top performing</h2><span class="sec-note">Your most-engaged pieces — reuse a winner</span>
+          <h2>Top performing</h2>
         </div>
         <div class="featured-strip" id="libFeatured" style="display:none"></div>
         <div class="view-toolbar">
@@ -1143,9 +1115,7 @@
 
     <!-- INBOX -->
     <div id="view-inbox" style="display:none">
-      <div class="hero grad-inbox">
-        <p>Customer messages from your Instagram accounts. Open a conversation and reply as your business — Meta allows replies within 24 hours of the customer's last message.</p>
-      </div>
+      <div class="hero grad-inbox"><h1>Inbox</h1></div>
       <div class="section">
         <div class="stat-strip" id="inboxStats" style="display:none"></div>
         <div class="inbox-grid">
@@ -1157,7 +1127,7 @@
             <div class="inbox-placeholder">
               <div class="ip-icon"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9 9 0 0 1-3.8-.8L3 20l1-4.9a8.4 8.4 0 1 1 17-3.6z"/></svg></div>
               <div class="ip-t">Select a conversation</div>
-              <div class="ip-s">Pick a thread from the list to read it and reply as your business.</div>
+              <div class="ip-s">Pick a thread to read and reply.</div>
             </div>
           </div>
         </div>
@@ -1167,9 +1137,7 @@
 
     <!-- ANALYTICS -->
     <div id="view-analytics" style="display:none">
-      <div class="hero grad-perf">
-        <p>How your content performed over the last 7 days — reach, engagement and mentions for every account.</p>
-      </div>
+      <div class="hero grad-perf"><h1>Analytics</h1></div>
       <div class="section">
         <div class="kpi-row" id="analyticsKpis"></div>
       </div>
@@ -1182,9 +1150,7 @@
 
     <!-- SCHEDULED -->
     <div id="view-scheduled" style="display:none">
-      <div class="hero grad-sched">
-        <p>Posts waiting in your Facebook publishing queue. Move them to a new time or remove them before they go live.</p>
-      </div>
+      <div class="hero grad-sched"><h1>Scheduled</h1></div>
       <div class="section">
         <div id="schedNextUp"></div>
         <div id="schedBody"></div>
@@ -1204,10 +1170,7 @@
 
     <!-- SETTINGS -->
     <div id="view-settings" style="display:none">
-      <div class="hero grad-settings">
-        <h1>Settings</h1>
-        <p>Manage your connected accounts, composer defaults and app data.</p>
-      </div>
+      <div class="hero grad-settings"><h1>Settings</h1></div>
       <div class="section" id="settingsBody"></div>
       <div style="height:30px"></div>
     </div>
@@ -1399,8 +1362,7 @@ function renderKpis() {
     kpi('clock', 'Scheduled', queued == null ? '—' : queued,
         queued ? plural(queued, 'post') + ' in the queue' : 'nothing queued') +
     kpi('zap', 'IG posts left', igLeft,
-        `today · of ${igCap} across ${plural(igAccts.length, 'account')}`) +
-    kpi('check', 'Connection', 'Live', 'secure Composio pipe', 'good');
+        `today · of ${igCap} across ${plural(igAccts.length, 'account')}`);
 }
 
 /* ── Needs attention ───────────────────────────────────── */
@@ -1420,18 +1382,12 @@ function attentionItems() {
 }
 
 function renderNeedsAttention() {
-  const el = $('needsAttention');
+  const el = $('needsAttention'), sec = $('secAttention');
   if (!el) return;
-  if (!OVERVIEW) { el.innerHTML = '<div class="skeleton" style="height:78px"></div>'; return; }
-  const items = attentionItems();
-  if (!items.length) {
-    el.innerHTML = `<div class="panel healthy"><div class="attn-head">
-      <div class="attn-icon ok"><svg viewBox="0 0 24 24">${ICON.check}</svg></div>
-      <div><div class="at">All accounts healthy</div>
-        <div class="as">Every account is connected and reporting live. Nothing needs you right now.</div></div>
-    </div></div>`;
-    return;
-  }
+  const items = OVERVIEW ? attentionItems() : [];
+  // Only surface this section when there's actually something to act on.
+  if (sec) sec.style.display = items.length ? '' : 'none';
+  if (!items.length) { el.innerHTML = ''; return; }
   el.innerHTML = `<div class="panel"><div class="attn-head">
       <div class="attn-icon warn"><svg viewBox="0 0 24 24">${ICON.alert}</svg></div>
       <div><div class="at">${plural(items.length, 'item')} to review</div>
@@ -1453,9 +1409,9 @@ async function loadScheduleOverview() {
 }
 
 function renderScheduleOverview() {
-  const el = $('schedOverview');
+  const el = $('schedOverview'), sec = $('secUpNext');
   if (!el) return;
-  if (SCHEDULED == null) { el.innerHTML = '<div class="skeleton" style="height:96px"></div>'; return; }
+  if (SCHEDULED == null) { if (sec) sec.style.display = 'none'; return; }
   const posts = [];
   for (const [key, v] of Object.entries(SCHEDULED)) {
     const acct = ACCOUNTS.find(a => a.key === key) || { handle: key };
@@ -1464,15 +1420,9 @@ function renderScheduleOverview() {
         img: p.full_picture });
   }
   posts.sort((a, b) => (a.when || Infinity) - (b.when || Infinity));
-  if (!posts.length) {
-    el.innerHTML = `<div class="empty">
-      <div class="e-icon"><svg viewBox="0 0 24 24">${ICON.calendar}</svg></div>
-      <div class="e-title">Nothing scheduled</div>
-      <div class="e-sub">Line up a Facebook post and it'll appear here and in your queue.</div>
-      <button class="btn primary" style="padding:10px 22px" onclick="showView('publish')">Create your next post</button>
-    </div>`;
-    return;
-  }
+  // Empty queue → hide the whole section rather than show a filler card.
+  if (sec) sec.style.display = posts.length ? '' : 'none';
+  if (!posts.length) { el.innerHTML = ''; return; }
   const startOfTomorrow = new Date(); startOfTomorrow.setHours(24, 0, 0, 0);
   const todayCount = posts.filter(p => p.when && p.when < startOfTomorrow.getTime()).length;
   const next = posts[0];
@@ -1523,7 +1473,6 @@ function renderAccounts() {
       <div class="ai-act"><button class="mini-btn" onclick="setFilter('${a.key}')">Open</button></div>
     </div>`;
   }).join('');
-  if ($('refreshedAt')) $('refreshedAt').textContent = relTime(OVERVIEW.generated_at);
 }
 
 function typeTag(t) {
@@ -2496,20 +2445,12 @@ function setPostType(k) {
 function syncFields() {
   $('fieldCaption').style.display = postType === 'story' ? 'none' : '';
   $('fieldImage').style.display = (postType === 'photo' || postType === 'story') ? '' : 'none';
-  $('imageHint').textContent = postType === 'story'
-    ? '· a public https JPEG — or use a video link below' : '· a public https JPEG — required for Instagram';
+  $('imageHint').textContent = postType === 'story' ? '· image or video' : '· public JPEG';
   $('fieldVideo').style.display = (postType === 'video' || postType === 'story') ? '' : 'none';
   $('fieldCarousel').style.display = postType === 'carousel' ? '' : 'none';
   const canSchedule = POST_TYPES[postType].platforms.includes('facebook');
   $('fieldSchedule').style.display = canSchedule ? '' : 'none';
   if (!canSchedule) $('scheduleTime').value = '';
-  $('publishHint').innerHTML = {
-    photo: 'Instagram allows up to 25 posts per day per account and needs a public JPEG link with no query text after “?”. <b>Scheduling applies to Facebook pages only.</b>',
-    video: 'Publishes as a <b>Reel</b> on Instagram and a video post on Facebook. Use a direct, public MP4 link (H.264/AAC). Processing can take a minute.',
-    carousel: 'An Instagram carousel: 2–10 public JPEG links, published as one swipeable post.',
-    story: 'Instagram stories are visible for 24 hours. Give an image link or a video link.',
-    text: 'A text update for your Facebook page. Schedule it or publish right away.',
-  }[postType];
 }
 
 const DEST_GROUPS = [['instagram', 'Instagram'], ['facebook', 'Facebook']];
@@ -2728,12 +2669,12 @@ async function confirmPost() {
 
 /* ── Data loading ──────────────────────────────────────── */
 async function loadOverview(fresh) {
-  renderKpis(); renderNeedsAttention(); renderAccounts(); renderPosts(); renderOnboard();
+  renderKpis(); renderNeedsAttention(); renderAccounts(); renderPosts();
   try {
     OVERVIEW = await api('/api/overview' + (fresh ? '?fresh=true' : ''));
     setSync(OVERVIEW.generated_at);
     $('homeNotice').style.display = 'none';  // per-account issues now surface in Needs attention
-    renderSidebar(); renderKpis(); renderNeedsAttention(); renderAccounts(); renderPosts(); renderOnboard();
+    renderSidebar(); renderKpis(); renderNeedsAttention(); renderAccounts(); renderPosts();
   } catch (e) {
     $('homeNotice').style.display = 'block';
     $('homeNotice').textContent = 'We couldn\'t reach the data pipe: ' + e.message;
@@ -2783,20 +2724,17 @@ function renderSettings() {
     <div class="set-grid">
       <div class="set-card">
         <div class="set-h">Connected accounts</div>
-        <div class="set-sub">Managed through the secure Composio pipe — Instagram &amp; Facebook in one channel.</div>
         <div class="set-accts">${accts}</div>
         <button class="btn ghost" style="padding:9px 18px;margin-top:14px" onclick="showView('integrations')">Manage integrations</button>
       </div>
       <div class="set-card">
         <div class="set-h">Composer default</div>
-        <div class="set-sub">Which library opens first in Publish &amp; Library, so the right content leads.</div>
-        <div class="seg" style="margin-top:12px">${platBtn('instagram', 'Instagram')}${platBtn('facebook', 'Facebook')}</div>
+        <div class="seg" style="margin-top:14px">${platBtn('instagram', 'Instagram')}${platBtn('facebook', 'Facebook')}</div>
       </div>
       <div class="set-card">
         <div class="set-h">Data</div>
-        <div class="set-sub">Everything is fetched live. Refresh pulls the latest from every account.</div>
         <div class="set-row"><span>Last synced</span><b id="setSynced">${OVERVIEW ? relTime(OVERVIEW.generated_at) : '—'}</b></div>
-        <button class="btn primary" style="padding:9px 18px;margin-top:14px" onclick="refreshAll(); toast('Refreshing all data…')">Refresh all data</button>
+        <button class="btn primary" style="padding:9px 18px;margin-top:14px" onclick="refreshAll()">Refresh all data</button>
       </div>
       <div class="set-card">
         <div class="set-h">About</div>
@@ -2805,41 +2743,6 @@ function renderSettings() {
         <div class="set-row"><span>Accounts</span><b>${ACCOUNTS.length} connected</b></div>
       </div>
     </div>`;
-}
-
-/* ── Onboarding — self-hiding once every step is done ──── */
-function renderOnboard() {
-  const el = $('onboard');
-  if (!el) return;
-  let dismissed = false;
-  try { dismissed = localStorage.getItem('flows.onboard') === 'done'; } catch (e) {}
-  const hasAccts = ACCOUNTS.length > 0;
-  const hasPosts = !!(OVERVIEW && normalizePosts().length);
-  const standalone = window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
-  let installed = standalone;
-  try { installed = installed || localStorage.getItem('flows.installed') === '1'; } catch (e) {}
-  const steps = [
-    { done: hasAccts, t: 'Connect your accounts', s: 'Instagram &amp; Facebook, via the Composio pipe.' },
-    { done: hasPosts, t: 'Publish or reuse a post', s: 'Create fresh, or bring one back from your library.', act: `showView('publish')` },
-    { done: installed, t: 'Install FLOWS on your devices', s: 'Add it to your phone and dock for one-tap access.', act: `showView('integrations')` },
-  ];
-  const doneN = steps.filter(s => s.done).length;
-  if (dismissed || doneN === steps.length) { el.innerHTML = ''; return; }  // nothing to nudge
-  el.innerHTML = `<div class="onboard">
-    <div class="ob-head">
-      <div><div class="ob-t">Get set up</div><div class="ob-s">${doneN} of ${steps.length} done — you're nearly there.</div></div>
-      <button class="ob-x" onclick="dismissOnboard()" aria-label="Dismiss">Dismiss</button>
-    </div>
-    <div class="ob-steps">${steps.map(s => `
-      <div class="ob-step ${s.done ? 'done' : ''}" ${!s.done && s.act ? `onclick="${s.act}"` : ''}>
-        <div class="ob-check">${s.done ? '<svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>' : ''}</div>
-        <div><b>${s.t}</b><span>${s.s}</span></div>
-      </div>`).join('')}</div>
-  </div>`;
-}
-function dismissOnboard() {
-  try { localStorage.setItem('flows.onboard', 'done'); } catch (e) {}
-  renderOnboard();
 }
 
 function refreshAll() {
@@ -2920,7 +2823,6 @@ async function promptInstall() {
     const choice = await deferredInstall.userChoice;
     if (choice && choice.outcome === 'accepted') {
       try { localStorage.setItem('flows.installed', '1'); } catch (e) {}
-      renderOnboard();
     }
   } catch (e) {}
   deferredInstall = null;
