@@ -105,6 +105,13 @@
   .phone-cta:hover { border-color: var(--accent); }
   .phone-cta .t { font-weight: 800; font-size: 13px; display: flex; align-items: center; gap: 8px; }
   .phone-cta .s { font-size: 11.5px; color: var(--muted); margin-top: 3px; line-height: 1.5; }
+  .install-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; margin-top: 8px;
+    padding: 10px; border-radius: 10px; border: none; background: linear-gradient(90deg, var(--accent-deep), var(--accent));
+    color: #fff; font-family: var(--font-display); font-weight: 800; font-size: 12.5px; cursor: pointer;
+    box-shadow: 0 4px 16px rgba(106,77,255,.34); transition: filter var(--dur-2) var(--ease), transform var(--dur-1) var(--ease); }
+  .install-btn:hover { filter: brightness(1.08); }
+  .install-btn:active { transform: scale(.98); }
+  .install-btn svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   .pipe-badge { font-size: 11px; color: var(--muted); padding: 12px 12px 4px; line-height: 1.6; }
   .pipe-badge b { color: var(--accent-bright); }
   .pipe-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--ok); margin-right: 6px; box-shadow: 0 0 8px var(--ok); }
@@ -255,14 +262,42 @@
   .field-label span { text-transform: none; font-weight: 600; letter-spacing: 0; color: var(--faint); }
   .field-warn { margin-top: 8px; font-size: 12px; color: var(--gold); line-height: 1.5; display: none; }
   .count { font-size: 11.5px; color: var(--faint); text-align: right; margin-top: 5px; }
-  .target-pills { display: flex; gap: 10px; flex-wrap: wrap; }
-  .target { display: flex; align-items: center; gap: 9px; padding: 8px 15px 8px 8px; border-radius: 999px;
-    background: var(--card); border: 1.5px solid #2a2a3e; cursor: pointer; user-select: none;
-    font-weight: 700; font-size: 13.5px; transition: all .15s; }
-  .target .avatar { width: 26px; height: 26px; font-size: 11px; }
-  .target.on { border-color: var(--accent); background: rgba(143,122,255,.14); }
-  .target.off { opacity: .38; cursor: not-allowed; }
-  .target-note { font-size: 11.5px; color: var(--faint); margin-top: 8px; }
+  /* Destinations — one clean dropdown instead of a row of pills */
+  .dest-dropdown { position: relative; max-width: 420px; }
+  .dest-btn { width: 100%; display: flex; align-items: center; gap: 10px; padding: 11px 14px;
+    background: var(--card); border: 1px solid var(--line-strong); border-radius: var(--radius-sm);
+    cursor: pointer; user-select: none; font-family: var(--font-body); font-weight: 700; font-size: 14px;
+    color: var(--text); text-align: left; box-shadow: var(--shadow-sm);
+    transition: border-color var(--dur-2) var(--ease), background var(--dur-2) var(--ease); }
+  .dest-btn:hover { border-color: var(--accent); }
+  .dest-dropdown.open .dest-btn { border-color: var(--accent); background: var(--accent-soft); }
+  .dest-btn .dest-summary { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .dest-btn .dest-summary.empty { color: var(--muted); font-weight: 600; }
+  .dest-btn .chev { width: 16px; height: 16px; stroke: var(--faint); fill: none; stroke-width: 2;
+    stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; transition: transform var(--dur-2) var(--ease); }
+  .dest-dropdown.open .dest-btn .chev { transform: rotate(180deg); }
+  .dest-menu { position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 20;
+    background: var(--raised); border: 1px solid var(--line-strong); border-radius: var(--radius);
+    box-shadow: var(--shadow-lg), var(--ring-inset); padding: 6px; display: none;
+    animation: modalIn var(--dur-2) var(--ease-entrance) both; }
+  .dest-dropdown.open .dest-menu { display: block; }
+  .dest-group { font-size: 10px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase;
+    color: var(--faint); padding: 10px 10px 5px; }
+  .dest-opt { display: flex; align-items: center; gap: 11px; padding: 9px 10px; border-radius: 9px;
+    cursor: pointer; user-select: none; transition: background var(--dur-1) var(--ease); }
+  .dest-opt:hover { background: var(--card-hover); }
+  .dest-opt .avatar { width: 28px; height: 28px; font-size: 11px; }
+  .dest-opt .do-id { flex: 1; min-width: 0; }
+  .dest-opt .do-handle { font-weight: 700; font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .dest-opt .do-reason { font-size: 11px; color: var(--faint); margin-top: 1px; }
+  .dest-check { width: 20px; height: 20px; border-radius: 6px; border: 1.5px solid var(--line-strong);
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all var(--dur-1) var(--ease); }
+  .dest-check svg { width: 12px; height: 12px; stroke: #fff; fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; opacity: 0; }
+  .dest-opt.on .dest-check { background: var(--accent-deep); border-color: var(--accent-deep); }
+  .dest-opt.on .dest-check svg { opacity: 1; }
+  .dest-opt.off { opacity: .4; cursor: not-allowed; }
+  .dest-opt.off:hover { background: none; }
+  .target-note { font-size: 11.5px; color: var(--faint); margin-top: 8px; max-width: 420px; line-height: 1.5; }
   .preview-box { background: var(--card); border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line); position: sticky; top: 16px; }
   .preview-box .ph { aspect-ratio: 1; background: #191926 center/cover no-repeat; display: flex; align-items: center; justify-content: center; color: #47475c; font-size: 40px; position: relative; }
   .preview-box .pt { padding: 12px 14px; font-size: 13px; color: #e7e7f0; white-space: pre-wrap; max-height: 130px; overflow-y: auto; }
@@ -856,6 +891,9 @@
       <div class="t"><svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px"><rect x="7" y="2" width="10" height="20" rx="2.5"/><path d="M11 18.5h2"/></svg> Use it on your phone</div>
       <div class="s">Scan a QR and install FLOWS on any iPhone or Samsung on this Wi-Fi.</div>
     </div>
+    <button class="install-btn" id="installBtn" style="display:none" onclick="promptInstall()">
+      <svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+      Install FLOWS as an app</button>
     <div class="pipe-badge"><span class="pipe-dot"></span>Connected through the <b>Composio pipe</b> — Instagram &amp; Facebook, one secure channel</div>
   </aside>
 
@@ -957,7 +995,13 @@
               <div class="field-warn" id="carouselWarn"></div>
             </div>
             <div class="field-label">Destinations</div>
-            <div class="target-pills" id="targetPills"></div>
+            <div class="dest-dropdown" id="destDropdown">
+              <button type="button" class="dest-btn" id="destBtn" aria-haspopup="listbox" aria-expanded="false">
+                <span class="dest-summary empty" id="destSummary">Choose accounts…</span>
+                <svg class="chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+              </button>
+              <div class="dest-menu" id="destMenu" role="listbox" aria-multiselectable="true"></div>
+            </div>
             <div class="target-note" id="targetNote"></div>
             <div id="fieldSchedule">
               <div class="field-label">Publish later <span>· Facebook pages only, optional</span></div>
@@ -2316,15 +2360,33 @@ function syncFields() {
   }[postType];
 }
 
+const DEST_GROUPS = [['instagram', 'Instagram'], ['facebook', 'Facebook']];
 function renderTargets() {
   const allowed = POST_TYPES[postType].platforms;
-  $('targetPills').innerHTML = ACCOUNTS.map(a => {
-    const ok = allowed.includes(a.platform);
-    return `<div class="target ${selected.has(a.key) ? 'on' : ''} ${ok ? '' : 'off'}"
-      ${ok ? `onclick="toggleTarget('${a.key}')"` : ''}>
-      <div class="avatar ${a.platform === 'instagram' ? 'ig' : 'fb'}">${initials(a.handle)}</div>
-      ${esc(a.handle)}</div>`;
-  }).join('');
+  let html = '';
+  for (const [plat, label] of DEST_GROUPS) {
+    const accts = ACCOUNTS.filter(a => a.platform === plat);
+    if (!accts.length) continue;
+    html += `<div class="dest-group">${label}</div>` + accts.map(a => {
+      const ok = allowed.includes(a.platform), on = selected.has(a.key);
+      return `<div class="dest-opt ${on ? 'on' : ''} ${ok ? '' : 'off'}"
+        ${ok ? `onclick="toggleTarget('${a.key}')"` : ''} role="option" aria-selected="${on}">
+        <div class="dest-check"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></div>
+        <div class="avatar ${a.platform === 'instagram' ? 'ig' : 'fb'}">${initials(a.handle)}</div>
+        <div class="do-id"><div class="do-handle">${esc(a.handle)}</div>
+          ${ok ? '' : `<div class="do-reason">Not available for ${esc(POST_TYPES[postType].label.toLowerCase())} posts</div>`}</div>
+      </div>`;
+    }).join('');
+  }
+  $('destMenu').innerHTML = html;
+  const chosen = ACCOUNTS.filter(a => selected.has(a.key));
+  const sum = $('destSummary');
+  if (!chosen.length) { sum.textContent = 'Choose accounts…'; sum.classList.add('empty'); }
+  else {
+    sum.classList.remove('empty');
+    sum.textContent = chosen.length === 1 ? chosen[0].handle
+      : `${chosen[0].handle}  +${chosen.length - 1} more`;
+  }
   const offNames = ACCOUNTS.filter(a => !allowed.includes(a.platform));
   $('targetNote').textContent = offNames.length
     ? `${POST_TYPES[postType].label} posts can't go to ${offNames.map(a => a.handle).join(', ')} — that platform doesn't support them.`
@@ -2332,6 +2394,11 @@ function renderTargets() {
   updateDock();
 }
 function toggleTarget(k) { selected.has(k) ? selected.delete(k) : selected.add(k); renderTargets(); }
+function toggleDestMenu() {
+  const dd = $('destDropdown');
+  const open = dd.classList.toggle('open');
+  $('destBtn').setAttribute('aria-expanded', open ? 'true' : 'false');
+}
 
 function draftReady() {
   const cap = $('caption').value.trim(), img = $('imageUrl').value.trim(),
@@ -2536,7 +2603,46 @@ $('refreshBtnHead').addEventListener('click', refreshAll);
 for (const veil of ['modalVeil', 'detailVeil'])
   $(veil).addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('open'); });
 
+// Destinations dropdown: toggle on button, close on outside click / Escape.
+// Clicks inside the menu must not bubble to the document handler — selecting an
+// option rebuilds the menu (detaching the clicked node), which would otherwise
+// read as an "outside" click and close the menu mid multi-select.
+$('destBtn').addEventListener('click', e => { e.stopPropagation(); toggleDestMenu(); });
+$('destMenu').addEventListener('click', e => e.stopPropagation());
+document.addEventListener('click', e => {
+  const dd = $('destDropdown');
+  if (dd && dd.classList.contains('open') && !dd.contains(e.target)) {
+    dd.classList.remove('open'); $('destBtn').setAttribute('aria-expanded', 'false');
+  }
+});
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  const dd = $('destDropdown');
+  if (dd && dd.classList.contains('open')) { dd.classList.remove('open'); $('destBtn').setAttribute('aria-expanded', 'false'); }
+});
+
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
+
+// Installable-app affordance: Chrome/Edge/Android fire beforeinstallprompt; reveal a
+// real "Install" button that calls the native prompt. iOS Safari doesn't fire it —
+// those users still get the Add-to-Home-Screen steps on the Integrations page.
+let deferredInstall = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault(); deferredInstall = e;
+  const b = $('installBtn'); if (b) b.style.display = 'flex';
+});
+window.addEventListener('appinstalled', () => {
+  deferredInstall = null;
+  const b = $('installBtn'); if (b) b.style.display = 'none';
+  toast('FLOWS installed — open it from your apps any time');
+});
+async function promptInstall() {
+  if (!deferredInstall) { showView('integrations'); return; }
+  deferredInstall.prompt();
+  try { await deferredInstall.userChoice; } catch (e) {}
+  deferredInstall = null;
+  const b = $('installBtn'); if (b) b.style.display = 'none';
+}
 
 (async function init() {
   try {
