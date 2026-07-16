@@ -1042,7 +1042,7 @@
     <button class="install-btn" id="installBtn" style="display:none" onclick="promptInstall()">
       <svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
       Install FLOWS as an app</button>
-    <div class="pipe-badge"><span class="pipe-dot"></span><b>Connected</b> · Composio pipe</div>
+    <div class="pipe-badge"><span class="pipe-dot"></span><b>Connected</b> · syncing live</div>
   </aside>
 
   <main class="main">
@@ -3060,13 +3060,13 @@ function renderSettings() {
       </div>
       <div class="set-card">
         <div class="set-h">Default platform</div>
-        <div class="set-sub">Which platform's content leads the Library and the Publish screen. You can switch tabs any time.</div>
+        <div class="set-sub">Which platform leads the Library and Publish. Switch tabs any time.</div>
         <div class="seg" style="margin-top:14px">${platBtn('instagram', 'Instagram')}${platBtn('facebook', 'Facebook')}</div>
       </div>
       <div class="set-card">
         <div class="set-h">App &amp; data</div>
         <div class="set-row"><span>Last synced</span><b id="setSynced">${OVERVIEW ? relTime(OVERVIEW.generated_at) : '—'}</b></div>
-        <div class="set-row"><span>Connection</span><b class="set-live"><span class="pipe-dot"></span>Composio pipe</b></div>
+        <div class="set-row"><span>Connection</span><b class="set-live"><span class="pipe-dot"></span>Live</b></div>
         <div class="set-row"><span>Accounts</span><b>${ACCOUNTS.length} connected</b></div>
         <button class="btn primary" style="padding:9px 18px;margin-top:14px" onclick="refreshAll()">Refresh all data</button>
       </div>
