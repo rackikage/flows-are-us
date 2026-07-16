@@ -80,8 +80,13 @@
   .app { display: grid; grid-template-columns: 272px 1fr; grid-template-rows: 1fr 86px; height: 100vh; height: 100dvh; }
   svg.i { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
 
-  /* ── Sidebar (desktop) ───────────────────────────────── */
-  .sidebar { grid-row: 1; background: var(--panel); padding: 24px 14px 14px; display: flex; flex-direction: column; gap: 3px; border-right: 1px solid var(--line); overflow-y: auto; }
+  /* ── Sidebar (desktop) — layered darkness, not a flat void ── */
+  .sidebar { grid-row: 1; position: relative; padding: 24px 14px 14px; display: flex; flex-direction: column; gap: 3px;
+    background: linear-gradient(to bottom, rgba(143,122,255,.05), transparent 38%), var(--panel);
+    border-right: 1px solid var(--hairline); box-shadow: 1px 0 0 rgba(0,0,0,.4); overflow-y: auto; }
+  .nav-glide { position: absolute; left: 7px; width: 3px; height: 18px; border-radius: 3px; opacity: 0;
+    background: linear-gradient(180deg, var(--accent-bright), var(--accent)); box-shadow: 0 0 10px rgba(143,122,255,.55);
+    transition: top .28s var(--ease), opacity var(--dur-2) var(--ease); pointer-events: none; }
   .brand { padding: 0 12px 2px; font-size: 26px; font-weight: 800; letter-spacing: -.5px; cursor: pointer;
     background: linear-gradient(96deg, var(--accent-bright), var(--accent) 45%, var(--coral));
     -webkit-background-clip: text; background-clip: text; color: transparent; transition: filter var(--dur-2) var(--ease); }
@@ -90,10 +95,13 @@
   .nav-item { display: flex; align-items: center; gap: 13px; padding: 10px 12px; border-radius: 10px;
     color: var(--muted); font-weight: 700; font-size: 14.5px; cursor: pointer; transition: color .15s, background .15s; user-select: none; }
   .nav-item:hover { color: var(--text); }
-  .nav-item.active { color: var(--text); background: #1d1d2e; box-shadow: inset 2px 0 0 var(--accent); }
-  .side-label { margin: 16px 12px 8px; font-size: 10.5px; font-weight: 800; letter-spacing: 1.7px; color: var(--faint); text-transform: uppercase; }
+  .nav-item.active { color: var(--text); background: #1d1d2e;
+    box-shadow: inset 0 0 0 1px rgba(143,122,255,.28), 0 0 14px rgba(143,122,255,.12); }
+  .side-label { margin: 16px 12px 8px; font-size: 10px; font-weight: 800; letter-spacing: .15em; color: #7d79a0; text-transform: uppercase; }
   .side-acct { display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-radius: 10px; cursor: pointer; transition: background .15s; }
   .side-acct:hover { background: #1d1d2e; }
+  .side-acct .avatar { box-shadow: 0 0 0 2px rgba(255,255,255,.09); transition: box-shadow var(--dur-2) var(--ease); }
+  .side-acct:hover .avatar { box-shadow: 0 0 0 2px rgba(143,122,255,.6); }
   .avatar { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
     font-weight: 800; font-size: 15px; color: #fff; background-size: cover; background-position: center; position: relative; overflow: hidden; }
   .avatar > img.av { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: inherit; background: inherit; }
@@ -185,9 +193,15 @@
     display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; color: #e7e7f0; }
   .post-card .row { display: flex; justify-content: space-between; align-items: center; margin-top: 10px;
     font-size: 12px; color: var(--muted); font-weight: 600; gap: 8px; }
-  .badge { font-size: 10px; font-weight: 800; letter-spacing: .8px; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; color: #fff; flex-shrink: 0; }
-  .badge.ig { background: linear-gradient(45deg, var(--ig-a), var(--ig-c)); }
+  .badge { font-size: 10px; font-weight: 700; letter-spacing: .05em; padding: 2px 7px; border-radius: 4px; text-transform: uppercase;
+    color: #fff; flex-shrink: 0; opacity: .92; transition: box-shadow var(--dur-2) var(--ease), opacity var(--dur-2) var(--ease); }
+  .badge.ig { background: linear-gradient(90deg, var(--ig-a), #e6683c, var(--ig-b), #cc2366, var(--ig-c)); }
   .badge.fb { background: var(--fb); }
+  /* Rows light their badge up on hover — one glow rule, everywhere */
+  .content-row:hover .badge.ig, .acct-item:hover .badge.ig, .asset-card:hover .badge.ig,
+  .perf-card:hover .badge.ig, .thread-card:hover .badge.ig { box-shadow: 0 0 8px rgba(220,39,67,.45); opacity: 1; }
+  .content-row:hover .badge.fb, .acct-item:hover .badge.fb, .asset-card:hover .badge.fb,
+  .perf-card:hover .badge.fb, .thread-card:hover .badge.fb { box-shadow: 0 0 8px rgba(24,119,242,.5); opacity: 1; }
   .openlink { color: var(--muted); text-decoration: none; font-weight: 700; }
   .openlink:hover { color: var(--accent-bright); }
   .card-actions { display: flex; gap: 8px; margin-top: 10px; }
@@ -266,10 +280,13 @@
   .field-warn { margin-top: 8px; font-size: 12px; color: var(--gold); line-height: 1.5; display: none; }
   /* File upload — drag-and-drop zone + uploaded-photo chip */
   .drop-zone { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 26px 18px; text-align: center;
-    background: var(--well); border: 1.5px dashed var(--line-strong); border-radius: var(--radius); cursor: pointer;
+    background: rgba(143,122,255,.04); border: 1.5px dashed rgba(143,122,255,.25); border-radius: var(--radius); cursor: pointer;
     color: var(--muted); font-size: 13px; font-weight: 600; line-height: 1.5; user-select: none;
     transition: border-color var(--dur-2) var(--ease), background var(--dur-2) var(--ease); }
-  .drop-zone:hover, .drop-zone.drag { border-color: var(--accent); background: var(--accent-soft); color: var(--text); }
+  .drop-zone:hover { border-color: rgba(143,122,255,.55); background: rgba(143,122,255,.08); color: var(--text); }
+  .drop-zone.drag { border-color: var(--accent); border-style: solid; background: rgba(143,122,255,.12); color: var(--text); }
+  .drop-zone.drag .dz-ic { animation: pulseRing 1s var(--ease) infinite; }
+  @keyframes pulseRing { 0% { box-shadow: 0 0 0 0 rgba(143,122,255,.45); } 100% { box-shadow: 0 0 0 14px rgba(143,122,255,0); } }
   .drop-zone b { color: var(--accent-bright); }
   .drop-zone .dz-ic { width: 38px; height: 38px; border-radius: 11px; background: rgba(143,122,255,.12);
     display: flex; align-items: center; justify-content: center; color: var(--accent-bright); }
@@ -282,10 +299,31 @@
   .upload-done .ud-name .ud-sub { font-size: 11px; color: var(--faint); font-weight: 600; margin-top: 2px; }
   .link-toggle { display: inline-block; margin-top: 8px; font-size: 12px; font-weight: 700; color: var(--faint); cursor: pointer; }
   .link-toggle:hover { color: var(--accent-bright); }
-  /* View switch — soft entrance instead of a hard swap */
+  /* View switch — directional slide: deeper in the nav enters from the right */
   .view-in { animation: viewIn .26s var(--ease-entrance) both; }
   @keyframes viewIn { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: none; } }
-  .count { font-size: 11.5px; color: var(--faint); text-align: right; margin-top: 5px; }
+  .view-in-r { animation: viewInR .26s var(--ease-entrance) both; }
+  @keyframes viewInR { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: none; } }
+  .view-in-l { animation: viewInL .26s var(--ease-entrance) both; }
+  @keyframes viewInL { from { opacity: 0; transform: translateX(-16px); } to { opacity: 1; transform: none; } }
+  /* Preview media cross-fades in when it changes */
+  .pv-fade { animation: veilIn .3s ease both; }
+  .count { font-size: 11.5px; color: var(--faint); text-align: right; margin-top: 5px; font-variant-numeric: tabular-nums;
+    transition: color var(--dur-2) var(--ease); }
+  .count.warn { color: var(--gold); font-weight: 700; }
+  /* Caption: transparent textarea over a backdrop that paints #hashtags and @mentions */
+  .cap-wrap { position: relative; background: var(--card); border-radius: 10px; }
+  .cap-wrap textarea { position: relative; z-index: 1; background: transparent; color: transparent; caret-color: var(--text); }
+  .cap-wrap textarea::placeholder { color: var(--faint); }
+  .cap-backdrop { position: absolute; inset: 0; z-index: 0; padding: 13px 14px; border: 1px solid transparent; border-radius: 10px;
+    font-family: var(--font-body); font-size: 15px; line-height: 1.5; color: var(--text);
+    white-space: pre-wrap; overflow-wrap: break-word; word-break: break-word; overflow: hidden; pointer-events: none; }
+  .cap-backdrop .tag { color: var(--accent-bright); }
+  .cap-bar { height: 2px; border-radius: 2px; margin-top: 6px; background: var(--line); overflow: hidden; }
+  .cap-bar i { display: block; height: 100%; width: 0; border-radius: 2px;
+    background: linear-gradient(90deg, var(--accent-deep), var(--accent-bright)); transition: width .25s var(--ease), background .25s var(--ease); }
+  .cap-bar i.warn { background: var(--gold); }
+  .cap-bar i.over { background: var(--coral); }
   /* Destinations — one clean dropdown instead of a row of pills */
   .dest-dropdown { position: relative; max-width: 420px; }
   .dest-btn { width: 100%; display: flex; align-items: center; gap: 10px; padding: 11px 14px;
@@ -301,7 +339,8 @@
     stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; transition: transform var(--dur-2) var(--ease); }
   .dest-dropdown.open .dest-btn .chev { transform: rotate(180deg); }
   .dest-menu { position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 20;
-    background: var(--raised); border: 1px solid var(--line-strong); border-radius: var(--radius);
+    background: rgba(25,25,38,.9); backdrop-filter: blur(14px) saturate(1.2); -webkit-backdrop-filter: blur(14px) saturate(1.2);
+    border: 1px solid var(--line-strong); border-radius: var(--radius);
     box-shadow: var(--shadow-lg), var(--ring-inset); padding: 6px; display: none;
     animation: modalIn var(--dur-2) var(--ease-entrance) both; }
   .dest-dropdown.open .dest-menu { display: block; }
@@ -460,7 +499,8 @@
   .os-panel ol { padding-left: 18px; font-size: 12px; color: var(--muted); line-height: 1.7; }
 
   /* ── Dock (desktop) ──────────────────────────────────── */
-  .dock { grid-column: 1 / 3; grid-row: 2; background: var(--panel); border-top: 1px solid var(--line-strong); box-shadow: 0 -10px 30px -12px rgba(0,0,0,.55);
+  .dock { grid-column: 1 / 3; grid-row: 2; background: linear-gradient(180deg, #13131f, var(--panel));
+    border-top: 1px solid var(--line-strong); box-shadow: 0 -14px 40px -12px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.05);
     display: flex; align-items: center; gap: 18px; padding: 0 26px; }
   .dock .disc { width: 52px; height: 52px; border-radius: 12px; flex-shrink: 0;
     background: linear-gradient(135deg, var(--accent-deep), var(--coral)); display: flex; align-items: center; justify-content: center; }
@@ -488,7 +528,9 @@
   .modal-veil.open .modal, .modal-veil.open .detail-wrap { animation: modalIn var(--dur-3) var(--ease-entrance) both; }
   @keyframes veilIn  { from { opacity: 0; } to { opacity: 1; } }
   @keyframes modalIn { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
-  .modal { width: 460px; max-width: 92vw; max-height: 88vh; overflow-y: auto; background: var(--raised); border-radius: var(--radius-lg); padding: 28px; border: 1px solid var(--line-strong); box-shadow: var(--shadow-lg), var(--ring-inset); }
+  .modal { width: 460px; max-width: 92vw; max-height: 88vh; overflow-y: auto; border-radius: var(--radius-lg); padding: 28px;
+    background: rgba(25,25,38,.9); backdrop-filter: blur(16px) saturate(1.2); -webkit-backdrop-filter: blur(16px) saturate(1.2);
+    border: 1px solid var(--line-strong); box-shadow: var(--shadow-lg), var(--ring-inset); }
   .modal h3 { font-size: 20px; font-weight: 800; margin-bottom: 6px; }
   .modal .sub { color: var(--muted); font-size: 13.5px; margin-bottom: 18px; line-height: 1.5; }
   .modal .tgt-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
@@ -499,7 +541,8 @@
   .result-line.err { color: #ff8fa0; }
 
   /* Post detail */
-  .detail { width: 800px; max-width: 94vw; max-height: 88vh; overflow-y: auto; background: var(--raised);
+  .detail { width: 800px; max-width: 94vw; max-height: 88vh; overflow-y: auto;
+    background: rgba(25,25,38,.92); backdrop-filter: blur(16px) saturate(1.2); -webkit-backdrop-filter: blur(16px) saturate(1.2);
     border-radius: var(--radius-lg); border: 1px solid var(--line-strong); box-shadow: var(--shadow-lg), var(--ring-inset); display: grid; grid-template-columns: 300px 1fr; }
   .detail .dimg { background: #0e0e18 center/cover no-repeat; min-height: 300px; border-radius: 18px 0 0 18px;
     display: flex; align-items: center; justify-content: center; color: #45455a; font-size: 44px; }
@@ -519,7 +562,8 @@
   .detail-wrap { position: relative; }
 
   .toasts { position: fixed; top: 20px; right: 20px; z-index: 60; display: flex; flex-direction: column; gap: 10px; }
-  .toast { background: var(--raised); border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 13px 18px;
+  .toast { background: rgba(25,25,38,.88); backdrop-filter: blur(12px) saturate(1.2); -webkit-backdrop-filter: blur(12px) saturate(1.2);
+    border-left: 4px solid var(--accent); border-radius: var(--radius-sm); padding: 13px 18px;
     font-size: 13.5px; font-weight: 600; min-width: 250px; max-width: 90vw; box-shadow: var(--shadow-md), var(--ring-inset); animation: slidein var(--dur-3) var(--ease-entrance); }
   .toast.err { border-left-color: var(--coral); }
   @keyframes slidein { from { transform: translateX(30px); opacity: 0; } }
@@ -537,10 +581,22 @@
     padding: 16px 38px; background: rgba(11,11,18,.82); backdrop-filter: blur(16px) saturate(1.3);
     border-bottom: 1px solid var(--line); }
   .apphead-l { display: flex; align-items: baseline; gap: 14px; min-width: 0; }
-  .apphead h1 { font-size: 22px; font-weight: 800; letter-spacing: -.5px; }
+  .apphead h1 { font-size: 22.5px; font-weight: 800; letter-spacing: -.5px; transition: none; }
+  .apphead h1.title-in { animation: titleIn .24s var(--ease-entrance) both; }
+  @keyframes titleIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  .apphead h1.shimmer { background: linear-gradient(90deg, #fff 55%, rgba(169,154,255,.85));
+    -webkit-background-clip: text; background-clip: text; color: transparent; }
   .apphead .sync { font-size: 12px; color: var(--faint); font-weight: 600; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
-  .apphead .sync .pipe-dot { width: 7px; height: 7px; margin: 0; }
+  .apphead .sync .pipe-dot { width: 7px; height: 7px; margin: 0; animation: dotPulse 2.2s var(--ease) infinite; }
+  @keyframes dotPulse { 0%, 100% { box-shadow: 0 0 6px var(--ok); opacity: 1; } 50% { box-shadow: 0 0 2px var(--ok); opacity: .55; } }
   .apphead-r { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  /* Publish context: who you're posting to, always in sight */
+  .head-dest { display: none; align-items: center; gap: 8px; margin-right: 4px; }
+  .head-dest.on { display: inline-flex; }
+  .head-dest .hd-avs { display: inline-flex; }
+  .head-dest .hd-avs .avatar { width: 26px; height: 26px; font-size: 10px; border: 2px solid var(--bg); margin-left: -7px; }
+  .head-dest .hd-avs .avatar:first-child { margin-left: 0; }
+  .head-dest .hd-label { font-size: 12px; color: var(--muted); font-weight: 700; white-space: nowrap; max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
   .apphead .btn { padding: 10px 20px; font-size: 13.5px; }
   .apphead .btn.primary { display: inline-flex; align-items: center; gap: 7px; }
   .apphead .btn.primary svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; }
@@ -558,9 +614,15 @@
 
   /* ══ KPI row (compact, controlled) ══════════════════════ */
   .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(168px, 1fr)); gap: 12px; }
-  .kpi2 { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 15px 17px; min-width: 0; box-shadow: var(--shadow-sm);
-    transition: border .18s, background .18s; }
-  .kpi2:hover { border-color: #2c2c44; }
+  .kpi2 { background: linear-gradient(135deg, rgba(255,255,255,.03), transparent 60%), var(--card);
+    border: 1px solid var(--line); border-top-width: 2px; border-radius: var(--radius-sm); padding: 15px 17px; min-width: 0; box-shadow: var(--shadow-sm);
+    transition: border-color .18s, background .18s, transform .2s var(--ease), box-shadow .2s var(--ease); }
+  .kpi2:hover { border-color: #2c2c44; transform: translateY(-2px); box-shadow: var(--shadow-md); }
+  .kpi2.acc-iris { border-top-color: var(--accent); }
+  .kpi2.acc-gold { border-top-color: var(--gold); }
+  .kpi2.acc-info { border-top-color: var(--info); }
+  .kpi2.acc-grad { border-top-color: var(--coral); border-image: linear-gradient(90deg, var(--accent), var(--coral)) 1; border-image-width: 2px 0 0 0; }
+  .kpi2 .k-val { font-variant-numeric: tabular-nums; }
   .kpi2 .k-top { display: flex; align-items: center; gap: 8px; color: var(--faint); }
   .kpi2 .k-top svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   .kpi2 .k-label { font-size: 11px; font-weight: 800; letter-spacing: .6px; text-transform: uppercase; }
@@ -647,7 +709,8 @@
   /* ══ Empty-state component ══════════════════════════════ */
   .empty { text-align: center; padding: 30px 24px; background: var(--card); border: 1px dashed #2c2c44; border-radius: var(--radius); }
   .empty .e-icon { width: 44px; height: 44px; margin: 0 auto 12px; border-radius: 12px; background: rgba(143,122,255,.12);
-    display: flex; align-items: center; justify-content: center; color: var(--accent-bright); }
+    display: flex; align-items: center; justify-content: center; color: var(--accent-bright);
+    box-shadow: 0 0 22px rgba(143,122,255,.22), var(--ring-inset); }
   .empty .e-icon svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   .empty .e-title { font-weight: 800; font-size: 14.5px; }
   .empty .e-sub { font-size: 12.5px; color: var(--muted); margin-top: 5px; margin-bottom: 14px; line-height: 1.5; }
@@ -703,6 +766,8 @@
   .lib-search input { border: none; background: transparent; color: var(--text); font-family: var(--font-body);
     font-size: 13px; width: 100%; outline: none; }
   .lib-search input::placeholder { color: var(--faint); }
+  .lib-search .kbd { font-size: 10px; font-weight: 700; color: var(--faint); background: rgba(255,255,255,.06);
+    border: 1px solid var(--line); border-radius: 5px; padding: 1px 6px; flex: none; font-family: var(--font-body); }
 
   /* Settings */
   .set-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
@@ -778,7 +843,8 @@
   .inbox-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
     padding: 48px 30px; flex: 1; }
   .inbox-placeholder .ip-icon { width: 52px; height: 52px; border-radius: 15px; background: rgba(143,122,255,.1); color: var(--accent-bright);
-    display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
+    display: flex; align-items: center; justify-content: center; margin-bottom: 14px;
+    box-shadow: 0 0 24px rgba(143,122,255,.2), var(--ring-inset); }
   .inbox-placeholder .ip-icon svg { width: 26px; height: 26px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
   .inbox-placeholder .ip-t { font-weight: 800; font-size: 15px; }
   .inbox-placeholder .ip-s { font-size: 12.5px; color: var(--muted); margin-top: 5px; line-height: 1.5; max-width: 260px; }
@@ -946,6 +1012,7 @@
   </div>
 
   <aside class="sidebar">
+    <div class="nav-glide" id="navGlide"></div>
     <div class="brand" onclick="showView('home')" title="Dashboard">FLOWS</div>
     <div class="brand-sub">Business social hub</div>
     <div class="nav-item" data-view="publish">
@@ -986,7 +1053,7 @@
         <span class="sync" id="syncStatus"><span class="pipe-dot"></span>Live</span>
       </div>
       <div class="apphead-r">
-        <button class="btn ghost" id="refreshBtnHead" style="padding:10px 18px;font-size:13.5px">Refresh</button>
+        <span class="head-dest" id="headDest"><span class="hd-avs" id="headDestAvs"></span><span class="hd-label" id="headDestLabel"></span></span>
         <button class="btn primary" id="createBtnHead" onclick="showView('publish')">
           <svg viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></svg>Create post</button>
       </div>
@@ -1069,7 +1136,11 @@
             <div class="target-note" id="targetNote"></div>
             <div id="fieldCaption">
               <div class="field-label">Caption</div>
-              <textarea id="caption" placeholder="Write a caption…"></textarea>
+              <div class="cap-wrap">
+                <div class="cap-backdrop" id="capBackdrop" aria-hidden="true"></div>
+                <textarea id="caption" placeholder="Write a caption…"></textarea>
+              </div>
+              <div class="cap-bar"><i id="capBar"></i></div>
               <div class="count" id="capCount"></div>
             </div>
             <div id="fieldImage">
@@ -1077,7 +1148,6 @@
               <div class="drop-zone" id="dropZone" role="button" tabindex="0" aria-label="Add a photo">
                 <div class="dz-ic"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="m21 15-4.5-4.5L5 21"/></svg></div>
                 <div id="dropZoneText">Drag &amp; drop a photo, or <b>choose a file</b></div>
-                <div class="dz-sub">Staged on a private link until you publish</div>
               </div>
               <input type="file" id="fileInput" accept="image/*,.heic,.heif" style="display:none">
               <div class="upload-done" id="uploadDone" style="display:none">
@@ -1149,6 +1219,7 @@
             <div class="lib-search">
               <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
               <input id="libSearch" type="search" placeholder="Search captions…" oninput="setLibSearch(this.value)" autocomplete="off">
+              <span class="kbd">⌘K</span>
             </div>
             <div class="seg" id="libTypeSeg"></div>
             <span class="result-count" id="libCount"></span>
@@ -1406,13 +1477,37 @@ function renderKpis() {
     </div>`;
   $('kpiStrip').innerHTML =
     kpi('users', 'Audience', fmt(audience),
-        `followers across ${plural(ACCOUNTS.length, 'account')}`) +
+        `followers across ${plural(ACCOUNTS.length, 'account')}`, 'acc-iris') +
     kpi('alert', 'Needs attention', attn,
-        attn ? plural(attn, 'item') + ' to review' : 'All clear', attn ? 'attn' : 'good') +
+        attn ? plural(attn, 'item') + ' to review' : 'All clear', (attn ? 'attn' : 'good') + ' acc-gold') +
     kpi('clock', 'Scheduled', queued == null ? '—' : queued,
-        queued ? plural(queued, 'post') + ' in the queue' : 'nothing queued') +
+        queued ? plural(queued, 'post') + ' in the queue' : 'nothing queued', 'acc-info') +
     kpi('zap', 'IG posts left today', igLeft,
-        `of ${igCap} across ${plural(igAccts.length, 'account')}`);
+        `of ${igCap} across ${plural(igAccts.length, 'account')}`, 'acc-grad');
+  animateCounts($('kpiStrip'));
+}
+
+/* Count the KPI numbers up from 0 on the first real paint — 600ms, eased. */
+function animateCounts(root) {
+  if (window.__kpiAnimated || !root) return;
+  window.__kpiAnimated = true;
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  root.querySelectorAll('.k-val').forEach(el => {
+    const m = el.textContent.trim().match(/^([\d,.]+)([KM]?)$/);
+    if (!m) return;
+    const target = parseFloat(m[1].replace(/,/g, ''));
+    if (!isFinite(target) || target === 0) return;
+    const suffix = m[2] || '', dec = m[1].includes('.') ? 1 : 0;
+    const t0 = performance.now();
+    const step = now => {
+      const p = Math.min(1, (now - t0) / 600);
+      const eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = (target * eased).toFixed(dec)
+        .replace(/\B(?=(\d{3})+(?!\d))/g, ',') + suffix;
+      if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  });
 }
 
 /* ── Needs attention ───────────────────────────────────── */
@@ -1970,6 +2065,11 @@ function setPlatformTab(p) {
   if (libFilter !== 'all' && acctPlatform(libFilter) !== p) libFilter = 'all';
   renderPlatTabs();
   if (LIBRARY) { renderLibChips(); renderLibrary(); renderLibraryStrip(); }
+  // Tab switches slide the content in rather than hard-swapping it.
+  for (const id of ['libGrid', 'libImportStrip']) {
+    const el = $(id);
+    if (el) { el.classList.remove('view-in'); void el.offsetWidth; el.classList.add('view-in'); }
+  }
 }
 
 function renderLibChips() {
@@ -2572,6 +2672,7 @@ function renderTargets() {
     ? `${POST_TYPES[postType].label} posts can't go to ${offNames.map(a => a.handle).join(', ')} — that platform doesn't support them.`
     : '';
   syncPreviewHead();
+  renderHeadDest();
   updateDock();
 }
 function toggleTarget(k) { selected.has(k) ? selected.delete(k) : selected.add(k); renderTargets(); }
@@ -2688,16 +2789,23 @@ function updateDock() {
   const sched = $('scheduleTime').value;
   $('postBtn').textContent = sched ? 'Schedule' : 'Publish';
   $('postBtnMobile').textContent = sched ? 'Schedule' : 'Publish';
-  // Character counter: Instagram caps captions at 2,200 — surface it live and warn on overflow.
-  const cc = $('capCount');
+  // Live counter against the platform limit — IG 2,200, FB 63,206.
+  // Amber from 80%, red at the cap, with a progress bar under the field.
+  const cc = $('capCount'), capBar = $('capBar');
   const igForCount = [...selected].some(k => (ACCOUNTS.find(a => a.key === k) || {}).platform === 'instagram');
-  if (!cap) { cc.textContent = ''; cc.classList.remove('over'); }
-  else if (igForCount) {
-    cc.textContent = `${cap.length.toLocaleString()} / 2,200`;
-    cc.classList.toggle('over', cap.length > 2200);
+  const capLimit = igForCount || !selected.size ? 2200 : 63206;
+  if (!cap) {
+    cc.textContent = ''; cc.classList.remove('over', 'warn');
+    if (capBar) { capBar.style.width = '0'; capBar.className = ''; }
   } else {
-    cc.textContent = `${cap.length.toLocaleString()} characters`;
-    cc.classList.remove('over');
+    const ratio = cap.length / capLimit;
+    cc.textContent = `${cap.length.toLocaleString()} / ${capLimit.toLocaleString()}`;
+    cc.classList.toggle('over', ratio >= 1);
+    cc.classList.toggle('warn', ratio >= .8 && ratio < 1);
+    if (capBar) {
+      capBar.style.width = Math.min(100, ratio * 100) + '%';
+      capBar.className = ratio >= 1 ? 'over' : ratio >= .8 ? 'warn' : '';
+    }
   }
   // Instagram rejects image links with query text — warn early, not at publish.
   const igSelected = [...selected].some(k => (ACCOUNTS.find(a => a.key === k) || {}).platform === 'instagram');
@@ -2740,10 +2848,28 @@ function syncPreview() {
     main = img;
   }
   const icon = $('previewIcon');
-  if (main) { ph.style.backgroundImage = `url('${cssUrl(main)}')`; icon.innerHTML = ''; }
-  else { ph.style.backgroundImage = ''; icon.innerHTML = phGlyph(postType === 'video' ? 'video' : postType === 'story' ? 'clock' : 'image'); }
+  if (main) {
+    const bg = `url('${cssUrl(main)}')`;
+    if (ph.style.backgroundImage !== bg) {  // cross-fade only when the media changes
+      ph.style.backgroundImage = bg;
+      ph.classList.remove('pv-fade'); void ph.offsetWidth; ph.classList.add('pv-fade');
+    }
+    icon.innerHTML = '';
+  }
+  else { ph.style.backgroundImage = ''; ph.classList.remove('pv-fade'); icon.innerHTML = phGlyph(postType === 'video' ? 'video' : postType === 'story' ? 'clock' : 'image'); }
+  renderCapBackdrop();
   syncPreviewHead();
   updateDock();
+}
+
+/* Backdrop behind the caption textarea paints #hashtags and @mentions iris —
+   the textarea's own text is transparent, so the backdrop is the visible copy. */
+function renderCapBackdrop() {
+  const bd = $('capBackdrop');
+  if (!bd) return;
+  bd.innerHTML = esc($('caption').value)
+    .replace(/(^|[\s(])([#@][\p{L}\p{N}_.]+)/gu, '$1<span class="tag">$2</span>') + '\n';
+  bd.scrollTop = $('caption').scrollTop;
 }
 
 // The preview card wears the first chosen destination, so it reads like a real in-feed post.
@@ -2852,21 +2978,55 @@ async function loadOverview(fresh) {
 const VIEW_TITLES = { home: 'Dashboard', publish: 'Publish', library: 'Library',
   inbox: 'Inbox', analytics: 'Analytics', scheduled: 'Scheduled', integrations: 'Integrations',
   settings: 'Settings' };
-const VIEW_NAMES = ['home', 'publish', 'library', 'inbox', 'analytics', 'scheduled', 'integrations', 'settings'];
+// Order mirrors the sidebar top-to-bottom, so directional slides feel right.
+const VIEW_NAMES = ['publish', 'home', 'library', 'inbox', 'analytics', 'scheduled', 'integrations', 'settings'];
+
+/* Sidebar glide indicator — the accent bar slides to the active item. */
+function moveNavGlide() {
+  const g = $('navGlide');
+  if (!g) return;
+  const item = document.querySelector('.sidebar .nav-item.active');
+  if (!item) { g.style.opacity = '0'; return; }
+  g.style.top = (item.offsetTop + (item.offsetHeight - 18) / 2) + 'px';
+  g.style.opacity = '1';
+}
+
+/* Publish context chips in the header — who this post is going to. */
+function renderHeadDest() {
+  const wrap = $('headDest');
+  if (!wrap) return;
+  const chosen = ACCOUNTS.filter(a => selected.has(a.key));
+  const on = currentView === 'publish' && chosen.length > 0;
+  wrap.classList.toggle('on', on);
+  if (!on) return;
+  $('headDestAvs').innerHTML = chosen.slice(0, 3).map(a => avatarEl(a, null, 26)).join('');
+  $('headDestLabel').textContent = 'Posting to ' + (chosen.length === 1
+    ? chosen[0].handle : `${chosen[0].handle} +${chosen.length - 1}`);
+}
 function showView(v) {
+  const prevIdx = VIEW_NAMES.indexOf(currentView);
   currentView = v;
   document.querySelectorAll('.nav-item, .tab').forEach(n => n.classList.toggle('active', n.dataset.view === v));
   for (const name of VIEW_NAMES)
     $('view-' + name).style.display = name === v ? '' : 'none';
   const title = VIEW_TITLES[v] || 'FLOWS';
-  if ($('pageTitle')) $('pageTitle').textContent = title;
+  const pt = $('pageTitle');
+  if (pt) {
+    pt.textContent = title;
+    pt.classList.toggle('shimmer', v === 'publish');
+    pt.classList.remove('title-in'); void pt.offsetWidth; pt.classList.add('title-in');
+  }
   if ($('pageTitleMobile')) $('pageTitleMobile').textContent = title;
   document.querySelector('.app').classList.toggle('no-dock', v !== 'publish');
   // You're already here — no "Create post" button on the Publish view itself.
   if ($('createBtnHead')) $('createBtnHead').style.display = v === 'publish' ? 'none' : '';
-  // Soft entrance instead of a hard swap between views.
+  // Directional entrance: deeper in the nav slides in from the right, back from the left.
+  const newIdx = VIEW_NAMES.indexOf(v);
   const ve = $('view-' + v);
-  ve.classList.remove('view-in'); void ve.offsetWidth; ve.classList.add('view-in');
+  ve.classList.remove('view-in', 'view-in-r', 'view-in-l'); void ve.offsetWidth;
+  ve.classList.add(newIdx > prevIdx ? 'view-in-r' : newIdx < prevIdx ? 'view-in-l' : 'view-in');
+  moveNavGlide();
+  renderHeadDest();
   if (v === 'publish') loadLibraryStrip();
   if (v === 'library') loadLibrary(false);
   if (v === 'inbox') loadInbox(false);
@@ -2935,7 +3095,16 @@ for (const id of ['postBtn', 'postBtnMobile'])
 $('modalCancel').addEventListener('click', () => $('modalVeil').classList.remove('open'));
 $('modalConfirm').addEventListener('click', confirmPost);
 $('refreshBtnMobile').addEventListener('click', refreshAll);
-$('refreshBtnHead').addEventListener('click', refreshAll);
+$('caption').addEventListener('scroll', () => { $('capBackdrop').scrollTop = $('caption').scrollTop; });
+window.addEventListener('resize', moveNavGlide);
+// ⌘K / Ctrl-K jumps to the Library search from anywhere.
+document.addEventListener('keydown', e => {
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+    e.preventDefault();
+    showView('library');
+    setTimeout(() => $('libSearch') && $('libSearch').focus(), 120);
+  }
+});
 
 // Photo upload: click, keyboard, and drag-and-drop all land in handleFile().
 $('dropZone').addEventListener('click', () => $('fileInput').click());
