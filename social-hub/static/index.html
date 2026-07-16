@@ -94,7 +94,8 @@
   .side-acct { display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-radius: 10px; cursor: pointer; transition: background .15s; }
   .side-acct:hover { background: #1d1d2e; }
   .avatar { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
-    font-weight: 800; font-size: 15px; color: #fff; background-size: cover; background-position: center; }
+    font-weight: 800; font-size: 15px; color: #fff; background-size: cover; background-position: center; position: relative; overflow: hidden; }
+  .avatar > img.av { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: inherit; background: inherit; }
   .avatar.ig { background-image: linear-gradient(45deg, var(--ig-a), var(--ig-b), var(--ig-c)); }
   .avatar.fb { background-image: linear-gradient(45deg, #0e5fc4, var(--fb)); }
   .avatar.img { background-color: #262637; }
@@ -127,6 +128,7 @@
   .hero.grad-perf,
   .hero.grad-library,
   .hero.grad-integr,
+  .hero.grad-settings,
   .hero.grad-sched   { background: linear-gradient(180deg, rgba(143,122,255,.18), transparent 62%); }
   .hero.grad-publish { background: linear-gradient(180deg, rgba(143,122,255,.20), rgba(255,84,112,.07) 46%, transparent 72%); }
   .hero.grad-inbox   { background: linear-gradient(180deg, rgba(255,84,112,.15), rgba(143,122,255,.08) 46%, transparent 70%); }
@@ -656,6 +658,64 @@
   .seg-btn .seg-count { opacity: .68; margin-left: 5px; font-weight: 600; font-size: 11px; }
   .result-count { font-size: 12px; color: var(--faint); font-weight: 600; }
 
+  /* Platform tabs — Instagram vs the Facebook archive, so old posts don't lead */
+  .plat-tabs { display: inline-flex; gap: 4px; padding: 4px; margin-bottom: 18px;
+    background: var(--well); border: 1px solid var(--line); border-radius: 12px; }
+  .plat-tabs.sm { margin-bottom: 12px; }
+  .plat-tab { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border: none; cursor: pointer;
+    border-radius: 9px; font-family: var(--font-body); font-size: 13px; font-weight: 700; color: var(--muted);
+    background: transparent; transition: color var(--dur-2) var(--ease), background var(--dur-2) var(--ease); white-space: nowrap; }
+  .plat-tab svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .plat-tab:hover { color: var(--text); }
+  .plat-tab.on { color: #fff; background: #22222f; box-shadow: var(--ring-inset); }
+  .plat-tab.on svg { stroke: var(--accent-bright); }
+  .plat-tab .pt-count { font-size: 11px; font-weight: 700; color: var(--faint); background: rgba(255,255,255,.06);
+    padding: 1px 7px; border-radius: 999px; }
+  .plat-tab.on .pt-count { color: var(--accent-bright); background: var(--accent-soft); }
+
+  /* Library caption search */
+  .lib-search { display: inline-flex; align-items: center; gap: 8px; padding: 8px 13px; min-width: 190px;
+    background: var(--well); border: 1px solid var(--line); border-radius: 999px; transition: border var(--dur-2) var(--ease); }
+  .lib-search:focus-within { border-color: var(--line-strong); }
+  .lib-search svg { width: 15px; height: 15px; fill: none; stroke: var(--faint); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+  .lib-search input { border: none; background: transparent; color: var(--text); font-family: var(--font-body);
+    font-size: 13px; width: 100%; outline: none; }
+  .lib-search input::placeholder { color: var(--faint); }
+
+  /* Settings */
+  .set-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+  .set-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px 22px; box-shadow: var(--ring-inset); }
+  .set-h { font-size: 15px; font-weight: 800; letter-spacing: -.2px; }
+  .set-sub { font-size: 12.5px; color: var(--muted); margin-top: 5px; line-height: 1.5; }
+  .set-accts { margin-top: 14px; display: flex; flex-direction: column; gap: 10px; }
+  .set-acct { display: flex; align-items: center; gap: 12px; }
+  .set-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 10px 0;
+    border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+  .set-row:first-of-type { border-top: none; }
+  .set-row b { color: var(--text); font-weight: 700; }
+  .set-live { display: inline-flex; align-items: center; gap: 7px; }
+
+  /* Onboarding checklist (dashboard, self-hiding) */
+  .onboard { background: linear-gradient(140deg, var(--accent-soft), transparent 60%), var(--card);
+    border: 1px solid var(--line-strong); border-radius: var(--radius-lg); padding: 18px 20px; margin-bottom: 22px; }
+  .ob-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; margin-bottom: 14px; }
+  .ob-t { font-size: 15px; font-weight: 800; letter-spacing: -.2px; }
+  .ob-s { font-size: 12.5px; color: var(--muted); margin-top: 3px; }
+  .ob-x { border: none; background: transparent; color: var(--faint); font-family: var(--font-body); font-size: 12px;
+    font-weight: 700; cursor: pointer; padding: 4px 8px; border-radius: 8px; transition: color var(--dur-2) var(--ease); }
+  .ob-x:hover { color: var(--text); }
+  .ob-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+  .ob-step { display: flex; gap: 11px; align-items: flex-start; padding: 12px 14px; border-radius: var(--radius);
+    background: var(--well); border: 1px solid var(--line); transition: border var(--dur-2) var(--ease), transform var(--dur-2) var(--ease); }
+  .ob-step:not(.done) { cursor: pointer; }
+  .ob-step:not(.done):hover { border-color: var(--line-strong); transform: translateY(-1px); }
+  .ob-step b { display: block; font-size: 13px; font-weight: 700; }
+  .ob-step span { display: block; font-size: 11.5px; color: var(--muted); margin-top: 2px; line-height: 1.45; }
+  .ob-check { width: 20px; height: 20px; border-radius: 50%; flex: none; margin-top: 1px;
+    border: 1.5px solid var(--line-strong); display: flex; align-items: center; justify-content: center; }
+  .ob-step.done .ob-check { background: var(--accent); border-color: var(--accent); }
+  .ob-check svg { width: 12px; height: 12px; fill: none; stroke: #fff; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+
   /* Shared: compact summary stat strip (lighter than dashboard KPI) */
   .stat-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 20px; }
   .stat { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; transition: border .18s; }
@@ -901,6 +961,8 @@
       <svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg> Scheduled</div>
     <div class="nav-item" data-view="integrations">
       <svg class="i" viewBox="0 0 24 24"><path d="M9 3v4a2 2 0 0 1-2 2H3"/><path d="M15 21v-4a2 2 0 0 1 2-2h4"/><path d="M21 9h-4a2 2 0 0 1-2-2V3"/><path d="M3 15h4a2 2 0 0 1 2 2v4"/></svg> Integrations</div>
+    <div class="nav-item" data-view="settings">
+      <svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Settings</div>
     <div class="side-label">Your accounts</div>
     <div id="sideAccounts"></div>
     <div class="phone-cta" onclick="showView('integrations'); setTimeout(() => document.getElementById('installCard') && document.getElementById('installCard').scrollIntoView({behavior:'smooth'}), 150)">
@@ -930,6 +992,7 @@
     <!-- DASHBOARD -->
     <div id="view-home">
       <div class="notice" id="homeNotice"></div>
+      <div id="onboard"></div>
 
       <!-- 1 · Health & KPI summary -->
       <div class="section">
@@ -977,6 +1040,7 @@
       </div>
       <div class="section" style="padding-bottom:6px">
         <div class="sec-head"><h2>Start from your library</h2><span class="sec-link" onclick="showView('library')">Browse all →</span></div>
+        <div class="plat-tabs sm" id="stripPlatTabs"></div>
         <div class="lib-import-strip" id="libImportStrip">
           <div class="skeleton lib-import-card" style="height:150px"></div>
           <div class="skeleton lib-import-card" style="height:150px"></div>
@@ -1055,6 +1119,7 @@
         <p>Everything you've ever published, in one shelf. Bring any piece back — one tap to post it again or line it up for later.</p>
       </div>
       <div class="section">
+        <div class="plat-tabs" id="libPlatTabs"></div>
         <div class="stat-strip" id="libStats"></div>
         <div class="sec-head" id="libFeaturedHead" style="display:none">
           <h2>Top performing</h2><span class="sec-note">Your most-engaged pieces — reuse a winner</span>
@@ -1063,6 +1128,10 @@
         <div class="view-toolbar">
           <div class="chips" id="libChips"></div>
           <div class="toolbar-r">
+            <div class="lib-search">
+              <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+              <input id="libSearch" type="search" placeholder="Search captions…" oninput="setLibSearch(this.value)" autocomplete="off">
+            </div>
             <div class="seg" id="libTypeSeg"></div>
             <span class="result-count" id="libCount"></span>
           </div>
@@ -1132,6 +1201,16 @@
       <div class="section" id="installSection"></div>
       <div style="height:30px"></div>
     </div>
+
+    <!-- SETTINGS -->
+    <div id="view-settings" style="display:none">
+      <div class="hero grad-settings">
+        <h1>Settings</h1>
+        <p>Manage your connected accounts, composer defaults and app data.</p>
+      </div>
+      <div class="section" id="settingsBody"></div>
+      <div style="height:30px"></div>
+    </div>
   </main>
 
   <!-- DOCK (desktop) -->
@@ -1190,7 +1269,11 @@
 const $ = id => document.getElementById(id);
 let ACCOUNTS = [], OVERVIEW = null, ANALYTICS = null, INTEGRATIONS = null, LIBRARY = null, SCHEDULED = null;
 let filter = 'all', libFilter = 'all', libTypeFilter = 'all', selected = new Set(), currentView = 'home', postType = 'photo';
-let inboxFilter = 'all';
+let inboxFilter = 'all', libSearch = '';
+// Content platform tab (Library + Publish import strip). Default Instagram so the
+// old Facebook archive never leads; the choice persists across sessions.
+let platformTab = 'instagram';
+try { platformTab = localStorage.getItem('flows.platform') || 'instagram'; } catch (e) {}
 
 const POST_TYPES = {
   photo:    { label: 'Photo',        desc: 'Instagram + Facebook', platforms: ['instagram', 'facebook'] },
@@ -1244,10 +1327,12 @@ async function api(path, opts) {
 }
 
 function avatarEl(a, profile, size) {
-  const pic = profile && (profile.profile_picture_url || (profile.picture && profile.picture.data && profile.picture.data.url));
   const style = size ? `width:${size}px;height:${size}px;font-size:${Math.round(size/2.6)}px;` : '';
-  if (pic) return `<div class="avatar img" style="${style}background-image:url('${cssUrl(pic)}')"></div>`;
-  return `<div class="avatar ${a.platform === 'instagram' ? 'ig' : 'fb'}" style="${style}">${initials(a.handle)}</div>`;
+  const cls = a.platform === 'instagram' ? 'ig' : 'fb';
+  // Profile pic is proxied same-origin (survives IG/FB CDN expiry). Initials sit
+  // underneath as the fallback; the <img> covers them, and removes itself on error.
+  return `<div class="avatar ${cls}" style="${style}">${initials(a.handle)}<img class="av" alt="" loading="lazy"
+    src="/api/avatar?key=${encodeURIComponent(a.key)}" onerror="this.remove()"></div>`;
 }
 
 /* ── Dashboard ─────────────────────────────────────────── */
@@ -1834,12 +1919,38 @@ const libTypeOf = t => (t === 'VIDEO' || t === 'REELS') ? 'reel'
   : t === 'CAROUSEL_ALBUM' ? 'carousel' : t === 'TEXT' ? 'text' : 'photo';
 const libEng = m => (m.likes || 0) + (m.comments || 0);
 
+/* ── Platform tabs — keep Instagram and the Facebook archive apart ───────── */
+const acctPlatform = key => (ACCOUNTS.find(a => a.key === key) || {}).platform;
+const inTab = m => acctPlatform(m.key) === platformTab;
+const PLATFORMS = [['instagram', 'Instagram'], ['facebook', 'Facebook']];
+
+function platTabsHtml() {
+  return PLATFORMS.map(([k, l]) => {
+    const n = (LIBRARY && LIBRARY.items || []).filter(m => acctPlatform(m.key) === k).length;
+    return `<button class="plat-tab ${platformTab === k ? 'on' : ''}" onclick="setPlatformTab('${k}')">
+      <svg viewBox="0 0 24 24">${ICON[k]}</svg>${l}${n ? `<span class="pt-count">${n}</span>` : ''}</button>`;
+  }).join('');
+}
+function renderPlatTabs() {
+  for (const id of ['libPlatTabs', 'stripPlatTabs']) if ($(id)) $(id).innerHTML = platTabsHtml();
+}
+function setPlatformTab(p) {
+  platformTab = p;
+  try { localStorage.setItem('flows.platform', p); } catch (e) {}
+  // Account chip may belong to the other platform — reset it to "Everything".
+  if (libFilter !== 'all' && acctPlatform(libFilter) !== p) libFilter = 'all';
+  renderPlatTabs();
+  if (LIBRARY) { renderLibChips(); renderLibrary(); renderLibraryStrip(); }
+}
+
 function renderLibChips() {
-  const chips = [{k:'all', l:'Everything'}].concat(ACCOUNTS.map(a => ({k:a.key, l:a.handle})));
+  const accts = ACCOUNTS.filter(a => a.platform === platformTab);
+  const chips = [{k:'all', l:'Everything'}].concat(accts.map(a => ({k:a.key, l:a.handle})));
   $('libChips').innerHTML = chips.map(c =>
     `<div class="chip ${libFilter === c.k ? 'on' : ''}" onclick="setLibFilter('${c.k}')">${esc(c.l)}</div>`).join('');
 }
 function setLibFilter(k) { libFilter = k; renderLibChips(); renderLibrary(); }
+function setLibSearch(v) { libSearch = v.trim().toLowerCase(); renderLibrary(); }
 function setLibType(k) { libTypeFilter = k; renderLibrary(); }
 
 function assetCard(m) {
@@ -1867,7 +1978,7 @@ function assetCard(m) {
 }
 
 function renderLibStats() {
-  const all = LIBRARY.items || [];
+  const all = (LIBRARY.items || []).filter(inTab);
   const reusable = all.filter(m => m.img).length;
   const topEng = all.reduce((mx, m) => Math.max(mx, libEng(m)), 0);
   const sources = new Set(all.map(m => m.key)).size;
@@ -1881,7 +1992,7 @@ function renderLibStats() {
 }
 
 function renderLibTypeSeg() {
-  const base = (LIBRARY.items || []).filter(x => libFilter === 'all' || x.key === libFilter);
+  const base = (LIBRARY.items || []).filter(x => inTab(x) && (libFilter === 'all' || x.key === libFilter));
   const counts = {};
   base.forEach(m => { const t = libTypeOf(m.media_type); counts[t] = (counts[t] || 0) + 1; });
   if (libTypeFilter !== 'all' && !counts[libTypeFilter]) libTypeFilter = 'all';
@@ -1894,7 +2005,7 @@ function renderLibTypeSeg() {
 }
 
 function renderLibFeatured() {
-  const base = (LIBRARY.items || []).filter(x => (libFilter === 'all' || x.key === libFilter) && x.img);
+  const base = (LIBRARY.items || []).filter(x => inTab(x) && (libFilter === 'all' || x.key === libFilter) && x.img);
   const top = base.slice().sort((a, b) => libEng(b) - libEng(a)).filter(m => libEng(m) > 0).slice(0, 8);
   const show = top.length >= 3 && base.length >= 6;
   $('libFeatured').style.display = show ? '' : 'none';
@@ -1923,6 +2034,7 @@ async function loadLibrary(fresh) {
 function renderLibrary() {
   if (!LIBRARY) return;
   window.__lib = LIBRARY.items || [];   // stable index space for repostFromLibrary()
+  renderPlatTabs(); renderLibChips();
   renderLibStats(); renderLibTypeSeg(); renderLibFeatured();
   if (!(LIBRARY.items || []).length) {
     $('libCount').textContent = '';
@@ -1935,14 +2047,24 @@ function renderLibrary() {
     return;
   }
   const items = (LIBRARY.items || []).filter(x =>
+    inTab(x) &&
     (libFilter === 'all' || x.key === libFilter) &&
-    (libTypeFilter === 'all' || libTypeOf(x.media_type) === libTypeFilter));
+    (libTypeFilter === 'all' || libTypeOf(x.media_type) === libTypeFilter) &&
+    (!libSearch || (x.caption || '').toLowerCase().includes(libSearch)));
   $('libCount').textContent = `${items.length} ${items.length === 1 ? 'piece' : 'pieces'}`;
   if (!items.length) {
+    const platLabel = platformTab === 'instagram' ? 'Instagram' : 'Facebook';
+    const other = platformTab === 'instagram' ? 'facebook' : 'instagram';
+    const otherLabel = other === 'instagram' ? 'Instagram' : 'Facebook';
+    const otherN = (LIBRARY.items || []).filter(m => acctPlatform(m.key) === other).length;
+    const cta = (!libSearch && otherN)
+      ? `<button class="btn ghost" style="padding:9px 20px;margin-top:6px" onclick="setPlatformTab('${other}')">See ${otherN} ${otherLabel} ${otherN === 1 ? 'piece' : 'pieces'} →</button>` : '';
     $('libGrid').innerHTML = `<div class="empty" style="grid-column:1/-1">
       <div class="e-icon"><svg viewBox="0 0 24 24">${ICON.search}</svg></div>
-      <div class="e-title">Nothing matches this filter</div>
-      <div class="e-sub">Try a different account or media type.</div></div>`;
+      <div class="e-title">${libSearch ? 'No captions match your search' : `Your ${platLabel} shelf is empty`}</div>
+      <div class="e-sub">${libSearch ? 'Try different words, or clear the search.'
+        : (otherN ? `Nothing published to ${platLabel} yet.` : 'Publish something and it lands here automatically, ready to reuse.')}</div>
+      ${cta}</div>`;
     return;
   }
   $('libGrid').innerHTML = items.map(assetCard).join('');
@@ -1962,10 +2084,14 @@ async function loadLibraryStrip() {
 function renderLibraryStrip() {
   const el = $('libImportStrip');
   if (!el || !LIBRARY) return;
-  const items = (LIBRARY.items || []).slice(0, 12);
-  window.__lib = LIBRARY.items || [];  // repostFromLibrary() indexes into this — keep it unfiltered here
+  renderPlatTabs();
+  window.__lib = LIBRARY.items || [];  // repostFromLibrary() indexes into this — keep it unfiltered
+  const items = window.__lib.filter(inTab).slice(0, 12);  // only the active platform leads
   if (!items.length) {
-    el.innerHTML = `<p class="hint">Nothing published yet — once you post, it'll show up here so you can reuse it in one click.</p>`;
+    const platLabel = platformTab === 'instagram' ? 'Instagram' : 'Facebook';
+    el.innerHTML = window.__lib.length
+      ? `<p class="hint">No ${platLabel} posts to reuse yet — switch tabs or publish something new.</p>`
+      : `<p class="hint">Nothing published yet — once you post, it'll show up here so you can reuse it in one click.</p>`;
     return;
   }
   el.innerHTML = items.map(m => {
@@ -2602,12 +2728,12 @@ async function confirmPost() {
 
 /* ── Data loading ──────────────────────────────────────── */
 async function loadOverview(fresh) {
-  renderKpis(); renderNeedsAttention(); renderAccounts(); renderPosts();
+  renderKpis(); renderNeedsAttention(); renderAccounts(); renderPosts(); renderOnboard();
   try {
     OVERVIEW = await api('/api/overview' + (fresh ? '?fresh=true' : ''));
     setSync(OVERVIEW.generated_at);
     $('homeNotice').style.display = 'none';  // per-account issues now surface in Needs attention
-    renderSidebar(); renderKpis(); renderNeedsAttention(); renderAccounts(); renderPosts();
+    renderSidebar(); renderKpis(); renderNeedsAttention(); renderAccounts(); renderPosts(); renderOnboard();
   } catch (e) {
     $('homeNotice').style.display = 'block';
     $('homeNotice').textContent = 'We couldn\'t reach the data pipe: ' + e.message;
@@ -2617,11 +2743,13 @@ async function loadOverview(fresh) {
 
 /* ── View switching ────────────────────────────────────── */
 const VIEW_TITLES = { home: 'Dashboard', publish: 'Publish', library: 'Library',
-  inbox: 'Inbox', analytics: 'Analytics', scheduled: 'Scheduled', integrations: 'Integrations' };
+  inbox: 'Inbox', analytics: 'Analytics', scheduled: 'Scheduled', integrations: 'Integrations',
+  settings: 'Settings' };
+const VIEW_NAMES = ['home', 'publish', 'library', 'inbox', 'analytics', 'scheduled', 'integrations', 'settings'];
 function showView(v) {
   currentView = v;
   document.querySelectorAll('.nav-item, .tab').forEach(n => n.classList.toggle('active', n.dataset.view === v));
-  for (const name of ['home', 'publish', 'library', 'inbox', 'analytics', 'scheduled', 'integrations'])
+  for (const name of VIEW_NAMES)
     $('view-' + name).style.display = name === v ? '' : 'none';
   const title = VIEW_TITLES[v] || 'FLOWS';
   if ($('pageTitle')) $('pageTitle').textContent = title;
@@ -2633,7 +2761,85 @@ function showView(v) {
   if (v === 'scheduled') loadScheduled();
   if (v === 'analytics') loadAnalytics(false);
   if (v === 'integrations') loadIntegrations(false);
+  if (v === 'settings') renderSettings();
   document.querySelector('.main').scrollTop = 0;
+}
+
+/* ── Settings ──────────────────────────────────────────── */
+function renderSettings() {
+  const el = $('settingsBody');
+  if (!el) return;
+  const accts = (OVERVIEW ? OVERVIEW.accounts : ACCOUNTS).map(a => {
+    const base = ACCOUNTS.find(x => x.key === a.key) || a;
+    const healthy = !((a.errors || []).length);
+    return `<div class="set-acct">
+      ${avatarEl(base, a.profile)}
+      <div class="ai-id"><div class="ai-name">${esc(base.handle)} ${platBadge(base.platform)}</div>
+        <div class="ai-meta"><span class="health-dot ${healthy ? 'ok' : 'warn'}">${healthy ? 'Connected' : 'Check sync'}</span></div></div>
+    </div>`;
+  }).join('');
+  const platBtn = (k, l) => `<button class="seg-btn ${platformTab === k ? 'on' : ''}" onclick="setPlatformTab('${k}'); renderSettings()">${l}</button>`;
+  el.innerHTML = `
+    <div class="set-grid">
+      <div class="set-card">
+        <div class="set-h">Connected accounts</div>
+        <div class="set-sub">Managed through the secure Composio pipe — Instagram &amp; Facebook in one channel.</div>
+        <div class="set-accts">${accts}</div>
+        <button class="btn ghost" style="padding:9px 18px;margin-top:14px" onclick="showView('integrations')">Manage integrations</button>
+      </div>
+      <div class="set-card">
+        <div class="set-h">Composer default</div>
+        <div class="set-sub">Which library opens first in Publish &amp; Library, so the right content leads.</div>
+        <div class="seg" style="margin-top:12px">${platBtn('instagram', 'Instagram')}${platBtn('facebook', 'Facebook')}</div>
+      </div>
+      <div class="set-card">
+        <div class="set-h">Data</div>
+        <div class="set-sub">Everything is fetched live. Refresh pulls the latest from every account.</div>
+        <div class="set-row"><span>Last synced</span><b id="setSynced">${OVERVIEW ? relTime(OVERVIEW.generated_at) : '—'}</b></div>
+        <button class="btn primary" style="padding:9px 18px;margin-top:14px" onclick="refreshAll(); toast('Refreshing all data…')">Refresh all data</button>
+      </div>
+      <div class="set-card">
+        <div class="set-h">About</div>
+        <div class="set-row"><span>App</span><b>FLOWS · Business Social Hub</b></div>
+        <div class="set-row"><span>Connection</span><b class="set-live"><span class="pipe-dot"></span>Composio pipe</b></div>
+        <div class="set-row"><span>Accounts</span><b>${ACCOUNTS.length} connected</b></div>
+      </div>
+    </div>`;
+}
+
+/* ── Onboarding — self-hiding once every step is done ──── */
+function renderOnboard() {
+  const el = $('onboard');
+  if (!el) return;
+  let dismissed = false;
+  try { dismissed = localStorage.getItem('flows.onboard') === 'done'; } catch (e) {}
+  const hasAccts = ACCOUNTS.length > 0;
+  const hasPosts = !!(OVERVIEW && normalizePosts().length);
+  const standalone = window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
+  let installed = standalone;
+  try { installed = installed || localStorage.getItem('flows.installed') === '1'; } catch (e) {}
+  const steps = [
+    { done: hasAccts, t: 'Connect your accounts', s: 'Instagram &amp; Facebook, via the Composio pipe.' },
+    { done: hasPosts, t: 'Publish or reuse a post', s: 'Create fresh, or bring one back from your library.', act: `showView('publish')` },
+    { done: installed, t: 'Install FLOWS on your devices', s: 'Add it to your phone and dock for one-tap access.', act: `showView('integrations')` },
+  ];
+  const doneN = steps.filter(s => s.done).length;
+  if (dismissed || doneN === steps.length) { el.innerHTML = ''; return; }  // nothing to nudge
+  el.innerHTML = `<div class="onboard">
+    <div class="ob-head">
+      <div><div class="ob-t">Get set up</div><div class="ob-s">${doneN} of ${steps.length} done — you're nearly there.</div></div>
+      <button class="ob-x" onclick="dismissOnboard()" aria-label="Dismiss">Dismiss</button>
+    </div>
+    <div class="ob-steps">${steps.map(s => `
+      <div class="ob-step ${s.done ? 'done' : ''}" ${!s.done && s.act ? `onclick="${s.act}"` : ''}>
+        <div class="ob-check">${s.done ? '<svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>' : ''}</div>
+        <div><b>${s.t}</b><span>${s.s}</span></div>
+      </div>`).join('')}</div>
+  </div>`;
+}
+function dismissOnboard() {
+  try { localStorage.setItem('flows.onboard', 'done'); } catch (e) {}
+  renderOnboard();
 }
 
 function refreshAll() {
@@ -2710,7 +2916,13 @@ window.addEventListener('appinstalled', () => {
 async function promptInstall() {
   if (!deferredInstall) { showView('integrations'); return; }
   deferredInstall.prompt();
-  try { await deferredInstall.userChoice; } catch (e) {}
+  try {
+    const choice = await deferredInstall.userChoice;
+    if (choice && choice.outcome === 'accepted') {
+      try { localStorage.setItem('flows.installed', '1'); } catch (e) {}
+      renderOnboard();
+    }
+  } catch (e) {}
   deferredInstall = null;
   const b = $('installBtn'); if (b) b.style.display = 'none';
 }

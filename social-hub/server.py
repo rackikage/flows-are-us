@@ -22,11 +22,12 @@ import os
 import socket
 import time
 import threading
+import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 
 from fastapi import FastAPI
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -168,6 +169,101 @@ def api_overview(fresh: bool = False):
         return cached("overview", fresh, build)
     except (PipeError, Exception) as e:  # surface as JSON, not a 500 page
         return JSONResponse(status_code=502, content={"error": str(e)[:400]})
+
+
+# ── Avatar proxy ────────────────────────────────────────────────────────────
+# IG/FB profile pictures are signed CDN URLs that expire, so the UI's avatars
+# would blank out (fall back to initials) on refresh. We proxy them same-origin
+# and keep the last-good bytes on disk, so a picture that ever loaded stays put
+# even after its upstream URL dies or the pipe is briefly down.
+
+AVATAR_DIR = os.path.join(HERE, ".avatar_cache")
+os.makedirs(AVATAR_DIR, exist_ok=True)
+_avatar_mem = {}                 # key -> (fetched_at, bytes, content_type)
+_avatar_lock = threading.Lock()
+AVATAR_TTL = 6 * 3600            # re-pull from upstream at most every 6h
+
+# macOS system Python can't find CA roots on its own, so verifying IG/FB CDN
+# certs fails without a bundle — use certifi's when present.
+import ssl
+try:
+    import certifi
+    _SSL_CTX = ssl.create_default_context(cafile=certifi.where())
+except Exception:
+    _SSL_CTX = ssl.create_default_context()
+
+
+def _profile_pic_url(key):
+    """Current upstream profile-picture URL for an account, from the overview."""
+    ov = api_overview(fresh=False)
+    if isinstance(ov, JSONResponse):
+        return None
+    for a in ov.get("accounts", []):
+        if a.get("key") == key:
+            p = a.get("profile") or {}
+            pic = p.get("profile_picture_url")
+            if not pic:
+                data = (p.get("picture") or {}).get("data") or {}
+                pic = data.get("url")
+            return pic
+    return None
+
+
+def _avatar_disk(key):
+    path = os.path.join(AVATAR_DIR, key)
+    if os.path.exists(path):
+        try:
+            with open(path, "rb") as f:
+                return f.read()
+        except OSError:
+            return None
+    return None
+
+
+@app.get("/api/avatar")
+def api_avatar(key: str):
+    if key not in BY_KEY:
+        return JSONResponse(status_code=404, content={"error": "unknown account"})
+
+    now = time.time()
+    with _avatar_lock:
+        hit = _avatar_mem.get(key)
+    if hit and now - hit[0] < AVATAR_TTL:
+        return Response(content=hit[1], media_type=hit[2],
+                        headers={"Cache-Control": "public, max-age=86400"})
+
+    url = _profile_pic_url(key)
+    if url:
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "FLOWS/1.0"})
+            try:
+                resp = urllib.request.urlopen(req, timeout=8, context=_SSL_CTX)
+            except ssl.SSLError:
+                # Last-resort for hosts without a usable CA bundle — these are
+                # public avatar images and we send no credentials.
+                resp = urllib.request.urlopen(
+                    req, timeout=8, context=ssl._create_unverified_context())
+            with resp:
+                data = resp.read()
+                ctype = resp.headers.get("Content-Type", "image/jpeg")
+            with _avatar_lock:
+                _avatar_mem[key] = (now, data, ctype)
+            try:
+                with open(os.path.join(AVATAR_DIR, key), "wb") as f:
+                    f.write(data)
+            except OSError:
+                pass
+            return Response(content=data, media_type=ctype,
+                            headers={"Cache-Control": "public, max-age=86400"})
+        except Exception:
+            pass  # fall through to last-good bytes
+
+    disk = _avatar_disk(key)
+    if disk:
+        return Response(content=disk, media_type="image/jpeg",
+                        headers={"Cache-Control": "public, max-age=3600"})
+    # Never loaded → 404 so the UI shows initials instead.
+    return JSONResponse(status_code=404, content={"error": "no avatar yet"})
 
 
 @app.get("/api/insights")
