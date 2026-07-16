@@ -471,6 +471,20 @@ def _ig_publish_container(acct, creation_id):
     return {"id": media_id, "permalink": permalink}
 
 
+def _ig_create(acct, args, tries=3):
+    """Create an IG media container, retrying the transient 'media could not be
+    fetched' 400 Instagram sometimes throws on a freshly-staged image URL."""
+    for attempt in range(tries):
+        try:
+            return pipe.execute("INSTAGRAM_POST_IG_USER_MEDIA", args,
+                                account=acct["account"])
+        except PipeError as e:
+            if attempt < tries - 1 and "could not be fetched" in str(e).lower():
+                time.sleep(2 + attempt)
+                continue
+            raise
+
+
 def publish_instagram(acct, req: PostRequest):
     """Instagram publishing, all container shapes.
 
@@ -483,10 +497,8 @@ def publish_instagram(acct, req: PostRequest):
     if req.post_type == "carousel":
         children = []
         for url in (req.image_urls or []):
-            child = pipe.execute(
-                "INSTAGRAM_POST_IG_USER_MEDIA",
-                {**base, "image_url": url, "is_carousel_item": True},
-                account=acct["account"])
+            child = _ig_create(
+                acct, {**base, "image_url": url, "is_carousel_item": True})
             cid = _container_id(child)
             if not cid:
                 raise PipeError(f"Carousel item failed: {str(child)[:200]}")
@@ -501,21 +513,17 @@ def publish_instagram(acct, req: PostRequest):
                 "video_url": req.video_url, "share_to_feed": True}
         if req.cover_url:
             args["cover_url"] = req.cover_url
-        container = pipe.execute("INSTAGRAM_POST_IG_USER_MEDIA", args,
-                                 account=acct["account"])
+        container = _ig_create(acct, args)
     elif req.post_type == "story":
         args = {**base, "media_type": "STORIES"}
         if req.video_url:
             args["video_url"] = req.video_url
         else:
             args["image_url"] = req.image_url
-        container = pipe.execute("INSTAGRAM_POST_IG_USER_MEDIA", args,
-                                 account=acct["account"])
+        container = _ig_create(acct, args)
     else:  # photo
-        container = pipe.execute(
-            "INSTAGRAM_POST_IG_USER_MEDIA",
-            {**base, "caption": req.caption, "image_url": req.image_url},
-            account=acct["account"])
+        container = _ig_create(
+            acct, {**base, "caption": req.caption, "image_url": req.image_url})
     creation_id = _container_id(container)
     if not creation_id:
         raise PipeError(f"No container id in response: {str(container)[:200]}")
