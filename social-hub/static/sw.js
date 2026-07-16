@@ -4,7 +4,7 @@
    must never be served stale. */
 "use strict";
 
-const CACHE = "flows-shell-v2";
+const CACHE = "flows-shell-v3";
 const SHELL = ["/", "/manifest.json", "/icons/icon-192.png"];
 
 self.addEventListener("install", (event) => {
