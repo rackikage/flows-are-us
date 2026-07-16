@@ -82,9 +82,10 @@
 
   /* ── Sidebar (desktop) ───────────────────────────────── */
   .sidebar { grid-row: 1; background: var(--panel); padding: 24px 14px 14px; display: flex; flex-direction: column; gap: 3px; border-right: 1px solid var(--line); overflow-y: auto; }
-  .brand { padding: 0 12px 2px; font-size: 26px; font-weight: 800; letter-spacing: -.5px;
+  .brand { padding: 0 12px 2px; font-size: 26px; font-weight: 800; letter-spacing: -.5px; cursor: pointer;
     background: linear-gradient(96deg, var(--accent-bright), var(--accent) 45%, var(--coral));
-    -webkit-background-clip: text; background-clip: text; color: transparent; }
+    -webkit-background-clip: text; background-clip: text; color: transparent; transition: filter var(--dur-2) var(--ease); }
+  .brand:hover { filter: brightness(1.18); }
   .brand-sub { padding: 0 12px 16px; font-size: 10.5px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase; color: var(--faint); }
   .nav-item { display: flex; align-items: center; gap: 13px; padding: 10px 12px; border-radius: 10px;
     color: var(--muted); font-weight: 700; font-size: 14.5px; cursor: pointer; transition: color .15s, background .15s; user-select: none; }
@@ -236,12 +237,12 @@
   /* ── Publish view ────────────────────────────────────── */
   .type-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
   .type-opt { display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 12px; background: var(--card);
-    border: 1.5px solid #2a2a3e; cursor: pointer; font-weight: 700; font-size: 13.5px; user-select: none; transition: all .15s; }
-  .type-opt:hover { border-color: #3d3d58; }
+    border: 1.5px solid #34344c; color: var(--text); cursor: pointer; font-weight: 700; font-size: 13.5px; user-select: none; transition: all .15s; }
+  .type-opt:hover { border-color: var(--accent); }
   .type-opt.on { border-color: var(--accent); background: rgba(143,122,255,.13); color: var(--accent-bright); }
-  .type-opt .td { font-size: 10.5px; color: var(--faint); font-weight: 600; display: block; }
+  .type-opt .td { font-size: 10.5px; color: var(--muted); font-weight: 600; display: block; }
   .type-opt .ti { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.9;
-    stroke-linecap: round; stroke-linejoin: round; color: var(--faint); flex-shrink: 0;
+    stroke-linecap: round; stroke-linejoin: round; color: var(--muted); flex-shrink: 0;
     transition: color var(--dur-2) var(--ease); }
   .type-opt.on .ti { color: var(--accent-bright); }
   .compose-grid { display: grid; grid-template-columns: 1fr 300px; gap: 22px; max-width: 940px; }
@@ -263,6 +264,27 @@
   .field-label:first-child { margin-top: 0; }
   .field-label span { text-transform: none; font-weight: 600; letter-spacing: 0; color: var(--faint); }
   .field-warn { margin-top: 8px; font-size: 12px; color: var(--gold); line-height: 1.5; display: none; }
+  /* File upload — drag-and-drop zone + uploaded-photo chip */
+  .drop-zone { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 26px 18px; text-align: center;
+    background: var(--well); border: 1.5px dashed var(--line-strong); border-radius: var(--radius); cursor: pointer;
+    color: var(--muted); font-size: 13px; font-weight: 600; line-height: 1.5; user-select: none;
+    transition: border-color var(--dur-2) var(--ease), background var(--dur-2) var(--ease); }
+  .drop-zone:hover, .drop-zone.drag { border-color: var(--accent); background: var(--accent-soft); color: var(--text); }
+  .drop-zone b { color: var(--accent-bright); }
+  .drop-zone .dz-ic { width: 38px; height: 38px; border-radius: 11px; background: rgba(143,122,255,.12);
+    display: flex; align-items: center; justify-content: center; color: var(--accent-bright); }
+  .drop-zone .dz-ic svg { width: 19px; height: 19px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .drop-zone .dz-sub { font-size: 11.5px; color: var(--faint); font-weight: 500; }
+  .upload-done { display: flex; align-items: center; gap: 12px; padding: 10px 12px;
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-sm); }
+  .upload-done .ud-thumb { width: 52px; height: 52px; border-radius: 9px; background: var(--well) center/cover no-repeat; flex-shrink: 0; }
+  .upload-done .ud-name { flex: 1; min-width: 0; font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .upload-done .ud-name .ud-sub { font-size: 11px; color: var(--faint); font-weight: 600; margin-top: 2px; }
+  .link-toggle { display: inline-block; margin-top: 8px; font-size: 12px; font-weight: 700; color: var(--faint); cursor: pointer; }
+  .link-toggle:hover { color: var(--accent-bright); }
+  /* View switch — soft entrance instead of a hard swap */
+  .view-in { animation: viewIn .26s var(--ease-entrance) both; }
+  @keyframes viewIn { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: none; } }
   .count { font-size: 11.5px; color: var(--faint); text-align: right; margin-top: 5px; }
   /* Destinations — one clean dropdown instead of a row of pills */
   .dest-dropdown { position: relative; max-width: 420px; }
@@ -918,18 +940,19 @@
     <div class="page-t" id="pageTitleMobile">Dashboard</div>
     <div style="display:flex;gap:8px;align-items:center">
       <button class="mini-btn" id="refreshBtnMobile">Refresh</button>
-      <button class="mini-btn" onclick="showView('integrations')" aria-label="Setup" style="padding:7px 10px">
-        <svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px;vertical-align:-3px"><path d="M9 3v4a2 2 0 0 1-2 2H3"/><path d="M15 21v-4a2 2 0 0 1 2-2h4"/><path d="M21 9h-4a2 2 0 0 1-2-2V3"/><path d="M3 15h4a2 2 0 0 1 2 2v4"/></svg></button>
+      <button class="mini-btn" onclick="showView('integrations')" aria-label="Integrations" style="padding:7px 10px">
+        <svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px;vertical-align:-3px"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7.1-7.1l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7.1 7.1l1.7-1.7"/></svg></button>
     </div>
   </div>
 
   <aside class="sidebar">
-    <div class="brand">FLOWS</div>
+    <div class="brand" onclick="showView('home')" title="Dashboard">FLOWS</div>
     <div class="brand-sub">Business social hub</div>
-    <div class="nav-item active" data-view="home">
-      <svg class="i" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg> Dashboard</div>
     <div class="nav-item" data-view="publish">
       <svg class="i" viewBox="0 0 24 24"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg> Publish</div>
+    <div class="nav-item active" data-view="home">
+      <svg class="i" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg> Dashboard</div>
+    <div class="side-label">Review</div>
     <div class="nav-item" data-view="library">
       <svg class="i" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg> Library</div>
     <div class="nav-item" data-view="inbox">
@@ -938,20 +961,21 @@
       <svg class="i" viewBox="0 0 24 24"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-6"/><path d="M22 20H2"/></svg> Analytics</div>
     <div class="nav-item" data-view="scheduled">
       <svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg> Scheduled</div>
+    <div class="side-label">Manage</div>
     <div class="nav-item" data-view="integrations">
-      <svg class="i" viewBox="0 0 24 24"><path d="M9 3v4a2 2 0 0 1-2 2H3"/><path d="M15 21v-4a2 2 0 0 1 2-2h4"/><path d="M21 9h-4a2 2 0 0 1-2-2V3"/><path d="M3 15h4a2 2 0 0 1 2 2v4"/></svg> Integrations</div>
+      <svg class="i" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7.1-7.1l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7.1 7.1l1.7-1.7"/></svg> Integrations</div>
     <div class="nav-item" data-view="settings">
       <svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Settings</div>
     <div class="side-label">Your accounts</div>
     <div id="sideAccounts"></div>
-    <div class="phone-cta" onclick="showView('integrations'); setTimeout(() => document.getElementById('installCard') && document.getElementById('installCard').scrollIntoView({behavior:'smooth'}), 150)">
+    <div class="phone-cta" onclick="showView('settings'); setTimeout(() => document.getElementById('installCard') && document.getElementById('installCard').scrollIntoView({behavior:'smooth'}), 150)">
       <div class="t"><svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px"><rect x="7" y="2" width="10" height="20" rx="2.5"/><path d="M11 18.5h2"/></svg> Use it on your phone</div>
-      <div class="s">Scan a QR to install.</div>
+      <div class="s">Add FLOWS to your home screen.</div>
     </div>
     <button class="install-btn" id="installBtn" style="display:none" onclick="promptInstall()">
       <svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
       Install FLOWS as an app</button>
-    <div class="pipe-badge"><span class="pipe-dot"></span><b>Composio pipe</b> · connected</div>
+    <div class="pipe-badge"><span class="pipe-dot"></span><b>Connected</b> · Composio pipe</div>
   </aside>
 
   <main class="main">
@@ -963,7 +987,7 @@
       </div>
       <div class="apphead-r">
         <button class="btn ghost" id="refreshBtnHead" style="padding:10px 18px;font-size:13.5px">Refresh</button>
-        <button class="btn primary" onclick="showView('publish')">
+        <button class="btn primary" id="createBtnHead" onclick="showView('publish')">
           <svg viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></svg>Create post</button>
       </div>
     </header>
@@ -995,10 +1019,16 @@
         <div class="acct-list" id="acctCards"></div>
       </div>
 
-      <!-- Recent content -->
+      <!-- Recent content — collapsed by default; Library owns the archive -->
       <div class="section">
-        <div class="sec-head"><h2>Recent content</h2><div class="chips" id="filterChips"></div></div>
-        <div class="content-list" id="postGrid"></div>
+        <div class="sec-head">
+          <h2>Recent content <small id="recentCount"></small></h2>
+          <span class="sec-link" id="recentToggle" onclick="toggleRecent()">Show</span>
+        </div>
+        <div id="recentBody" style="display:none">
+          <div class="chips" id="filterChips" style="margin:0 0 12px"></div>
+          <div class="content-list" id="postGrid"></div>
+        </div>
       </div>
 
       <!-- Live stories (only when active) -->
@@ -1014,7 +1044,7 @@
     <div id="view-publish" style="display:none">
       <div class="hero grad-publish"><h1>Publish</h1></div>
       <div class="section" style="padding-bottom:6px">
-        <div class="sec-head"><h2>Start from your library</h2><span class="sec-link" onclick="showView('library')">Browse all →</span></div>
+        <div class="sec-head"><h2>Start from your library</h2><span class="sec-link" onclick="showView('library')">Open Library →</span></div>
         <div class="plat-tabs sm" id="stripPlatTabs"></div>
         <div class="lib-import-strip" id="libImportStrip">
           <div class="skeleton lib-import-card" style="height:150px"></div>
@@ -1023,32 +1053,11 @@
         </div>
       </div>
       <div class="section">
-        <div class="field-label">Or start from scratch</div>
+        <div class="field-label">Start from scratch</div>
         <div class="type-row" id="typeRow"></div>
         <div style="height:14px"></div>
         <div class="compose-grid">
           <div>
-            <div id="fieldCaption">
-              <div class="field-label">Your message</div>
-              <textarea id="caption" placeholder="Write the post your audience will see…"></textarea>
-              <div class="count" id="capCount"></div>
-            </div>
-            <div id="fieldImage">
-              <div class="field-label">Image link <span id="imageHint">· public JPEG</span></div>
-              <input type="url" id="imageUrl" placeholder="https://example.com/photo.jpg">
-              <div class="field-warn" id="imageWarn"></div>
-            </div>
-            <div id="fieldVideo" style="display:none">
-              <div class="field-label">Video link <span>· direct MP4</span></div>
-              <input type="url" id="videoUrl" placeholder="https://example.com/video.mp4">
-              <div class="field-label">Cover image <span>· optional</span></div>
-              <input type="url" id="coverUrl" placeholder="https://example.com/cover.jpg">
-            </div>
-            <div id="fieldCarousel" style="display:none">
-              <div class="field-label">Image links <span>· 2–10 JPEGs, one per line</span></div>
-              <textarea id="carouselUrls" placeholder="https://example.com/one.jpg&#10;https://example.com/two.jpg"></textarea>
-              <div class="field-warn" id="carouselWarn"></div>
-            </div>
             <div class="field-label">Destinations</div>
             <div class="dest-dropdown" id="destDropdown">
               <button type="button" class="dest-btn" id="destBtn" aria-haspopup="listbox" aria-expanded="false">
@@ -1058,9 +1067,46 @@
               <div class="dest-menu" id="destMenu" role="listbox" aria-multiselectable="true"></div>
             </div>
             <div class="target-note" id="targetNote"></div>
+            <div id="fieldCaption">
+              <div class="field-label">Caption</div>
+              <textarea id="caption" placeholder="Write a caption…"></textarea>
+              <div class="count" id="capCount"></div>
+            </div>
+            <div id="fieldImage">
+              <div class="field-label">Photo <span id="imageHint">· JPEG, PNG, WebP or HEIC</span></div>
+              <div class="drop-zone" id="dropZone" role="button" tabindex="0" aria-label="Add a photo">
+                <div class="dz-ic"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="m21 15-4.5-4.5L5 21"/></svg></div>
+                <div id="dropZoneText">Drag &amp; drop a photo, or <b>choose a file</b></div>
+                <div class="dz-sub">Staged on a private link until you publish</div>
+              </div>
+              <input type="file" id="fileInput" accept="image/*,.heic,.heif" style="display:none">
+              <div class="upload-done" id="uploadDone" style="display:none">
+                <div class="ud-thumb" id="udThumb"></div>
+                <div class="ud-name"><span id="udName"></span><div class="ud-sub">Ready to publish</div></div>
+                <button class="mini-btn" onclick="$('fileInput').click()">Replace</button>
+                <button class="mini-btn danger" onclick="clearUpload()">Remove</button>
+              </div>
+              <span class="link-toggle" id="linkToggle" onclick="toggleLinkRow()">Paste an image link instead</span>
+              <div id="imageLinkRow" style="display:none;margin-top:8px">
+                <input type="url" id="imageUrl" placeholder="https://example.com/photo.jpg">
+              </div>
+              <div class="field-warn" id="imageWarn"></div>
+            </div>
+            <div id="fieldVideo" style="display:none">
+              <div class="field-label">Video link <span>· direct MP4</span></div>
+              <input type="url" id="videoUrl" placeholder="https://example.com/video.mp4">
+              <div class="field-label">Cover image <span>· optional</span></div>
+              <input type="url" id="coverUrl" placeholder="https://example.com/cover.jpg">
+            </div>
+            <div id="fieldCarousel" style="display:none">
+              <div class="field-label">Image links <span>· 2–10, one per line (Instagram API max)</span></div>
+              <textarea id="carouselUrls" placeholder="https://example.com/one.jpg&#10;https://example.com/two.jpg"></textarea>
+              <div class="field-warn" id="carouselWarn"></div>
+            </div>
             <div id="fieldSchedule">
               <div class="field-label">Publish later <span>· Facebook only</span></div>
               <input type="datetime-local" id="scheduleTime" style="max-width:280px">
+              <div class="hint" style="margin-top:7px">Instagram's API doesn't support scheduling — Instagram destinations publish immediately.</div>
             </div>
             <div class="publish-bar-mobile">
               <button class="btn primary" id="postBtnMobile" disabled>Publish</button>
@@ -1164,7 +1210,6 @@
         <h1>Integrations</h1>
       </div>
       <div class="section" id="integrationsBody"></div>
-      <div class="section" id="installSection"></div>
       <div style="height:30px"></div>
     </div>
 
@@ -1172,6 +1217,7 @@
     <div id="view-settings" style="display:none">
       <div class="hero grad-settings"><h1>Settings</h1></div>
       <div class="section" id="settingsBody"></div>
+      <div class="section" id="installSection"></div>
       <div style="height:30px"></div>
     </div>
   </main>
@@ -1180,10 +1226,9 @@
   <div class="dock">
     <div class="disc"><svg class="i" viewBox="0 0 24 24" style="width:24px;height:24px"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg></div>
     <div class="dmeta">
-      <div class="dtitle" id="dockTitle">No draft in progress</div>
-      <div class="dsub" id="dockSub">Open Publish to create your next post</div>
+      <div class="dtitle" id="dockTitle">New post</div>
+      <div class="dsub" id="dockSub">Write a caption or add a photo to get started</div>
     </div>
-    <button class="btn ghost" id="refreshBtn">Refresh data</button>
     <button class="btn primary" id="postBtn" disabled>Publish</button>
   </div>
 
@@ -1241,7 +1286,7 @@ try { platformTab = localStorage.getItem('flows.platform') || 'instagram'; } cat
 const POST_TYPES = {
   photo:    { label: 'Photo',        desc: 'Instagram + Facebook', platforms: ['instagram', 'facebook'] },
   video:    { label: 'Video · Reel', desc: 'Reel on IG, video on FB', platforms: ['instagram', 'facebook'] },
-  carousel: { label: 'Carousel',     desc: '2–10 images, Instagram', platforms: ['instagram'] },
+  carousel: { label: 'Carousel',     desc: '2–10 images (API max), Instagram', platforms: ['instagram'] },
   story:    { label: 'Story',        desc: '24-hour story, Instagram', platforms: ['instagram'] },
   text:     { label: 'Text',         desc: 'Facebook pages', platforms: ['facebook'] },
 };
@@ -1349,20 +1394,25 @@ function renderKpis() {
   const attn = attentionItems().length;
   const queued = SCHEDULED == null ? null
     : Object.values(SCHEDULED).reduce((n, v) => n + (v.posts || []).length, 0);
+  let audience = 0;
+  for (const a of OVERVIEW.accounts) {
+    const p = a.profile || {};
+    audience += Number(p.followers_count ?? p.fan_count ?? 0) || 0;
+  }
   const kpi = (icon, label, val, sub, cls) => `
     <div class="kpi2 ${cls || ''}">
       <div class="k-top"><svg viewBox="0 0 24 24">${ICON[icon]}</svg><span class="k-label">${label}</span></div>
       <div class="k-val">${val}</div><div class="k-sub">${sub}</div>
     </div>`;
   $('kpiStrip').innerHTML =
-    kpi('users', 'Accounts', ACCOUNTS.length,
-        `${igAccts.length} Instagram · ${fbAccts.length} Facebook`) +
+    kpi('users', 'Audience', fmt(audience),
+        `followers across ${plural(ACCOUNTS.length, 'account')}`) +
     kpi('alert', 'Needs attention', attn,
         attn ? plural(attn, 'item') + ' to review' : 'All clear', attn ? 'attn' : 'good') +
     kpi('clock', 'Scheduled', queued == null ? '—' : queued,
         queued ? plural(queued, 'post') + ' in the queue' : 'nothing queued') +
-    kpi('zap', 'IG posts left', igLeft,
-        `today · of ${igCap} across ${plural(igAccts.length, 'account')}`);
+    kpi('zap', 'IG posts left today', igLeft,
+        `of ${igCap} across ${plural(igAccts.length, 'account')}`);
 }
 
 /* ── Needs attention ───────────────────────────────────── */
@@ -1470,7 +1520,7 @@ function renderAccounts() {
           ${quota ? `<span class="sep">·</span><span>${quota}</span>` : ''}
         </div>
       </div>
-      <div class="ai-act"><button class="mini-btn" onclick="setFilter('${a.key}')">Open</button></div>
+      <div class="ai-act"><button class="mini-btn" onclick="viewAccountPosts('${a.key}')">View posts</button></div>
     </div>`;
   }).join('');
 }
@@ -1502,10 +1552,39 @@ function normalizePosts() {
   return out.sort((x, y) => new Date(y.ts || 0) - new Date(x.ts || 0));
 }
 
+/* Recent content is collapsed by default — the Library owns the archive. */
+let recentOpen = false;
+try { recentOpen = localStorage.getItem('flows.recent') === 'open'; } catch (e) {}
+function applyRecent() {
+  const body = $('recentBody'), t = $('recentToggle');
+  if (body) body.style.display = recentOpen ? '' : 'none';
+  if (t) t.textContent = recentOpen ? 'Hide' : 'Show';
+}
+function toggleRecent(open) {
+  recentOpen = open == null ? !recentOpen : !!open;
+  try { localStorage.setItem('flows.recent', recentOpen ? 'open' : 'closed'); } catch (e) {}
+  applyRecent();
+}
+function viewAccountPosts(key) {
+  setFilter(key);
+  toggleRecent(true);
+  const body = $('recentBody');
+  if (body) body.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+function relDay(ts) {
+  if (!ts) return '';
+  const d = (Date.now() - new Date(ts).getTime()) / 86400000;
+  if (d < 1) return 'today';
+  if (d < 2) return 'yesterday';
+  if (d < 30) return Math.round(d) + ' days ago';
+  return new Date(ts).toLocaleDateString([], {month: 'short', day: 'numeric', year: 'numeric'});
+}
+
 function renderPosts() {
   if (!OVERVIEW) { $('postGrid').innerHTML = Array(5).fill(`<div class="skeleton" style="height:76px"></div>`).join(''); return; }
   const posts = normalizePosts().filter(p => filter === 'all' || p.acct.key === filter);
   window.__posts = posts;
+  if ($('recentCount')) $('recentCount').textContent = plural(posts.length, 'post');
   if (!posts.length) {
     $('postGrid').innerHTML = `<div class="empty">
       <div class="e-icon"><svg viewBox="0 0 24 24">${ICON.zap}</svg></div>
@@ -1517,14 +1596,15 @@ function renderPosts() {
   }
   $('postGrid').innerHTML = posts.map((p, i) => {
     const type = TYPE_LABEL[p.mtype] || p.mtype || 'Post';
-    const date = p.ts ? new Date(p.ts).toLocaleDateString([], {month: 'short', day: 'numeric', year: 'numeric'}) : '';
+    const date = relDay(p.ts);
+    const fullDate = p.ts ? new Date(p.ts).toLocaleString() : '';
     const noCap = !(p.cap && p.cap.trim());
     return `<div class="content-row" onclick="openDetail(${i})">
       <div class="cr-thumb" style="${p.img ? `background-image:url('${cssUrl(p.img)}')` : ''}">${p.img ? '' : phGlyph('image')}</div>
       <div class="cr-mid">
-        <div class="cr-cap ${noCap ? 'none' : ''}">${noCap ? 'No caption' : esc(p.cap)}</div>
+        <div class="cr-cap ${noCap ? 'none' : ''}" style="${noCap ? 'font-style:normal' : ''}">${noCap ? esc(type) + ' post' : esc(p.cap)}</div>
         <div class="cr-meta">${platBadge(p.acct.platform)}<span class="sbadge published">Published</span>
-          <span>${esc(type)}</span><span class="sep">·</span><span>${esc(date)}</span></div>
+          <span>${esc(type)}</span><span class="sep">·</span><span title="${esc(fullDate)}">${esc(date)}</span></div>
       </div>
       <div class="cr-right">
         <span class="cr-eng">${engIco('heart')} ${fmt(p.likes || 0)} · ${engIco('chat')} ${fmt(p.comments || 0)}</span>
@@ -1877,7 +1957,7 @@ function platTabsHtml() {
   return PLATFORMS.map(([k, l]) => {
     const n = (LIBRARY && LIBRARY.items || []).filter(m => acctPlatform(m.key) === k).length;
     return `<button class="plat-tab ${platformTab === k ? 'on' : ''}" onclick="setPlatformTab('${k}')">
-      <svg viewBox="0 0 24 24">${ICON[k]}</svg>${l}${n ? `<span class="pt-count">${n}</span>` : ''}</button>`;
+      <svg viewBox="0 0 24 24">${ICON[k]}</svg>${l}<span class="pt-count">${n}</span></button>`;
   }).join('');
 }
 function renderPlatTabs() {
@@ -2038,9 +2118,10 @@ function renderLibraryStrip() {
   const items = window.__lib.filter(inTab).slice(0, 12);  // only the active platform leads
   if (!items.length) {
     const platLabel = platformTab === 'instagram' ? 'Instagram' : 'Facebook';
+    const otherLabel = platformTab === 'instagram' ? 'Facebook' : 'Instagram';
     el.innerHTML = window.__lib.length
-      ? `<p class="hint">No ${platLabel} posts to reuse yet — switch tabs or publish something new.</p>`
-      : `<p class="hint">Nothing published yet — once you post, it'll show up here so you can reuse it in one click.</p>`;
+      ? `<p class="hint">Publish your first ${platLabel} post below and it'll appear here to reuse — or switch to the ${otherLabel} tab.</p>`
+      : `<p class="hint">Publish your first post below — everything you publish lands here, ready to reuse in one click.</p>`;
     return;
   }
   el.innerHTML = items.map(m => {
@@ -2066,7 +2147,7 @@ function repostFromLibrary(i, wantSchedule) {
   $('imageUrl').value = m.img;
   $('videoUrl').value = ''; $('coverUrl').value = ''; $('carouselUrls').value = '';
   selected = new Set([m.key]);
-  renderTypeRow(); renderTargets(); syncPreview(); showView('publish');
+  renderTypeRow(); renderTargets(); renderUploadState(); syncPreview(); showView('publish');
   if (wantSchedule) {
     const fbKey = ACCOUNTS.find(a => a.platform === 'facebook');
     if (ACCOUNTS.find(a => a.key === m.key).platform !== 'facebook' && fbKey) selected = new Set([fbKey.key]);
@@ -2333,20 +2414,25 @@ function renderHealthHero() {
 
 function renderManagedAccounts() {
   const pages = INTEGRATIONS.managed_pages || [];
-  if (!pages.length) return '';
+  const catFor = a => {
+    const p = pages.find(p => String(p.id) === String(a.entity_id));
+    return p && p.category;
+  };
   return `<div class="accounts-card" id="managedAccounts">
     <div class="eyebrow">Managed by this hub</div>
     <div class="acct-list">
-      ${pages.map(p => `<div class="acct-item">
-        <div class="avatar fb">${esc(initials(p.name || '?'))}</div>
+      ${ACCOUNTS.map(a => {
+        const cat = catFor(a);
+        return `<div class="acct-item">
+        ${avatarEl(a, null)}
         <div class="ai-id">
-          <div class="ai-name">${esc(p.name || 'Untitled page')} ${platBadge('facebook')}</div>
+          <div class="ai-name">${esc(a.handle)} ${platBadge(a.platform)}</div>
           <div class="ai-meta">
-            ${p.category ? `<span>${esc(p.category)}</span><span class="sep">·</span>` : ''}
-            <span class="sbadge live">Verified</span>
+            ${cat ? `<span>${esc(cat)}</span><span class="sep">·</span>` : ''}
+            <span class="sbadge connected">Connected</span>
           </div>
         </div>
-      </div>`).join('')}
+      </div>`; }).join('')}
     </div>
   </div>`;
 }
@@ -2379,11 +2465,12 @@ async function loadInstallCard() {
   try {
     const q = await api('/api/qr');
     $('installSection').innerHTML = `
-      <div class="eyebrow">Take it with you</div>
+      <div class="eyebrow">On your phone</div>
       <div class="install-card" id="installCard">
         <div class="qr-holder">${q.svg}</div>
         <div class="install-steps">
           <span class="url">${esc(q.url)}</span>
+          <div class="hint" style="margin:-4px 0 10px">Your hub's private address on this Wi-Fi — phones on the same network can open it.</div>
           <div class="os-tabs">
             <div class="chip on" data-os="iphone" onclick="setOsTab('iphone')">iPhone</div>
             <div class="chip" data-os="android" onclick="setOsTab('android')">Android</div>
@@ -2408,7 +2495,6 @@ function setOsTab(which) {
 
 async function loadIntegrations(fresh) {
   $('integrationsBody').innerHTML = '<div class="skeleton" style="height:220px"></div>';
-  loadInstallCard();
   try {
     INTEGRATIONS = await api('/api/integrations' + (fresh ? '?fresh=true' : ''));
     const igTools = INTEGRATIONS.tools.filter(t => t.platform === 'Instagram');
@@ -2416,6 +2502,7 @@ async function loadIntegrations(fresh) {
     $('integrationsBody').innerHTML =
       renderHealthHero() +
       renderManagedAccounts() +
+      `<p class="hint" style="margin:0 2px 12px">Everything this hub is authorised to do with your accounts, checked live — expand a platform to see the full list.</p>` +
       capabilityAccordion('instagram', 'Instagram', igTools) +
       capabilityAccordion('facebook', 'Facebook', fbTools);
   } catch (e) {
@@ -2445,7 +2532,7 @@ function setPostType(k) {
 function syncFields() {
   $('fieldCaption').style.display = postType === 'story' ? 'none' : '';
   $('fieldImage').style.display = (postType === 'photo' || postType === 'story') ? '' : 'none';
-  $('imageHint').textContent = postType === 'story' ? '· image or video' : '· public JPEG';
+  $('imageHint').textContent = postType === 'story' ? '· or use a video link below' : '· JPEG, PNG, WebP or HEIC';
   $('fieldVideo').style.display = (postType === 'video' || postType === 'story') ? '' : 'none';
   $('fieldCarousel').style.display = postType === 'carousel' ? '' : 'none';
   const canSchedule = POST_TYPES[postType].platforms.includes('facebook');
@@ -2494,6 +2581,81 @@ function toggleDestMenu() {
   $('destBtn').setAttribute('aria-expanded', open ? 'true' : 'false');
 }
 
+/* ── Photo upload: drag-and-drop / file picker → /api/upload → /media/ URL ──
+   The uploaded file's same-origin URL lands in the (hidden) imageUrl input, so
+   preview, validation and publishing all flow through the existing plumbing.
+   The server stages it on a temporary public link only at publish time. */
+let uploadedName = '';
+function renderUploadState() {
+  const val = $('imageUrl').value.trim();
+  const isUpload = val.startsWith('/media/');
+  $('dropZone').style.display = isUpload ? 'none' : '';
+  $('uploadDone').style.display = isUpload ? 'flex' : 'none';
+  if (isUpload) {
+    $('udThumb').style.backgroundImage = `url('${cssUrl(val)}')`;
+    $('udName').textContent = uploadedName || 'Uploaded photo';
+  }
+  // A pasted external link keeps its row visible so it stays editable.
+  if (val && !isUpload) $('imageLinkRow').style.display = '';
+  $('linkToggle').style.display = isUpload ? 'none' : '';
+}
+function clearUpload() {
+  $('imageUrl').value = ''; uploadedName = '';
+  renderUploadState(); syncPreview();
+}
+function toggleLinkRow() {
+  const row = $('imageLinkRow');
+  row.style.display = row.style.display === 'none' ? '' : 'none';
+  if (row.style.display === '') $('imageUrl').focus();
+}
+async function handleFile(file) {
+  if (!file) return;
+  if (!/^image\//.test(file.type) && !/\.(heic|heif)$/i.test(file.name))
+    return toast('Choose an image file (JPEG, PNG, WebP or HEIC)', true);
+  if (file.size > 25 * 1024 * 1024) return toast('Images up to 25 MB, please', true);
+  const dzText = $('dropZoneText');
+  const before = dzText.innerHTML;
+  dzText.innerHTML = '<span class="spin"></span> Adding your photo…';
+  try {
+    const r = await fetch('/api/upload?filename=' + encodeURIComponent(file.name), {
+      method: 'POST', body: file });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.error || r.statusText);
+    $('imageUrl').value = j.url;
+    uploadedName = file.name;
+    renderUploadState(); syncPreview();
+    toast('Photo added — ready to publish');
+  } catch (e) {
+    toast('Upload failed: ' + e.message, true);
+  } finally { dzText.innerHTML = before; }
+}
+
+/* ── Draft autosave — composing survives navigation and reloads ── */
+function saveDraft() {
+  try {
+    const d = { t: postType, c: $('caption').value, i: $('imageUrl').value,
+      v: $('videoUrl').value, cv: $('coverUrl').value, cu: $('carouselUrls').value,
+      s: [...selected], st: $('scheduleTime').value, un: uploadedName };
+    if (!d.c && !d.i && !d.v && !d.cu && !d.s.length) localStorage.removeItem('flows.draft');
+    else localStorage.setItem('flows.draft', JSON.stringify(d));
+  } catch (e) {}
+}
+function restoreDraft() {
+  let d = null;
+  try { d = JSON.parse(localStorage.getItem('flows.draft') || 'null'); } catch (e) {}
+  if (!d) return false;
+  if (POST_TYPES[d.t]) postType = d.t;
+  $('caption').value = d.c || ''; $('imageUrl').value = d.i || '';
+  $('videoUrl').value = d.v || ''; $('coverUrl').value = d.cv || '';
+  $('carouselUrls').value = d.cu || ''; $('scheduleTime').value = d.st || '';
+  uploadedName = d.un || '';
+  selected = new Set((d.s || []).filter(k => ACCOUNTS.some(a => a.key === k)));
+  return !!(d.c || d.i || d.v || d.cu);
+}
+function clearDraft() {
+  try { localStorage.removeItem('flows.draft'); } catch (e) {}
+}
+
 function draftReady() {
   const cap = $('caption').value.trim(), img = $('imageUrl').value.trim(),
         vid = $('videoUrl').value.trim();
@@ -2512,9 +2674,11 @@ function updateDock() {
   const n = selected.size;
   const ready = draftReady();
   const label = POST_TYPES[postType].label;
-  if (!n && !cap) {
-    $('dockTitle').textContent = 'No draft in progress';
-    $('dockSub').textContent = 'Open Publish to create your next post';
+  const hasMedia = !!($('imageUrl').value.trim() || $('videoUrl').value.trim()
+    || $('carouselUrls').value.trim());
+  if (!n && !cap && !hasMedia) {
+    $('dockTitle').textContent = 'New post';
+    $('dockSub').textContent = 'Write a caption or add a photo to get started';
   } else {
     $('dockTitle').textContent = n ? `${label} draft · ${n} destination${n > 1 ? 's' : ''}` : `${label} draft — choose destinations`;
     $('dockSub').textContent = cap ? `“${cap.slice(0, 80)}${cap.length > 80 ? '…' : ''}”` : (ready ? 'Ready when you are' : 'Add your content to continue');
@@ -2549,6 +2713,7 @@ function updateDock() {
     cw.style.display = 'block';
     cw.textContent = `A carousel needs 2–10 images — you have ${cUrls.length}.`;
   } else cw.style.display = 'none';
+  saveDraft();
 }
 
 function syncPreview() {
@@ -2653,7 +2818,8 @@ async function confirmPost() {
     if (okAll) {
       $('caption').value = ''; $('imageUrl').value = ''; $('videoUrl').value = '';
       $('coverUrl').value = ''; $('carouselUrls').value = ''; $('scheduleTime').value = '';
-      selected.clear(); renderTargets(); syncPreview();
+      selected.clear(); uploadedName = '';
+      clearDraft(); renderTargets(); renderUploadState(); syncPreview();
       LIBRARY = null;  // stale now
     }
     loadOverview(true);
@@ -2696,6 +2862,11 @@ function showView(v) {
   if ($('pageTitle')) $('pageTitle').textContent = title;
   if ($('pageTitleMobile')) $('pageTitleMobile').textContent = title;
   document.querySelector('.app').classList.toggle('no-dock', v !== 'publish');
+  // You're already here — no "Create post" button on the Publish view itself.
+  if ($('createBtnHead')) $('createBtnHead').style.display = v === 'publish' ? 'none' : '';
+  // Soft entrance instead of a hard swap between views.
+  const ve = $('view-' + v);
+  ve.classList.remove('view-in'); void ve.offsetWidth; ve.classList.add('view-in');
   if (v === 'publish') loadLibraryStrip();
   if (v === 'library') loadLibrary(false);
   if (v === 'inbox') loadInbox(false);
@@ -2725,24 +2896,22 @@ function renderSettings() {
       <div class="set-card">
         <div class="set-h">Connected accounts</div>
         <div class="set-accts">${accts}</div>
-        <button class="btn ghost" style="padding:9px 18px;margin-top:14px" onclick="showView('integrations')">Manage integrations</button>
+        <button class="btn ghost" style="padding:9px 18px;margin-top:14px" onclick="showView('integrations')">Connection health →</button>
       </div>
       <div class="set-card">
-        <div class="set-h">Composer default</div>
+        <div class="set-h">Default platform</div>
+        <div class="set-sub">Which platform's content leads the Library and the Publish screen. You can switch tabs any time.</div>
         <div class="seg" style="margin-top:14px">${platBtn('instagram', 'Instagram')}${platBtn('facebook', 'Facebook')}</div>
       </div>
       <div class="set-card">
-        <div class="set-h">Data</div>
+        <div class="set-h">App &amp; data</div>
         <div class="set-row"><span>Last synced</span><b id="setSynced">${OVERVIEW ? relTime(OVERVIEW.generated_at) : '—'}</b></div>
-        <button class="btn primary" style="padding:9px 18px;margin-top:14px" onclick="refreshAll()">Refresh all data</button>
-      </div>
-      <div class="set-card">
-        <div class="set-h">About</div>
-        <div class="set-row"><span>App</span><b>FLOWS · Business Social Hub</b></div>
         <div class="set-row"><span>Connection</span><b class="set-live"><span class="pipe-dot"></span>Composio pipe</b></div>
         <div class="set-row"><span>Accounts</span><b>${ACCOUNTS.length} connected</b></div>
+        <button class="btn primary" style="padding:9px 18px;margin-top:14px" onclick="refreshAll()">Refresh all data</button>
       </div>
     </div>`;
+  loadInstallCard();
 }
 
 function refreshAll() {
@@ -2765,9 +2934,20 @@ for (const id of ['postBtn', 'postBtnMobile'])
   $(id).addEventListener('click', () => { if (!$(id).disabled) openModal(); });
 $('modalCancel').addEventListener('click', () => $('modalVeil').classList.remove('open'));
 $('modalConfirm').addEventListener('click', confirmPost);
-$('refreshBtn').addEventListener('click', refreshAll);
 $('refreshBtnMobile').addEventListener('click', refreshAll);
 $('refreshBtnHead').addEventListener('click', refreshAll);
+
+// Photo upload: click, keyboard, and drag-and-drop all land in handleFile().
+$('dropZone').addEventListener('click', () => $('fileInput').click());
+$('dropZone').addEventListener('keydown', e => {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('fileInput').click(); }
+});
+$('fileInput').addEventListener('change', e => { handleFile(e.target.files[0]); e.target.value = ''; });
+for (const ev of ['dragover', 'dragenter'])
+  $('dropZone').addEventListener(ev, e => { e.preventDefault(); $('dropZone').classList.add('drag'); });
+for (const ev of ['dragleave', 'drop'])
+  $('dropZone').addEventListener(ev, e => { e.preventDefault(); $('dropZone').classList.remove('drag'); });
+$('dropZone').addEventListener('drop', e => handleFile(e.dataTransfer.files[0]));
 for (const veil of ['modalVeil', 'detailVeil'])
   $(veil).addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('open'); });
 
@@ -2837,8 +3017,11 @@ async function promptInstall() {
       `<div class="fatal"><h2>FLOWS can't reach its server</h2><p class="hint">${esc(e.message)} — make sure server.py is running, then reload.</p></div>`;
     return;
   }
-  renderSidebar(); renderChips(); renderTypeRow(); renderTargets(); syncFields(); syncPreview();
+  const hadDraft = restoreDraft();
+  renderSidebar(); renderChips(); renderTypeRow(); renderTargets();
+  syncFields(); renderUploadState(); syncPreview(); applyRecent();
   showView('home');
+  if (hadDraft) toast('Draft restored — pick up where you left off in Publish');
   loadOverview(false);
   loadStories();
   loadScheduleOverview();

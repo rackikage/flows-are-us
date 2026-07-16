@@ -18,15 +18,20 @@ so iPhones and Samsung/Android phones on the same Wi-Fi can open and install
 it as an app).
 """
 
+import mimetypes
 import os
+import re
 import socket
+import subprocess
 import time
 import threading
 import urllib.request
+import uuid
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 
-from fastapi import FastAPI
+import requests
+from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -333,6 +338,101 @@ def api_scheduled(fresh: bool = False):
         return JSONResponse(status_code=502, content={"error": str(e)[:400]})
 
 
+# ── Media uploads ───────────────────────────────────────────────────────────
+# The composer takes real files (drag-and-drop / file picker). They land here,
+# are converted to JPEG when needed (Instagram only accepts JPEG), and are
+# served same-origin at /media/<name> so the preview works offline. At publish
+# time _publicize() stages the bytes on a short-lived public link, because
+# Meta's servers fetch media by URL and can't reach this LAN address.
+
+UPLOAD_DIR = os.path.join(HERE, ".uploads")
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+ALLOWED_IMAGE_EXT = {".jpg", ".jpeg", ".png", ".webp", ".heic", ".heif",
+                     ".gif", ".tif", ".tiff"}
+MAX_UPLOAD = 25 * 1024 * 1024
+
+
+@app.post("/api/upload")
+async def api_upload(request: Request, filename: str = "photo.jpg"):
+    data = await request.body()
+    if not data:
+        return JSONResponse(status_code=400, content={"error": "Empty upload"})
+    if len(data) > MAX_UPLOAD:
+        return JSONResponse(status_code=400,
+                            content={"error": "Images up to 25 MB, please"})
+    ext = os.path.splitext(filename)[1].lower()
+    if ext not in ALLOWED_IMAGE_EXT:
+        return JSONResponse(status_code=400, content={
+            "error": "Use a JPEG, PNG, WebP or HEIC image"})
+    name = uuid.uuid4().hex
+    path = os.path.join(UPLOAD_DIR, name + ext)
+    with open(path, "wb") as f:
+        f.write(data)
+    if ext not in (".jpg", ".jpeg"):
+        jpg = os.path.join(UPLOAD_DIR, name + ".jpg")
+        try:  # macOS ships sips; Instagram wants JPEG
+            subprocess.run(["sips", "-s", "format", "jpeg", path, "--out", jpg],
+                           check=True, capture_output=True, timeout=30)
+            os.remove(path)
+            path = jpg
+        except Exception:
+            pass  # keep the original — Facebook accepts it, IG may reject
+    return {"url": "/media/" + os.path.basename(path),
+            "bytes": os.path.getsize(path)}
+
+
+_public_cache = {}  # basename -> (public_url, expires_at)
+_public_lock = threading.Lock()
+
+
+def _publicize(url):
+    """Swap a local /media/ URL for a temporary public one Meta can fetch."""
+    if not url or not isinstance(url, str):
+        return url
+    m = re.match(r"^(?:https?://[^/]+)?/media/([^/?#]+)$", url)
+    if not m:
+        return url  # already a public link the user pasted
+    base = os.path.basename(m.group(1))
+    fp = os.path.join(UPLOAD_DIR, base)
+    if not os.path.exists(fp):
+        raise PipeError("The uploaded photo has gone missing — add it again")
+    now = time.time()
+    with _public_lock:
+        hit = _public_cache.get(base)
+    if hit and hit[1] > now:
+        return hit[0]
+    with open(fp, "rb") as f:
+        blob = f.read()
+    ctype = mimetypes.guess_type(base)[0] or "image/jpeg"
+    public, errors = None, []
+    try:  # litterbox: anonymous, auto-expires in 24h — Meta fetches within seconds
+        r = requests.post("https://litterbox.catbox.moe/resources/internals/api.php",
+                          data={"reqtype": "fileupload", "time": "24h"},
+                          files={"fileToUpload": (base, blob, ctype)}, timeout=60)
+        if r.ok and r.text.strip().startswith("http"):
+            public = r.text.strip()
+        else:
+            errors.append(f"litterbox {r.status_code}")
+    except Exception as e:
+        errors.append(f"litterbox: {str(e)[:80]}")
+    if not public:
+        try:  # fallback host, 60-minute expiry
+            r = requests.post("https://tmpfiles.org/api/v1/upload",
+                              files={"file": (base, blob, ctype)}, timeout=60)
+            u = ((r.json().get("data") or {}).get("url")) if r.ok else None
+            if u:
+                public = u.replace("tmpfiles.org/", "tmpfiles.org/dl/", 1)
+        except Exception as e:
+            errors.append(f"tmpfiles: {str(e)[:80]}")
+    if not public:
+        raise PipeError("Couldn't stage the photo on a public link ("
+                        + "; ".join(errors)
+                        + "). Check the internet connection and try again.")
+    with _public_lock:
+        _public_cache[base] = (public, now + 20 * 3600)
+    return public
+
+
 # ── Publishing ─────────────────────────────────────────────────────────────
 
 class PostRequest(BaseModel):
@@ -484,10 +584,10 @@ def _validate_post(req: PostRequest):
     if req.post_type == "photo" and not req.image_url:
         ig = any(BY_KEY[t]["platform"] == "instagram" for t in req.targets)
         if ig:
-            return ("Instagram needs a public image link (a direct JPEG URL "
-                    "with no query parameters)")
+            return ("Instagram needs a photo — drag one into the composer "
+                    "or choose a file")
         if not req.caption.strip():
-            return "Add a message or an image link first"
+            return "Add a caption or a photo first"
     if req.post_type == "video" and not req.video_url:
         return "Add a public video link (a direct MP4 URL) first"
     if req.post_type == "carousel":
@@ -521,6 +621,15 @@ def api_post(req: PostRequest):
     problem = _validate_post(req)
     if problem:
         return JSONResponse(status_code=400, content={"error": problem})
+
+    try:  # uploaded files → temporary public links Meta's servers can fetch
+        req.image_url = _publicize(req.image_url)
+        req.video_url = _publicize(req.video_url)
+        req.cover_url = _publicize(req.cover_url)
+        if req.image_urls:
+            req.image_urls = [_publicize(u) for u in req.image_urls]
+    except PipeError as e:
+        return JSONResponse(status_code=502, content={"error": str(e)[:400]})
 
     results = {}
     with ThreadPoolExecutor(max_workers=len(req.targets)) as ex:
@@ -1192,6 +1301,7 @@ def api_integrations(fresh: bool = False):
         return JSONResponse(status_code=502, content={"error": str(e)[:400]})
 
 
+app.mount("/media", StaticFiles(directory=UPLOAD_DIR), name="media")
 app.mount("/", StaticFiles(directory=os.path.join(HERE, "static"), html=True),
           name="static")
 

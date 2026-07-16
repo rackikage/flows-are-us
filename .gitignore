@@ -9,3 +9,5 @@ node_modules/
 .env.local
 .avatar_cache/
 social-hub/.avatar_cache/
+.uploads/
+social-hub/.uploads/
