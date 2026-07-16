@@ -2621,7 +2621,19 @@ document.addEventListener('keydown', e => {
   if (dd && dd.classList.contains('open')) { dd.classList.remove('open'); $('destBtn').setAttribute('aria-expanded', 'false'); }
 });
 
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
+if ('serviceWorker' in navigator) {
+  // Auto-apply updates: when a new service worker takes control (only after one
+  // was already controlling — i.e. a real update, not first install), reload once
+  // so fresh HTML/CSS/JS and icons land without a manual cache clear.
+  const hadController = !!navigator.serviceWorker.controller;
+  let reloading = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!hadController || reloading) return;
+    reloading = true;
+    location.reload();
+  });
+  navigator.serviceWorker.register('/sw.js').then(reg => reg.update()).catch(() => {});
+}
 
 // Installable-app affordance: Chrome/Edge/Android fire beforeinstallprompt; reveal a
 // real "Install" button that calls the native prompt. iOS Safari doesn't fire it —

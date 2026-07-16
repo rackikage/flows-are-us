@@ -1,0 +1,19 @@
+#!/bin/zsh
+# FLOWS.app launcher — starts the local hub (if not already up) and opens it.
+# Resolves the repo from the bundle's own location, so it works wherever the
+# repo lives, as long as FLOWS.app stays at the repo root.
+REPO="$(cd "$(dirname "$0")/../../.." && pwd)"
+cd "$REPO" || exit 1
+
+# Pick the newest Python that has the app's deps; fall back to system python3.
+PY="/usr/bin/python3"
+for cand in /Library/Frameworks/Python.framework/Versions/*/bin/python3(N); do
+  [ -x "$cand" ] && PY="$cand"
+done
+
+if ! lsof -iTCP:8787 -sTCP:LISTEN -n >/dev/null 2>&1; then
+  nohup "$PY" social-hub/server.py >/tmp/flows.log 2>&1 &
+  sleep 1
+fi
+
+open "http://localhost:8787"
