@@ -62,7 +62,7 @@ so in plain language before the user hits the wall.
 | Inbox | Instagram customer DMs; read threads, reply inside the 24-h window | `/api/inbox`, `/api/inbox/thread`, `/api/inbox/send` |
 | Analytics | 7-day per-account performance + IG mentions | `/api/analytics` |
 | Scheduled | FB publish queue; move or remove queued posts | `/api/scheduled`, `/api/post/reschedule`, `/api/post/delete` |
-| Integrations | Status console: health hero (pipe/IG/FB/last-verified), managed accounts, capability registry as two collapsible accordions grouped by function, compact phone-install card | `/api/integrations`, `/api/qr` |
+| Integrations | Status console: health hero (pipe/IG/FB/last-verified), managed accounts, capability registry as two collapsible accordions grouped by function, compact phone-install card | `/api/integrations` |
 | Post detail (modal) | Instant structured status, deep metrics, carousel contents, comment reply/moderation, FB post edit/remove | `/api/post-details`, `/api/comment/*`, `/api/post/update`, `/api/post/delete` |
 
 ## 4. Composio tool matrix (the entire surface)

@@ -9,7 +9,6 @@ Serves the FLOWS dark UI from ./static and exposes:
   GET  /api/insights   — 7-day IG insights per account (best effort)
   GET  /api/scheduled  — scheduled FB page posts
   GET  /api/library    — unified content library across every account
-  GET  /api/qr         — scan-to-open QR + LAN URL for phones
   POST /api/post       — publish or schedule: photo, video/reel, carousel,
                          story, text — routed per platform
 
@@ -21,7 +20,6 @@ it as an app).
 import mimetypes
 import os
 import re
-import socket
 import subprocess
 import time
 import threading
@@ -36,7 +34,6 @@ from fastapi.responses import JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-import qr
 from composio_pipe import ComposioPipe, PipeError
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -68,21 +65,52 @@ FB_POST_FIELDS = ("id,message,created_time,permalink_url,full_picture,"
 app = FastAPI(title="FLOWS social hub")
 pipe = ComposioPipe()
 
-_cache = {}
+_cache = {}                  # key -> (built_at, value)
 _cache_lock = threading.Lock()
-CACHE_TTL = 90
+_cache_building = set()      # keys with a background refresh in flight
+_cache_pool = ThreadPoolExecutor(max_workers=4)
+CACHE_TTL = 90               # older than this → refresh in background
+
+
+def _cache_refresh(key, builder):
+    try:
+        value = builder()
+        with _cache_lock:
+            _cache[key] = (time.time(), value)
+    except Exception:
+        pass  # keep last-good value; a later request retries
+    finally:
+        with _cache_lock:
+            _cache_building.discard(key)
 
 
 def cached(key, fresh, builder):
+    """Stale-while-revalidate: after the first build, answers are instant.
+
+    Fresh hit → return it. Stale hit → return it now and refresh in the
+    background (single-flight per key). fresh=True forces a blocking rebuild;
+    a cold miss blocks once (startup warming keeps that off user clicks).
+    """
     now = time.time()
     with _cache_lock:
         hit = _cache.get(key)
-        if hit and not fresh and now - hit[0] < CACHE_TTL:
+        if hit and not fresh:
+            if now - hit[0] >= CACHE_TTL and key not in _cache_building:
+                _cache_building.add(key)
+                _cache_pool.submit(_cache_refresh, key, builder)
             return hit[1]
     value = builder()
     with _cache_lock:
         _cache[key] = (time.time(), value)
     return value
+
+
+def cache_stale():
+    """Mark everything stale (after a write) without dropping the values,
+    so the UI stays instant and refreshes flow in behind it."""
+    with _cache_lock:
+        for key, (_, value) in list(_cache.items()):
+            _cache[key] = (0.0, value)
 
 
 def scrub(obj):
@@ -405,25 +433,21 @@ def _publicize(url):
         blob = f.read()
     ctype = mimetypes.guess_type(base)[0] or "image/jpeg"
     public, errors = None, []
-    try:  # litterbox: anonymous, auto-expires in 24h — Meta fetches within seconds
-        r = requests.post("https://litterbox.catbox.moe/resources/internals/api.php",
-                          data={"reqtype": "fileupload", "time": "24h"},
-                          files={"fileToUpload": (base, blob, ctype)}, timeout=60)
-        if r.ok and r.text.strip().startswith("http"):
-            public = r.text.strip()
-        else:
+    # litterbox: anonymous, auto-expires in 24h — Meta fetches within seconds.
+    # Two attempts; there is no second host that serves the raw bytes reliably
+    # (tmpfiles wraps downloads in an HTML page, which Instagram then rejects).
+    for _ in range(2):
+        try:
+            r = requests.post(
+                "https://litterbox.catbox.moe/resources/internals/api.php",
+                data={"reqtype": "fileupload", "time": "24h"},
+                files={"fileToUpload": (base, blob, ctype)}, timeout=60)
+            if r.ok and r.text.strip().startswith("http"):
+                public = r.text.strip()
+                break
             errors.append(f"litterbox {r.status_code}")
-    except Exception as e:
-        errors.append(f"litterbox: {str(e)[:80]}")
-    if not public:
-        try:  # fallback host, 60-minute expiry
-            r = requests.post("https://tmpfiles.org/api/v1/upload",
-                              files={"file": (base, blob, ctype)}, timeout=60)
-            u = ((r.json().get("data") or {}).get("url")) if r.ok else None
-            if u:
-                public = u.replace("tmpfiles.org/", "tmpfiles.org/dl/", 1)
         except Exception as e:
-            errors.append(f"tmpfiles: {str(e)[:80]}")
+            errors.append(f"litterbox: {str(e)[:80]}")
     if not public:
         raise PipeError("Couldn't stage the photo on a public link ("
                         + "; ".join(errors)
@@ -653,8 +677,7 @@ def api_post(req: PostRequest):
             except Exception as e:
                 results[t] = {"ok": False, "error": str(e)[:400]}
 
-    with _cache_lock:  # posts change the feeds — drop caches
-        _cache.clear()
+    cache_stale()  # posts change the feeds
     return {"results": results}
 
 
@@ -723,28 +746,6 @@ def api_library(fresh: bool = False):
 
 
 # ── Phone access: LAN address + scan-to-open QR ─────────────────────────────
-
-def lan_ip():
-    """Best-effort LAN address — the address phones on this Wi-Fi can reach."""
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    try:
-        s.connect(("8.8.8.8", 80))  # no packets sent; just picks the route
-        return s.getsockname()[0]
-    except OSError:
-        return "127.0.0.1"
-    finally:
-        s.close()
-
-
-@app.get("/api/qr")
-def api_qr():
-    url = f"http://{lan_ip()}:8787"
-    try:
-        svg = qr.render_svg(url)
-    except ValueError as e:
-        return JSONResponse(status_code=500, content={"error": str(e)})
-    return {"url": url, "svg": svg}
-
 
 # ── Stories: everything live right now ─────────────────────────────────────
 
@@ -856,8 +857,7 @@ def api_inbox_send(req: InboxSendRequest):
         pipe.execute("INSTAGRAM_SEND_TEXT_MESSAGE",
                      {"recipient_id": req.recipient_id, "text": req.text},
                      account=acct["account"])
-        with _cache_lock:
-            _cache.clear()
+        cache_stale()
         return {"ok": True}
     except PipeError as e:
         msg = str(e)
@@ -894,8 +894,7 @@ def api_comment_reply(req: CommentRequest):
                             {"object_id": req.object_id,
                              "message": req.message},
                             account=acct["account"])
-        with _cache_lock:
-            _cache.clear()
+        cache_stale()
         resp = data.get("response_data") if isinstance(data, dict) else None
         resp = resp if isinstance(resp, dict) else data
         return {"ok": True, "comment_id": resp.get("id")}
@@ -918,8 +917,7 @@ def api_comment_delete(req: CommentRequest):
             else {"comment_id": req.comment_id})
     try:
         pipe.execute(slug, args, account=acct["account"])
-        with _cache_lock:
-            _cache.clear()
+        cache_stale()
         return {"ok": True}
     except PipeError as e:
         return JSONResponse(status_code=502, content={"error": str(e)[:400]})
@@ -1111,8 +1109,7 @@ def api_post_update(req: ManagePostRequest):
         pipe.execute("FACEBOOK_UPDATE_POST",
                      {"post_id": req.post_id, "message": req.message},
                      account=acct["account"])
-        with _cache_lock:
-            _cache.clear()
+        cache_stale()
         return {"ok": True}
     except PipeError as e:
         return JSONResponse(status_code=502, content={"error": str(e)[:400]})
@@ -1126,8 +1123,7 @@ def api_post_delete(req: ManagePostRequest):
     try:
         pipe.execute("FACEBOOK_DELETE_POST", {"post_id": req.post_id},
                      account=acct["account"])
-        with _cache_lock:
-            _cache.clear()
+        cache_stale()
         return {"ok": True}
     except PipeError as e:
         return JSONResponse(status_code=502, content={"error": str(e)[:400]})
@@ -1146,8 +1142,7 @@ def api_post_reschedule(req: ManagePostRequest):
                      {"post_id": req.post_id,
                       "scheduled_publish_time": req.schedule_time},
                      account=acct["account"])
-        with _cache_lock:
-            _cache.clear()
+        cache_stale()
         return {"ok": True}
     except PipeError as e:
         return JSONResponse(status_code=502, content={"error": str(e)[:400]})
@@ -1312,6 +1307,33 @@ def api_integrations(fresh: bool = False):
 app.mount("/media", StaticFiles(directory=UPLOAD_DIR), name="media")
 app.mount("/", StaticFiles(directory=os.path.join(HERE, "static"), html=True),
           name="static")
+
+
+@app.middleware("http")
+async def _slow_log(request, call_next):
+    t0 = time.time()
+    resp = await call_next(request)
+    ms = (time.time() - t0) * 1000
+    if request.url.path.startswith("/api/") and ms > 500:
+        print(f"[slow] {request.method} {request.url.path} {ms:.0f}ms",
+              flush=True)
+    return resp
+
+
+@app.on_event("startup")
+def _warm_caches():
+    """Build every view's cache in the background at boot, so the first click
+    on each tab is instant instead of a Composio round trip."""
+    def warm():
+        for fn in (api_overview, api_insights, api_scheduled, api_library,
+                   api_stories, api_inbox, api_analytics, api_integrations):
+            try:
+                fn(fresh=False)
+            except Exception:
+                pass  # a failed warm just means that view builds on first use
+        print("[warm] all view caches ready", flush=True)
+    threading.Thread(target=warm, daemon=True).start()
+
 
 if __name__ == "__main__":
     import uvicorn

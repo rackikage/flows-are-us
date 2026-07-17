@@ -10,20 +10,12 @@ API calls anywhere).
 ## Run it
 
 ```bash
-python3 social-hub/server.py
-# → http://<your-lan-ip>:8787  (binds all interfaces)
+python3 social-hub/server.py        # or double-click flows.command
+# → http://localhost:8787
 ```
 
-**On a phone (iPhone or Samsung/Android):** open Integrations → "FLOWS on
-every phone" and scan the QR with the phone camera. Add to Home Screen
-(Safari) / Install (Chrome) and it runs as a standalone app. Anyone on the
-business Wi-Fi can do the same — that's the sharing model.
-
-CLI dashboard (same pipe):
-
-```bash
-python3 social-hub/hub.py
-```
+All view caches warm in the background at startup and refresh
+stale-while-revalidate, so every tab answers instantly after boot.
 
 ## Architecture
 
@@ -32,8 +24,7 @@ static/index.html   FLOWS UI — desktop sidebar+dock, phone bottom-tab PWA
 static/sw.js        offline shell (never caches /api — live data stays live)
 static/manifest.json + icons/    installable app identity
         │  fetch /api/*
-server.py           FastAPI — overview, insights, library, scheduled, qr, post
-qr.py               dependency-free QR encoder (SVG) for scan-to-open
+server.py           FastAPI — overview, insights, library, scheduled, post
         │  ComposioPipe.execute / execute_batch
 composio_pipe.py    MCP streamable-HTTP client → COMPOSIO_MULTI_EXECUTE_TOOL
         │
@@ -74,9 +65,8 @@ Add/remove accounts in `ACCOUNTS` at the top of `server.py`.
   and tagged mentions per Instagram account
 - **Scheduled** — the Facebook publish queue with move/remove controls
   (scheduling is FB-only; the IG Graph API has no native scheduling)
-- **Integrations** — live pipe health checks, managed-page inventory, the
-  phone install card (QR + steps for iPhone/Samsung), and the full
-  capability registry — every Composio tool marked live
+- **Integrations** — live pipe health checks, managed-page inventory, and the
+  full capability registry — every Composio tool marked live
 
 ## Composio tools used
 
